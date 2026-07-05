@@ -4,7 +4,7 @@ Tags: events, calendar, google calendar, ics, club
 Requires at least: 5.8
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -28,6 +28,8 @@ theme-adaptive frontend.
 
 == Shortcodes ==
 
+* `[club_events]` — the full Anlässe hub: search, view switcher (tiles / list
+  / timeline / calendar) and Subscribe (ICS).
 * `[club_events_tiles]` — blog-card style previews of the next events.
 * `[club_events_timeline]` — vertical timeline grouped by month.
 * `[club_events_overview]` — monthly calendar grid + list.
@@ -40,6 +42,14 @@ theme-adaptive frontend.
 * `[club_events_my_events]` — user event dashboard.
 
 == Changelog ==
+
+= 1.2.0 =
+* New [club_events] hub: search, view switch (tiles/list/timeline/calendar),
+  Subscribe (ICS), and a filter bar — a full "Anlässe" page in one shortcode.
+* Central timeline layout with events alternating left/right.
+* Backend management submenus for Categories, Event Types, and Tags.
+* Configurable Events page + option to hide the built-in /events archive.
+* Restyled Monday-first monthly calendar; all components Astra-aligned.
 
 = 1.1.0 =
 * Configurable event types with colour + Astra theme-colour fallback.

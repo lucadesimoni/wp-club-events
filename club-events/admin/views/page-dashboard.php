@@ -314,6 +314,10 @@
                     <span><?php esc_html_e( 'Responsive card grid', 'club-events' ); ?></span>
                 </div>
                 <div class="ce-shortcode-item-compact">
+                    <code>[club_events]</code>
+                    <span><?php esc_html_e( 'Full Anlässe hub: search + view switch + subscribe', 'club-events' ); ?></span>
+                </div>
+                <div class="ce-shortcode-item-compact">
                     <code>[club_events_tiles]</code>
                     <span><?php esc_html_e( 'Tiles preview, filterable by type', 'club-events' ); ?></span>
                 </div>

@@ -3,9 +3,17 @@
 All notable changes to **Club Events Manager** are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.2.0] — 2026-07-05
 
 ### Added
+- **`[club_events]` hub** — a complete "Anlässe" page in one shortcode/block:
+  a search box, a view switcher (tiles / list / timeline / calendar), a
+  Subscribe (ICS) button, and a category/type filter bar. Views are rendered
+  once and switched client-side; search and filter apply across views; the
+  chosen view is remembered.
+- **Central timeline** — `[club_events_timeline layout="center"]` renders a
+  central line with event cards alternating left and right (collapses to a
+  single rail on mobile). Also available as the hub's timeline view.
 - **Taxonomy management in the backend** — Categories, Event Types, and Tags
   now have their own submenus under *Club Events*, so terms can be added,
   renamed, and deleted freely (e.g. use Categories as Riegen: Jugend,
@@ -17,6 +25,13 @@ This project adheres to [Semantic Versioning](https://semver.org/).
   built-in `/events` archive.
 - **Hide built-in events archive** option — redirects `/events` to the chosen
   Events page so there is a single events index.
+
+### Changed
+- **Restyled the monthly calendar** (`[club_events_overview]`): clean rounded
+  day cells, a clear "today" highlight, pill-style event chips, and it now
+  honours the site's start-of-week with localized weekday names (Monday-first
+  for de-CH).
+- All new components inherit Astra (Pro) design tokens via the `--ce-*` bridge.
 
 ## [1.1.0] — 2026-06-29
 

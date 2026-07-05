@@ -12,6 +12,7 @@ class CE_Shortcodes {
         add_shortcode( 'club_events_yearly', [ $this, 'yearly' ] );
         add_shortcode( 'club_events_tiles', [ $this, 'tiles' ] );
         add_shortcode( 'club_events_share', [ $this, 'share' ] );
+        add_shortcode( 'club_events', [ $this, 'hub' ] );
 
         add_action( 'init', [ $this, 'register_blocks' ] );
     }
@@ -32,6 +33,7 @@ class CE_Shortcodes {
                 'limit'       => [ 'type' => 'number',  'default' => 20 ],
                 'show_past'   => [ 'type' => 'boolean', 'default' => false ],
                 'show_filter' => [ 'type' => 'boolean', 'default' => true ],
+                'layout'      => [ 'type' => 'string',  'default' => 'default' ],
             ],
         ] ) );
 
@@ -83,6 +85,23 @@ class CE_Shortcodes {
             ],
         ] ) );
 
+        register_block_type( 'club-events/hub', array_merge( $editor, [
+            'render_callback' => [ $this, 'hub' ],
+            'attributes'      => [
+                'category'       => [ 'type' => 'string',  'default' => '' ],
+                'event_type'     => [ 'type' => 'string',  'default' => '' ],
+                'filter_by'      => [ 'type' => 'string',  'default' => 'category' ],
+                'limit'          => [ 'type' => 'number',  'default' => 60 ],
+                'views'          => [ 'type' => 'string',  'default' => 'tiles,list,timeline,calendar' ],
+                'default'        => [ 'type' => 'string',  'default' => '' ],
+                'columns'        => [ 'type' => 'number',  'default' => 3 ],
+                'show_search'    => [ 'type' => 'boolean', 'default' => true ],
+                'show_filter'    => [ 'type' => 'boolean', 'default' => true ],
+                'show_subscribe' => [ 'type' => 'boolean', 'default' => true ],
+                'show_past'      => [ 'type' => 'boolean', 'default' => false ],
+            ],
+        ] ) );
+
         register_block_type( 'club-events/tiles', array_merge( $editor, [
             'render_callback' => [ $this, 'tiles' ],
             'attributes'      => [
@@ -129,7 +148,10 @@ class CE_Shortcodes {
             'limit'       => 20,
             'show_past'   => false,
             'show_filter' => true,
+            'layout'      => 'default',
         ], $atts, 'club_events_timeline' );
+
+        $is_center = 'center' === $atts['layout'];
 
         $query_args = [
             'posts_per_page' => (int) $atts['limit'],
@@ -159,7 +181,7 @@ class CE_Shortcodes {
 
         ob_start();
         ?>
-        <div class="ce-timeline-wrap" data-ce-component="timeline">
+        <div class="ce-timeline-wrap<?php echo $is_center ? ' ce-timeline-wrap--center' : ''; ?>" data-ce-component="timeline">
             <?php if ( ! empty( $atts['show_filter'] ) && ! is_wp_error( $filter_terms ) && count( $filter_terms ) > 1 ) : ?>
             <div class="ce-filter-bar">
                 <button class="ce-filter-btn active" data-category=""><?php esc_html_e( 'All', 'club-events' ); ?></button>
@@ -171,7 +193,7 @@ class CE_Shortcodes {
             </div>
             <?php endif; ?>
 
-            <div class="ce-timeline" id="ce-timeline">
+            <div class="ce-timeline<?php echo $is_center ? ' ce-timeline--center' : ''; ?>" id="ce-timeline">
                 <?php if ( empty( $events ) ) : ?>
                 <p class="ce-empty"><?php esc_html_e( 'No upcoming events.', 'club-events' ); ?></p>
                 <?php else : ?>
@@ -279,7 +301,8 @@ class CE_Shortcodes {
 
         $first_day   = mktime( 0, 0, 0, $month, 1, $year );
         $days_in_mon = (int) date( 't', $first_day );
-        $start_dow   = (int) date( 'N', $first_day ) % 7; // 0=Sun
+        $sow         = (int) get_option( 'start_of_week', 1 ); // 0=Sun, 1=Mon
+        $start_dow   = ( (int) date( 'w', $first_day ) - $sow + 7 ) % 7;
 
         $from = date( 'Y-m-d H:i:s', $first_day );
         $to   = date( 'Y-m-d H:i:s', mktime( 23, 59, 59, $month, $days_in_mon, $year ) );
@@ -336,8 +359,12 @@ class CE_Shortcodes {
 
             <div class="ce-calendar-grid">
                 <?php
-                $day_names = [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ];
-                foreach ( $day_names as $dn ) {
+                global $wp_locale;
+                for ( $i = 0; $i < 7; $i++ ) {
+                    $wd = ( $sow + $i ) % 7;
+                    $dn = ( $wp_locale instanceof WP_Locale )
+                        ? $wp_locale->get_weekday_abbrev( $wp_locale->get_weekday( $wd ) )
+                        : [ 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ][ $wd ];
                     echo '<div class="ce-cal-header">' . esc_html( $dn ) . '</div>';
                 }
 
@@ -773,84 +800,108 @@ class CE_Shortcodes {
             <p class="ce-empty"><?php esc_html_e( 'No upcoming events.', 'club-events' ); ?></p>
             <?php else : ?>
             <div class="ce-tiles">
-                <?php foreach ( $events as $event ) :
-                    $start_ts   = $event['start'] ? strtotime( $event['start'] ) : null;
-                    $end_ts     = $event['end']   ? strtotime( $event['end'] )   : null;
-                    $date_label = $start_ts ? date_i18n( 'j. F Y', $start_ts ) : '';
-                    $time_start = ( $start_ts && ! $event['allDay'] ) ? date_i18n( get_option( 'time_format' ), $start_ts ) : '';
-                    $time_end   = ( $end_ts   && ! $event['allDay'] ) ? date_i18n( get_option( 'time_format' ), $end_ts )   : '';
-                ?>
-                <div class="ce-tile-card"
-                   style="--ce-color:<?php echo esc_attr( $event['color'] ); ?>">
-
-                    <?php if ( ! empty( $atts['show_image'] ) && $event['thumbnail'] ) : ?>
-                    <div class="ce-tile-card-img">
-                        <img src="<?php echo esc_url( $event['thumbnail'] ); ?>"
-                             alt="<?php echo esc_attr( $event['title'] ); ?>"
-                             loading="lazy">
-                    </div>
-                    <?php elseif ( ! empty( $atts['show_image'] ) ) : ?>
-                    <div class="ce-tile-card-img ce-tile-card-img--placeholder">
-                        <div class="ce-tile-card-placeholder" style="background:linear-gradient(135deg,<?php echo esc_attr( $event['color'] ); ?> 0%,<?php echo esc_attr( $event['color'] ); ?>99 100%)">
-                            <svg viewBox="0 0 48 48" width="32" height="32" fill="none">
-                                <rect x="6" y="8" width="36" height="36" rx="4" stroke="rgba(255,255,255,.7)" stroke-width="2"/>
-                                <path d="M16 6v6M32 6v6M6 20h36" stroke="rgba(255,255,255,.7)" stroke-width="2" stroke-linecap="round"/>
-                                <rect x="14" y="26" width="8" height="8" rx="1" fill="rgba(255,255,255,.5)"/>
-                            </svg>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-
-                    <div class="ce-tile-card-body">
-                        <?php if ( $date_label ) : ?>
-                        <span class="ce-tile-card-date"><?php echo esc_html( strtoupper( $date_label ) ); ?></span>
-                        <?php endif; ?>
-
-                        <h3 class="ce-tile-card-title">
-                            <a href="<?php echo esc_url( $event['url'] ); ?>" class="ce-tile-card-link"><?php echo esc_html( $event['title'] ); ?></a>
-                        </h3>
-
-                        <?php if ( ! empty( $atts['show_time'] ) && $time_start ) : ?>
-                        <span class="ce-tile-card-time"><?php echo esc_html( $time_start ); ?><?php echo $time_end ? ' – ' . esc_html( $time_end ) : ''; ?></span>
-                        <?php endif; ?>
-
-                        <?php if ( ! empty( $atts['show_location'] ) && $event['location'] ) : ?>
-                        <span class="ce-tile-card-location"><?php echo esc_html( $event['location'] ); ?></span>
-                        <?php endif; ?>
-
-                        <?php if ( ! empty( $atts['show_excerpt'] ) && $event['excerpt'] ) : ?>
-                        <p class="ce-tile-card-excerpt"><?php echo esc_html( $event['excerpt'] ); ?></p>
-                        <?php endif; ?>
-
-                        <?php if ( ! empty( $atts['show_types'] ) && ! empty( $event['types'] ) ) : ?>
-                        <div class="ce-tile-card-types">
-                            <?php foreach ( $event['types'] as $type ) : ?>
-                            <span class="ce-type-badge" style="--ce-color:<?php echo esc_attr( $type['color'] ); ?>"><?php echo esc_html( $type['name'] ); ?></span>
-                            <?php endforeach; ?>
-                        </div>
-                        <?php endif; ?>
-
-                        <?php $show_actions = ! empty( $atts['show_share'] ) || ! empty( $atts['show_ics'] ); ?>
-                        <?php if ( $atts['cta'] || $show_actions ) : ?>
-                        <div class="ce-tile-card-footer">
-                            <?php if ( $atts['cta'] ) : ?>
-                            <a href="<?php echo esc_url( $event['url'] ); ?>" class="ce-tile-card-cta"><?php echo esc_html( $atts['cta'] ); ?> →</a>
-                            <?php endif; ?>
-                            <?php if ( $show_actions ) : ?>
-                            <?php echo self::event_actions( $event['url'], $event['title'], $event['ics'], [
-                                'ics'    => ! empty( $atts['show_ics'] ),
-                                'share'  => ! empty( $atts['show_share'] ),
-                                'labels' => false,
-                                'class'  => 'ce-actions--compact',
-                            ] ); ?>
-                            <?php endif; ?>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                <?php endforeach; ?>
+                <?php foreach ( $events as $event ) {
+                    echo self::render_tile_card( $event, $atts );
+                } ?>
             </div>
             <?php endif; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * Render a single event tile card. Shared by [club_events_tiles] and the
+     * [club_events] hub. Carries a data-search attribute for client-side
+     * filtering.
+     */
+    public static function render_tile_card( $event, $o = [] ) {
+        $o = wp_parse_args( $o, [
+            'show_image'    => true,
+            'show_excerpt'  => true,
+            'show_time'     => false,
+            'show_location' => false,
+            'show_types'    => false,
+            'show_share'    => false,
+            'show_ics'      => false,
+            'cta'           => __( 'Weiterlesen', 'club-events' ),
+        ] );
+
+        $start_ts   = $event['start'] ? strtotime( $event['start'] ) : null;
+        $end_ts     = $event['end']   ? strtotime( $event['end'] )   : null;
+        $date_label = $start_ts ? date_i18n( 'j. F Y', $start_ts ) : '';
+        $time_start = ( $start_ts && ! $event['allDay'] ) ? date_i18n( get_option( 'time_format' ), $start_ts ) : '';
+        $time_end   = ( $end_ts   && ! $event['allDay'] ) ? date_i18n( get_option( 'time_format' ), $end_ts )   : '';
+        $search     = strtolower( $event['title'] . ' ' . $event['location'] . ' ' . implode( ' ', array_column( $event['types'], 'name' ) ) . ' ' . implode( ' ', array_column( $event['categories'], 'name' ) ) );
+        $cat_slugs  = trim( implode( ' ', array_column( $event['categories'], 'slug' ) ) . ' ' . implode( ' ', array_column( $event['types'], 'slug' ) ) );
+
+        ob_start();
+        ?>
+        <div class="ce-tile-card" data-search="<?php echo esc_attr( $search ); ?>" data-category="<?php echo esc_attr( $cat_slugs ); ?>"
+           style="--ce-color:<?php echo esc_attr( $event['color'] ); ?>">
+
+            <?php if ( ! empty( $o['show_image'] ) && $event['thumbnail'] ) : ?>
+            <div class="ce-tile-card-img">
+                <img src="<?php echo esc_url( $event['thumbnail'] ); ?>" alt="<?php echo esc_attr( $event['title'] ); ?>" loading="lazy">
+            </div>
+            <?php elseif ( ! empty( $o['show_image'] ) ) : ?>
+            <div class="ce-tile-card-img ce-tile-card-img--placeholder">
+                <div class="ce-tile-card-placeholder" style="background:linear-gradient(135deg,<?php echo esc_attr( $event['color'] ); ?> 0%,<?php echo esc_attr( $event['color'] ); ?>99 100%)">
+                    <svg viewBox="0 0 48 48" width="32" height="32" fill="none">
+                        <rect x="6" y="8" width="36" height="36" rx="4" stroke="rgba(255,255,255,.7)" stroke-width="2"/>
+                        <path d="M16 6v6M32 6v6M6 20h36" stroke="rgba(255,255,255,.7)" stroke-width="2" stroke-linecap="round"/>
+                        <rect x="14" y="26" width="8" height="8" rx="1" fill="rgba(255,255,255,.5)"/>
+                    </svg>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <div class="ce-tile-card-body">
+                <?php if ( $date_label ) : ?>
+                <span class="ce-tile-card-date"><?php echo esc_html( strtoupper( $date_label ) ); ?></span>
+                <?php endif; ?>
+
+                <h3 class="ce-tile-card-title">
+                    <a href="<?php echo esc_url( $event['url'] ); ?>" class="ce-tile-card-link"><?php echo esc_html( $event['title'] ); ?></a>
+                </h3>
+
+                <?php if ( ! empty( $o['show_time'] ) && $time_start ) : ?>
+                <span class="ce-tile-card-time"><?php echo esc_html( $time_start ); ?><?php echo $time_end ? ' – ' . esc_html( $time_end ) : ''; ?></span>
+                <?php endif; ?>
+
+                <?php if ( ! empty( $o['show_location'] ) && $event['location'] ) : ?>
+                <span class="ce-tile-card-location"><?php echo esc_html( $event['location'] ); ?></span>
+                <?php endif; ?>
+
+                <?php if ( ! empty( $o['show_excerpt'] ) && $event['excerpt'] ) : ?>
+                <p class="ce-tile-card-excerpt"><?php echo esc_html( $event['excerpt'] ); ?></p>
+                <?php endif; ?>
+
+                <?php if ( ! empty( $o['show_types'] ) && ! empty( $event['types'] ) ) : ?>
+                <div class="ce-tile-card-types">
+                    <?php foreach ( $event['types'] as $type ) : ?>
+                    <span class="ce-type-badge" style="--ce-color:<?php echo esc_attr( $type['color'] ); ?>"><?php echo esc_html( $type['name'] ); ?></span>
+                    <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
+
+                <?php $show_actions = ! empty( $o['show_share'] ) || ! empty( $o['show_ics'] ); ?>
+                <?php if ( $o['cta'] || $show_actions ) : ?>
+                <div class="ce-tile-card-footer">
+                    <?php if ( $o['cta'] ) : ?>
+                    <a href="<?php echo esc_url( $event['url'] ); ?>" class="ce-tile-card-cta"><?php echo esc_html( $o['cta'] ); ?> →</a>
+                    <?php endif; ?>
+                    <?php if ( $show_actions ) {
+                        echo self::event_actions( $event['url'], $event['title'], $event['ics'], [
+                            'ics'    => ! empty( $o['show_ics'] ),
+                            'share'  => ! empty( $o['show_share'] ),
+                            'labels' => false,
+                            'class'  => 'ce-actions--compact',
+                        ] );
+                    } ?>
+                </div>
+                <?php endif; ?>
+            </div>
         </div>
         <?php
         return ob_get_clean();
@@ -928,6 +979,266 @@ class CE_Shortcodes {
         return self::event_actions( $url, $title, $ics, [
             'labels' => 'false' !== $atts['labels'],
         ] );
+    }
+
+    /**
+     * [club_events] — the events hub / "Anlässe" page. A search box, a view
+     * switcher (list / tiles / timeline / calendar), and a Subscribe (ICS)
+     * button. All views are rendered once and switched client-side; the search
+     * and filter bar apply across views. Astra-aligned via the --ce-* tokens.
+     */
+    public function hub( $atts = [], $content = '' ) {
+        $atts = is_array( $atts ) ? $atts : [];
+        $atts = shortcode_atts( [
+            'category'        => '',
+            'event_type'      => '',
+            'filter_by'       => 'category',
+            'limit'           => 60,
+            'views'           => 'tiles,list,timeline,calendar',
+            'default'         => '',
+            'show_search'     => true,
+            'show_filter'     => true,
+            'show_subscribe'  => true,
+            'show_past'       => false,
+            'columns'         => 3,
+        ], $atts, 'club_events' );
+
+        $allowed = [ 'tiles', 'list', 'timeline', 'calendar' ];
+        $views   = array_values( array_intersect(
+            array_map( 'trim', explode( ',', $atts['views'] ) ),
+            $allowed
+        ) );
+        if ( empty( $views ) ) {
+            $views = [ 'tiles' ];
+        }
+        $default_view = in_array( $atts['default'], $views, true ) ? $atts['default'] : $views[0];
+        $cols         = max( 1, min( 4, (int) $atts['columns'] ) );
+
+        // Query the events that feed the tiles / list / timeline views.
+        $query_args = [ 'posts_per_page' => (int) $atts['limit'] ];
+        if ( ! $atts['show_past'] ) {
+            $query_args['from'] = date( 'Y-m-d H:i:s' );
+        }
+        if ( $atts['event_type'] ) {
+            $query_args['event_type'] = array_map( 'trim', explode( ',', sanitize_text_field( $atts['event_type'] ) ) );
+        }
+        if ( $atts['category'] ) {
+            $query_args['tax_query'] = [ [
+                'taxonomy' => 'event_category',
+                'field'    => 'slug',
+                'terms'    => array_map( 'trim', explode( ',', sanitize_text_field( $atts['category'] ) ) ),
+            ] ];
+        }
+        $posts  = CE_CPT::get_events( $query_args );
+        $events = array_map( fn( $p ) => CE_CPT::format_event( $p->ID ), $posts );
+
+        $ics_url         = class_exists( 'CE_ICS_Export' ) ? CE_ICS_Export::get_feed_url() : '';
+        $filter_taxonomy = ( 'event_type' === $atts['filter_by'] ) ? 'event_type' : 'event_category';
+        $filter_terms    = get_terms( [ 'taxonomy' => $filter_taxonomy, 'hide_empty' => true ] );
+
+        $view_meta = [
+            'tiles'    => [ 'label' => __( 'Tiles', 'club-events' ),    'icon' => '<svg viewBox="0 0 20 20" width="18" height="18" fill="none"><rect x="2.5" y="2.5" width="6" height="6" rx="1.4" stroke="currentColor" stroke-width="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.4" stroke="currentColor" stroke-width="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.4" stroke="currentColor" stroke-width="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.4" stroke="currentColor" stroke-width="1.5"/></svg>' ],
+            'list'     => [ 'label' => __( 'List', 'club-events' ),     'icon' => '<svg viewBox="0 0 20 20" width="18" height="18" fill="none"><path d="M6 5h11M6 10h11M6 15h11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="3" cy="5" r="1" fill="currentColor"/><circle cx="3" cy="10" r="1" fill="currentColor"/><circle cx="3" cy="15" r="1" fill="currentColor"/></svg>' ],
+            'timeline' => [ 'label' => __( 'Timeline', 'club-events' ), 'icon' => '<svg viewBox="0 0 20 20" width="18" height="18" fill="none"><path d="M10 3v14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="10" cy="6" r="2" fill="currentColor"/><circle cx="10" cy="14" r="2" fill="currentColor"/><path d="M12 6h4M4 14h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>' ],
+            'calendar' => [ 'label' => __( 'Calendar', 'club-events' ), 'icon' => '<svg viewBox="0 0 20 20" width="18" height="18" fill="none"><rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v3M13 2v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>' ],
+        ];
+
+        ob_start();
+        ?>
+        <div class="ce-hub" data-ce-component="hub" data-default-view="<?php echo esc_attr( $default_view ); ?>">
+
+            <div class="ce-hub-toolbar">
+                <?php if ( ! empty( $atts['show_search'] ) ) : ?>
+                <div class="ce-hub-search">
+                    <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true"><circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.6"/><path d="M14 14l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                    <input type="search" class="ce-hub-search-input" placeholder="<?php esc_attr_e( 'Search events…', 'club-events' ); ?>" aria-label="<?php esc_attr_e( 'Search events', 'club-events' ); ?>">
+                </div>
+                <?php endif; ?>
+
+                <div class="ce-hub-tools">
+                    <?php if ( count( $views ) > 1 ) : ?>
+                    <div class="ce-view-switch" role="tablist" aria-label="<?php esc_attr_e( 'View', 'club-events' ); ?>">
+                        <?php foreach ( $views as $v ) : ?>
+                        <button type="button" class="ce-view-switch-btn<?php echo $v === $default_view ? ' active' : ''; ?>"
+                                data-view="<?php echo esc_attr( $v ); ?>" role="tab"
+                                aria-selected="<?php echo $v === $default_view ? 'true' : 'false'; ?>"
+                                title="<?php echo esc_attr( $view_meta[ $v ]['label'] ); ?>"
+                                aria-label="<?php echo esc_attr( $view_meta[ $v ]['label'] ); ?>">
+                            <?php echo $view_meta[ $v ]['icon']; // phpcs:ignore ?>
+                        </button>
+                        <?php endforeach; ?>
+                    </div>
+                    <?php endif; ?>
+
+                    <?php if ( ! empty( $atts['show_subscribe'] ) && $ics_url ) : ?>
+                    <a href="<?php echo esc_url( $ics_url ); ?>" class="ce-btn ce-btn-outline ce-hub-subscribe">
+                        <svg viewBox="0 0 20 20" width="16" height="16" fill="none"><rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M3 8h14M7 2v3M13 2v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M10 14v-3M8.5 12.5h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                        <?php esc_html_e( 'Subscribe (ICS)', 'club-events' ); ?>
+                    </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <?php if ( ! empty( $atts['show_filter'] ) && ! is_wp_error( $filter_terms ) && count( $filter_terms ) > 1 ) : ?>
+            <div class="ce-filter-bar ce-hub-filter">
+                <button type="button" class="ce-filter-btn active" data-category=""><?php esc_html_e( 'All', 'club-events' ); ?></button>
+                <?php foreach ( $filter_terms as $term ) : ?>
+                <button type="button" class="ce-filter-btn" data-category="<?php echo esc_attr( $term->slug ); ?>"><?php echo esc_html( $term->name ); ?></button>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+
+            <div class="ce-hub-views">
+                <?php foreach ( $views as $v ) : ?>
+                <div class="ce-hub-view ce-hub-view--<?php echo esc_attr( $v ); ?>" data-view="<?php echo esc_attr( $v ); ?>" <?php echo $v === $default_view ? '' : 'hidden'; ?>>
+                    <?php
+                    if ( 'tiles' === $v ) {
+                        echo '<div class="ce-tiles" style="--ce-tile-cols:' . esc_attr( $cols ) . '">';
+                        foreach ( $events as $event ) {
+                            echo self::render_tile_card( $event, [
+                                'show_image'    => true,
+                                'show_excerpt'  => false,
+                                'show_time'     => true,
+                                'show_location' => true,
+                                'show_types'    => true,
+                                'show_ics'      => true,
+                                'show_share'    => true,
+                            ] );
+                        }
+                        echo '</div>';
+                    } elseif ( 'list' === $v ) {
+                        echo self::render_hub_list( $events );
+                    } elseif ( 'timeline' === $v ) {
+                        echo self::render_timeline( $events, [ 'layout' => 'center', 'filter_by' => $atts['filter_by'] ] );
+                    } elseif ( 'calendar' === $v ) {
+                        echo do_shortcode( '[club_events_overview show_filter="false"]' );
+                    }
+                    ?>
+                </div>
+                <?php endforeach; ?>
+            </div>
+
+            <p class="ce-hub-empty" hidden><?php esc_html_e( 'No events match your search.', 'club-events' ); ?></p>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /** Compact list rows for the hub, each filterable via data-search/category. */
+    public static function render_hub_list( $events ) {
+        if ( empty( $events ) ) {
+            return '<p class="ce-empty">' . esc_html__( 'No upcoming events.', 'club-events' ) . '</p>';
+        }
+        ob_start();
+        echo '<ul class="ce-hub-list">';
+        foreach ( $events as $ev ) {
+            $ts       = $ev['start'] ? strtotime( $ev['start'] ) : null;
+            $day      = $ts ? date_i18n( 'd', $ts ) : '';
+            $mon      = $ts ? date_i18n( 'M', $ts ) : '';
+            $time     = ( $ts && ! $ev['allDay'] ) ? date_i18n( get_option( 'time_format' ), $ts ) : '';
+            $search   = strtolower( $ev['title'] . ' ' . $ev['location'] . ' ' . implode( ' ', array_column( $ev['types'], 'name' ) ) . ' ' . implode( ' ', array_column( $ev['categories'], 'name' ) ) );
+            $cats     = trim( implode( ' ', array_column( $ev['categories'], 'slug' ) ) . ' ' . implode( ' ', array_column( $ev['types'], 'slug' ) ) );
+            ?>
+            <li class="ce-hub-list-item" data-search="<?php echo esc_attr( $search ); ?>" data-category="<?php echo esc_attr( $cats ); ?>" style="--ce-color:<?php echo esc_attr( $ev['color'] ); ?>">
+                <span class="ce-hub-list-date">
+                    <span class="ce-hub-list-day"><?php echo esc_html( $day ); ?></span>
+                    <span class="ce-hub-list-mon"><?php echo esc_html( $mon ); ?></span>
+                </span>
+                <span class="ce-hub-list-body">
+                    <a href="<?php echo esc_url( $ev['url'] ); ?>" class="ce-hub-list-title"><?php echo esc_html( $ev['title'] ); ?></a>
+                    <span class="ce-hub-list-meta">
+                        <?php if ( $time ) : ?><span><?php echo esc_html( $time ); ?></span><?php endif; ?>
+                        <?php if ( $ev['location'] ) : ?><span><?php echo esc_html( $ev['location'] ); ?></span><?php endif; ?>
+                        <?php foreach ( $ev['types'] as $type ) : ?>
+                        <span class="ce-type-badge" style="--ce-color:<?php echo esc_attr( $type['color'] ); ?>"><?php echo esc_html( $type['name'] ); ?></span>
+                        <?php endforeach; ?>
+                    </span>
+                </span>
+                <span class="ce-hub-list-actions">
+                    <?php echo self::event_actions( $ev['url'], $ev['title'], $ev['ics'], [ 'labels' => false, 'class' => 'ce-actions--compact' ] ); ?>
+                </span>
+            </li>
+            <?php
+        }
+        echo '</ul>';
+        return ob_get_clean();
+    }
+
+    /**
+     * Render timeline items from an events array. Supports layout="center" for
+     * a central line with cards alternating left/right. Used by the hub and by
+     * [club_events_timeline].
+     */
+    public static function render_timeline( $events, $o = [] ) {
+        $o = wp_parse_args( $o, [ 'layout' => 'default', 'filter_by' => 'category' ] );
+        if ( empty( $events ) ) {
+            return '<p class="ce-empty">' . esc_html__( 'No upcoming events.', 'club-events' ) . '</p>';
+        }
+        $center = 'center' === $o['layout'];
+
+        ob_start();
+        echo '<div class="ce-timeline' . ( $center ? ' ce-timeline--center' : '' ) . '">';
+        $current_month = '';
+        foreach ( $events as $event ) {
+            $month = $event['start'] ? date_i18n( 'F Y', strtotime( $event['start'] ) ) : '';
+            if ( $month !== $current_month ) {
+                if ( $current_month ) {
+                    echo '</div>';
+                }
+                $current_month = $month;
+                echo '<div class="ce-month-group" data-month="' . esc_attr( $month ) . '">';
+                echo '<h3 class="ce-month-label">' . esc_html( $month ) . '</h3>';
+            }
+
+            $filter_slugs = ( 'event_type' === $o['filter_by'] )
+                ? implode( ' ', array_column( $event['types'], 'slug' ) )
+                : implode( ' ', array_column( $event['categories'], 'slug' ) );
+            $all_slugs = trim( implode( ' ', array_column( $event['categories'], 'slug' ) ) . ' ' . implode( ' ', array_column( $event['types'], 'slug' ) ) );
+            $search    = strtolower( $event['title'] . ' ' . $event['location'] . ' ' . implode( ' ', array_column( $event['types'], 'name' ) ) . ' ' . implode( ' ', array_column( $event['categories'], 'name' ) ) );
+            $ts        = $event['start'] ? strtotime( $event['start'] ) : null;
+            $time      = ( $ts && ! $event['allDay'] ) ? date_i18n( get_option( 'time_format' ), $ts ) : '';
+            ?>
+            <div class="ce-timeline-item" data-category="<?php echo esc_attr( $center ? $all_slugs : $filter_slugs ); ?>" data-search="<?php echo esc_attr( $search ); ?>" style="--ce-color: <?php echo esc_attr( $event['color'] ); ?>">
+                <div class="ce-timeline-dot"></div>
+                <div class="ce-timeline-content">
+                    <div class="ce-timeline-date">
+                        <?php if ( $ts ) : ?>
+                        <span class="ce-day"><?php echo esc_html( date_i18n( 'd', $ts ) ); ?></span>
+                        <span class="ce-weekday"><?php echo esc_html( date_i18n( 'D', $ts ) ); ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="ce-timeline-body">
+                        <h4 class="ce-event-title"><a href="<?php echo esc_url( $event['url'] ); ?>"><?php echo esc_html( $event['title'] ); ?></a></h4>
+                        <div class="ce-event-meta">
+                            <?php if ( $time ) : ?>
+                            <span class="ce-meta-item ce-meta-time">
+                                <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" stroke="currentColor" fill="none"/><path d="M8 4v4l3 2" stroke="currentColor" stroke-linecap="round"/></svg>
+                                <?php echo esc_html( $time ); ?>
+                            </span>
+                            <?php endif; ?>
+                            <?php if ( $event['location'] ) : ?>
+                            <span class="ce-meta-item ce-meta-location">
+                                <svg viewBox="0 0 16 16"><path d="M8 1a5 5 0 0 1 5 5c0 4-5 9-5 9S3 10 3 6a5 5 0 0 1 5-5z" stroke="currentColor" fill="none"/><circle cx="8" cy="6" r="1.5" fill="currentColor"/></svg>
+                                <?php echo esc_html( $event['location'] ); ?>
+                            </span>
+                            <?php endif; ?>
+                            <?php foreach ( $event['types'] as $type ) : ?>
+                            <span class="ce-meta-item ce-type-badge" style="--ce-color:<?php echo esc_attr( $type['color'] ); ?>"><?php echo esc_html( $type['name'] ); ?></span>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php if ( $event['excerpt'] ) : ?>
+                        <p class="ce-event-excerpt"><?php echo esc_html( $event['excerpt'] ); ?></p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+            <?php
+        }
+        if ( $current_month ) {
+            echo '</div>';
+        }
+        echo '</div>';
+        return ob_get_clean();
     }
 
     public function subscribe_form( $atts = [] ) {

@@ -2,6 +2,93 @@
 (function () {
   'use strict';
 
+  /* ─── Events Hub: search + view switch + filter ───────────────────────── */
+  document.querySelectorAll('.ce-hub').forEach(function (hub) {
+    var searchInput = hub.querySelector('.ce-hub-search-input');
+    var switchBtns  = hub.querySelectorAll('.ce-view-switch-btn');
+    var views       = hub.querySelectorAll('.ce-hub-view');
+    var filterBtns  = hub.querySelectorAll('.ce-hub-filter .ce-filter-btn');
+    var emptyMsg    = hub.querySelector('.ce-hub-empty');
+    var storeKey    = 'ce_hub_view';
+    var state = { q: '', category: '' };
+
+    // Restore saved view.
+    try {
+      var saved = localStorage.getItem(storeKey);
+      if (saved && hub.querySelector('.ce-hub-view[data-view="' + saved + '"]')) {
+        setView(saved);
+      }
+    } catch (e) {}
+
+    function setView(view) {
+      var found = false;
+      views.forEach(function (v) {
+        var on = v.dataset.view === view;
+        v.hidden = !on;
+        if (on) found = true;
+      });
+      if (!found) return;
+      switchBtns.forEach(function (b) {
+        var on = b.dataset.view === view;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      try { localStorage.setItem(storeKey, view); } catch (e) {}
+      applyFilter();
+    }
+
+    function matches(el) {
+      if (state.q) {
+        var hay = (el.getAttribute('data-search') || '').toLowerCase();
+        if (hay.indexOf(state.q) === -1) return false;
+      }
+      if (state.category) {
+        var cats = (el.getAttribute('data-category') || '').split(/\s+/);
+        if (cats.indexOf(state.category) === -1) return false;
+      }
+      return true;
+    }
+
+    function applyFilter() {
+      var items = hub.querySelectorAll('[data-search], [data-category]');
+      items.forEach(function (el) {
+        // Only filter leaf event items, not containers.
+        if (!el.matches('.ce-tile-card, .ce-hub-list-item, .ce-timeline-item, .ce-cal-event')) return;
+        el.classList.toggle('ce-filtered-out', !matches(el));
+      });
+      // Hide now-empty month groups in the timeline view.
+      hub.querySelectorAll('.ce-month-group').forEach(function (g) {
+        var any = g.querySelector('.ce-timeline-item:not(.ce-filtered-out)');
+        g.classList.toggle('ce-filtered-out', !any);
+      });
+      // Empty message for the active view.
+      if (emptyMsg) {
+        var active = hub.querySelector('.ce-hub-view:not([hidden])');
+        var visible = active ? active.querySelector('.ce-tile-card:not(.ce-filtered-out), .ce-hub-list-item:not(.ce-filtered-out), .ce-timeline-item:not(.ce-filtered-out), .ce-cal-event:not(.ce-filtered-out)') : null;
+        var hasSearchable = active && active.querySelector('[data-search]');
+        emptyMsg.hidden = !!visible || !hasSearchable;
+      }
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', function () {
+        state.q = searchInput.value.trim().toLowerCase();
+        applyFilter();
+      });
+    }
+    switchBtns.forEach(function (b) {
+      b.addEventListener('click', function () { setView(b.dataset.view); });
+    });
+    filterBtns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        filterBtns.forEach(function (x) { x.classList.remove('active'); });
+        b.classList.add('active');
+        state.category = b.dataset.category || '';
+        applyFilter();
+      });
+    });
+  });
+
   /* ─── Filter bar ──────────────────────────────────────────────────────── */
   document.addEventListener('click', function (e) {
     var btn = e.target.closest('.ce-filter-btn');
