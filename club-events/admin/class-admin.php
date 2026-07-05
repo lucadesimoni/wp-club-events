@@ -29,6 +29,9 @@ class CE_Admin {
 
         add_submenu_page( 'club-events', __( 'All Events', 'club-events' ), __( 'All Events', 'club-events' ), 'edit_posts', 'edit.php?post_type=club_event' );
         add_submenu_page( 'club-events', __( 'Add Event', 'club-events' ), __( 'Add Event', 'club-events' ), 'edit_posts', 'post-new.php?post_type=club_event' );
+        add_submenu_page( 'club-events', __( 'Categories (Riegen)', 'club-events' ), __( 'Categories', 'club-events' ), 'manage_categories', 'edit-tags.php?taxonomy=event_category&post_type=club_event' );
+        add_submenu_page( 'club-events', __( 'Event Types', 'club-events' ), __( 'Event Types', 'club-events' ), 'manage_categories', 'edit-tags.php?taxonomy=event_type&post_type=club_event' );
+        add_submenu_page( 'club-events', __( 'Tags', 'club-events' ), __( 'Tags', 'club-events' ), 'manage_categories', 'edit-tags.php?taxonomy=event_tag&post_type=club_event' );
         add_submenu_page( 'club-events', __( 'Google Calendars', 'club-events' ), __( 'Google Calendars', 'club-events' ), 'manage_options', 'ce-calendars', [ $this, 'page_calendars' ] );
         add_submenu_page( 'club-events', __( 'Subscribers', 'club-events' ), __( 'Subscribers', 'club-events' ), 'manage_options', 'ce-subscribers', [ $this, 'page_subscribers' ] );
         add_submenu_page( 'club-events', __( 'Settings', 'club-events' ), __( 'Settings', 'club-events' ), 'manage_options', 'ce-settings', [ $this, 'page_settings' ] );
@@ -70,6 +73,8 @@ class CE_Admin {
             'ce_self_service_enabled',
             'ce_self_service_role',
             'ce_self_service_auto_publish_role',
+            'ce_events_page',
+            'ce_hide_archive',
         ];
         foreach ( $options as $opt ) {
             register_setting( 'ce_settings', $opt, [ 'sanitize_callback' => 'sanitize_text_field' ] );
@@ -89,6 +94,8 @@ class CE_Admin {
             'ce_self_service_enabled'    => isset( $_POST['ce_self_service_enabled'] ) ? '1' : '0',
             'ce_self_service_role'       => sanitize_text_field( $_POST['ce_self_service_role'] ?? 'subscriber' ),
             'ce_self_service_auto_publish_role' => sanitize_text_field( $_POST['ce_self_service_auto_publish_role'] ?? 'editor' ),
+            'ce_events_page'             => (string) max( 0, (int) ( $_POST['ce_events_page'] ?? 0 ) ),
+            'ce_hide_archive'            => isset( $_POST['ce_hide_archive'] ) ? '1' : '0',
         ];
 
         foreach ( $settings as $key => $value ) {

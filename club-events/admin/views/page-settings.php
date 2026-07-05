@@ -14,6 +14,38 @@
         <?php wp_nonce_field( 'ce_save_settings' ); ?>
 
         <div class="ce-card">
+            <div class="ce-card-header"><h2><?php esc_html_e( 'Events Page & Display', 'club-events' ); ?></h2></div>
+
+            <div class="ce-form-row">
+                <label for="ce_events_page"><?php esc_html_e( 'Events Page', 'club-events' ); ?></label>
+                <?php
+                wp_dropdown_pages( [
+                    'name'              => 'ce_events_page',
+                    'id'                => 'ce_events_page',
+                    'selected'          => (int) get_option( 'ce_events_page', 0 ),
+                    'show_option_none'  => __( '— Use built-in events archive —', 'club-events' ),
+                    'option_none_value' => 0,
+                    'class'             => 'regular-text',
+                ] );
+                ?>
+                <p class="description">
+                    <?php esc_html_e( 'Pick an existing page (e.g. your "Anlässe" page that already lists all events with a shortcode). Event links and the "All Events" back-link will point here instead of the built-in /events archive.', 'club-events' ); ?>
+                </p>
+            </div>
+
+            <div class="ce-form-row">
+                <label class="ce-checkbox-label">
+                    <input type="checkbox" name="ce_hide_archive" value="1"
+                           <?php checked( get_option( 'ce_hide_archive', '0' ), '1' ); ?>>
+                    <?php esc_html_e( 'Hide the built-in events archive', 'club-events' ); ?>
+                </label>
+                <p class="description">
+                    <?php esc_html_e( 'Redirects the /events archive to the selected Events Page above, so there is only one events index. (Requires an Events Page to be selected.)', 'club-events' ); ?>
+                </p>
+            </div>
+        </div>
+
+        <div class="ce-card">
             <div class="ce-card-header"><h2><?php esc_html_e( 'ICS / Calendar Feed', 'club-events' ); ?></h2></div>
 
             <div class="ce-form-row">

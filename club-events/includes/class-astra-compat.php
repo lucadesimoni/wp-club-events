@@ -561,7 +561,7 @@ class CE_Astra_Compat {
             return $items;
         }
 
-        $archive_url   = get_post_type_archive_link( 'club_event' );
+        $archive_url   = CE_CPT::archive_url();
         $archive_label = __( 'Events', 'club-events' );
 
         $trail = [

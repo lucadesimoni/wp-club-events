@@ -3,6 +3,21 @@
 All notable changes to **Club Events Manager** are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+- **Taxonomy management in the backend** — Categories, Event Types, and Tags
+  now have their own submenus under *Club Events*, so terms can be added,
+  renamed, and deleted freely (e.g. use Categories as Riegen: Jugend,
+  Aktivriege, Männerriege, Frauenriege, Gesamtverein, Extern). Events can be
+  assigned to multiple categories and multiple event types.
+- **Configurable Events page** (Settings → Events Page & Display): pick an
+  existing page (e.g. an "Anlässe" page that already lists all events) as the
+  events index. Event back-links and breadcrumbs point there instead of the
+  built-in `/events` archive.
+- **Hide built-in events archive** option — redirects `/events` to the chosen
+  Events page so there is a single events index.
+
 ## [1.1.0] — 2026-06-29
 
 ### Added

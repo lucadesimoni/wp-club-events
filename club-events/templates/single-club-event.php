@@ -186,7 +186,7 @@ if ( $is_astra ) {
     </div>
 
     <div class="ce-event-footer">
-        <a href="<?php echo esc_url( get_post_type_archive_link( 'club_event' ) ); ?>" class="ce-back-link">
+        <a href="<?php echo esc_url( CE_CPT::archive_url() ); ?>" class="ce-back-link">
             ← <?php esc_html_e( 'All Events', 'club-events' ); ?>
         </a>
     </div>

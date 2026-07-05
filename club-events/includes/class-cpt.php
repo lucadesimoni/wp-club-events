@@ -13,6 +13,38 @@ class CE_CPT {
         add_filter( 'manage_edit-club_event_sortable_columns', [ $this, 'sortable_columns' ] );
         add_action( 'pre_get_posts', [ $this, 'default_sort' ] );
         add_filter( 'template_include', [ $this, 'load_template' ] );
+        add_action( 'template_redirect', [ $this, 'maybe_redirect_archive' ] );
+    }
+
+    /**
+     * URL of the events index. Uses the admin-selected "Events page" (e.g. an
+     * existing "Anlässe" page) when configured, otherwise the built-in
+     * post-type archive.
+     */
+    public static function archive_url() {
+        $page_id = (int) get_option( 'ce_events_page', 0 );
+        if ( $page_id && 'publish' === get_post_status( $page_id ) ) {
+            return get_permalink( $page_id );
+        }
+        return get_post_type_archive_link( 'club_event' );
+    }
+
+    /**
+     * When the built-in archive is hidden and an Events page is set, redirect
+     * the /events archive to that page so there is a single events index.
+     */
+    public function maybe_redirect_archive() {
+        if ( ! is_post_type_archive( 'club_event' ) ) {
+            return;
+        }
+        if ( '1' !== get_option( 'ce_hide_archive', '0' ) ) {
+            return;
+        }
+        $page_id = (int) get_option( 'ce_events_page', 0 );
+        if ( $page_id && 'publish' === get_post_status( $page_id ) ) {
+            wp_safe_redirect( get_permalink( $page_id ), 302 );
+            exit;
+        }
     }
 
     public function register_post_type() {

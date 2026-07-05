@@ -284,7 +284,7 @@
                     <span class="dashicons dashicons-download"></span>
                     <?php esc_html_e( 'ICS Feed', 'club-events' ); ?>
                 </a>
-                <a href="<?php echo esc_url( home_url( '/events' ) ); ?>" target="_blank" class="ce-quick-btn">
+                <a href="<?php echo esc_url( CE_CPT::archive_url() ); ?>" target="_blank" class="ce-quick-btn">
                     <span class="dashicons dashicons-visibility"></span>
                     <?php esc_html_e( 'View Events Page', 'club-events' ); ?>
                 </a>
