@@ -284,7 +284,7 @@
                     <span class="dashicons dashicons-download"></span>
                     <?php esc_html_e( 'ICS Feed', 'club-events' ); ?>
                 </a>
-                <a href="<?php echo esc_url( home_url( '/events' ) ); ?>" target="_blank" class="ce-quick-btn">
+                <a href="<?php echo esc_url( CE_CPT::archive_url() ); ?>" target="_blank" class="ce-quick-btn">
                     <span class="dashicons dashicons-visibility"></span>
                     <?php esc_html_e( 'View Events Page', 'club-events' ); ?>
                 </a>
@@ -314,8 +314,16 @@
                     <span><?php esc_html_e( 'Responsive card grid', 'club-events' ); ?></span>
                 </div>
                 <div class="ce-shortcode-item-compact">
+                    <code>[club_events]</code>
+                    <span><?php esc_html_e( 'Full Anlässe hub: search + view switch + subscribe', 'club-events' ); ?></span>
+                </div>
+                <div class="ce-shortcode-item-compact">
                     <code>[club_events_tiles]</code>
                     <span><?php esc_html_e( 'Tiles preview, filterable by type', 'club-events' ); ?></span>
+                </div>
+                <div class="ce-shortcode-item-compact">
+                    <code>[club_events_share]</code>
+                    <span><?php esc_html_e( 'Share buttons (WhatsApp, FB, mail, copy)', 'club-events' ); ?></span>
                 </div>
                 <div class="ce-shortcode-item-compact">
                     <code>[club_events_yearly]</code>

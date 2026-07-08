@@ -29,6 +29,9 @@ class CE_Admin {
 
         add_submenu_page( 'club-events', __( 'All Events', 'club-events' ), __( 'All Events', 'club-events' ), 'edit_posts', 'edit.php?post_type=club_event' );
         add_submenu_page( 'club-events', __( 'Add Event', 'club-events' ), __( 'Add Event', 'club-events' ), 'edit_posts', 'post-new.php?post_type=club_event' );
+        add_submenu_page( 'club-events', __( 'Categories (Riegen)', 'club-events' ), __( 'Categories', 'club-events' ), 'manage_categories', 'edit-tags.php?taxonomy=event_category&post_type=club_event' );
+        add_submenu_page( 'club-events', __( 'Event Types', 'club-events' ), __( 'Event Types', 'club-events' ), 'manage_categories', 'edit-tags.php?taxonomy=event_type&post_type=club_event' );
+        add_submenu_page( 'club-events', __( 'Tags', 'club-events' ), __( 'Tags', 'club-events' ), 'manage_categories', 'edit-tags.php?taxonomy=event_tag&post_type=club_event' );
         add_submenu_page( 'club-events', __( 'Google Calendars', 'club-events' ), __( 'Google Calendars', 'club-events' ), 'manage_options', 'ce-calendars', [ $this, 'page_calendars' ] );
         add_submenu_page( 'club-events', __( 'Subscribers', 'club-events' ), __( 'Subscribers', 'club-events' ), 'manage_options', 'ce-subscribers', [ $this, 'page_subscribers' ] );
         add_submenu_page( 'club-events', __( 'Settings', 'club-events' ), __( 'Settings', 'club-events' ), 'manage_options', 'ce-settings', [ $this, 'page_settings' ] );
@@ -70,6 +73,8 @@ class CE_Admin {
             'ce_self_service_enabled',
             'ce_self_service_role',
             'ce_self_service_auto_publish_role',
+            'ce_events_page',
+            'ce_hide_archive',
         ];
         foreach ( $options as $opt ) {
             register_setting( 'ce_settings', $opt, [ 'sanitize_callback' => 'sanitize_text_field' ] );
@@ -89,6 +94,8 @@ class CE_Admin {
             'ce_self_service_enabled'    => isset( $_POST['ce_self_service_enabled'] ) ? '1' : '0',
             'ce_self_service_role'       => sanitize_text_field( $_POST['ce_self_service_role'] ?? 'subscriber' ),
             'ce_self_service_auto_publish_role' => sanitize_text_field( $_POST['ce_self_service_auto_publish_role'] ?? 'editor' ),
+            'ce_events_page'             => (string) max( 0, (int) ( $_POST['ce_events_page'] ?? 0 ) ),
+            'ce_hide_archive'            => isset( $_POST['ce_hide_archive'] ) ? '1' : '0',
         ];
 
         foreach ( $settings as $key => $value ) {
@@ -175,9 +182,13 @@ class CE_Admin {
             wp_send_json_error( 'Insufficient permissions.' );
         }
 
-        $term_id = (int) ( $_POST['term_id'] ?? 0 );
-        $name    = sanitize_text_field( $_POST['name'] ?? '' );
-        $color   = sanitize_hex_color( $_POST['color'] ?? '' ) ?: '#3b82f6';
+        $term_id     = (int) ( $_POST['term_id'] ?? 0 );
+        $name        = sanitize_text_field( $_POST['name'] ?? '' );
+        $use_theme   = ! empty( $_POST['theme_color'] );
+        // Empty stored colour = "use theme" → frontend resolves to var(--ce-primary).
+        $color       = $use_theme ? '' : ( sanitize_hex_color( $_POST['color'] ?? '' ) ?: '#3b82f6' );
+        // What the frontend/admin should render for this type right now.
+        $display     = $color ?: 'var(--ce-primary)';
 
         if ( empty( $name ) ) {
             wp_send_json_error( __( 'Name is required.', 'club-events' ) );
@@ -191,12 +202,13 @@ class CE_Admin {
             update_term_meta( $term_id, '_ce_color', $color );
             $term = get_term( $term_id, 'event_type' );
             wp_send_json_success( [
-                'action'  => 'updated',
-                'term_id' => $term_id,
-                'name'    => $term->name,
-                'slug'    => $term->slug,
-                'color'   => $color,
-                'count'   => $term->count,
+                'action'   => 'updated',
+                'term_id'  => $term_id,
+                'name'     => $term->name,
+                'slug'     => $term->slug,
+                'color'    => $display,
+                'is_theme' => $use_theme,
+                'count'    => $term->count,
             ] );
         } else {
             $result = wp_insert_term( $name, 'event_type' );
@@ -207,12 +219,13 @@ class CE_Admin {
             update_term_meta( $new_id, '_ce_color', $color );
             $term = get_term( $new_id, 'event_type' );
             wp_send_json_success( [
-                'action'  => 'created',
-                'term_id' => $new_id,
-                'name'    => $term->name,
-                'slug'    => $term->slug,
-                'color'   => $color,
-                'count'   => 0,
+                'action'   => 'created',
+                'term_id'  => $new_id,
+                'name'     => $term->name,
+                'slug'     => $term->slug,
+                'color'    => $display,
+                'is_theme' => $use_theme,
+                'count'    => 0,
             ] );
         }
     }
@@ -250,7 +263,12 @@ class CE_Admin {
             $event_types = [];
         }
         foreach ( $event_types as $et ) {
-            $et->color = get_term_meta( $et->term_id, '_ce_color', true ) ?: '#3b82f6';
+            $raw            = get_term_meta( $et->term_id, '_ce_color', true );
+            $et->is_theme   = empty( $raw );
+            // Stored colour for the picker; theme types fall back to the plugin
+            // default in wp-admin (Astra vars aren't loaded here).
+            $et->color      = $raw ?: '';
+            $et->display    = $raw ?: 'var(--ce-primary)';
         }
         require CE_PLUGIN_DIR . 'admin/views/page-calendars.php';
     }

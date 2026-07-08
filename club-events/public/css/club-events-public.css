@@ -262,74 +262,78 @@
 .ce-calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 1px;
-  background: var(--ce-border);
-  border: 1px solid var(--ce-border);
-  border-radius: var(--ce-radius);
-  overflow: hidden;
+  gap: 6px;
   margin-bottom: 32px;
 }
 .ce-cal-header {
-  background: var(--ce-bg);
   text-align: center;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .06em;
   color: var(--ce-text-muted);
-  padding: 10px 4px;
+  padding: 4px 4px 10px;
 }
 .ce-cal-day {
   background: var(--ce-white);
-  min-height: 80px;
-  padding: 6px;
+  min-height: 96px;
+  padding: 8px;
   position: relative;
-  transition: background var(--ce-transition);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--ce-border);
+  border-radius: var(--ce-radius-sm);
+  transition: border-color var(--ce-transition), box-shadow var(--ce-transition);
 }
-.ce-cal-day:hover { background: var(--ce-bg); }
-.ce-cal-empty { background: var(--ce-bg); }
+.ce-cal-day:not(.ce-cal-empty):hover {
+  border-color: color-mix(in srgb, var(--ce-primary) 40%, var(--ce-border));
+  box-shadow: var(--ce-shadow);
+}
+.ce-cal-empty { background: transparent; border-color: transparent; min-height: 0; }
+.ce-cal-today {
+  border-color: var(--ce-primary);
+  box-shadow: 0 0 0 1px var(--ce-primary);
+}
 .ce-cal-today .ce-cal-day-num {
   background: var(--ce-primary);
   color: var(--ce-white);
-  border-radius: 50%;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 .ce-cal-day-num {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--ce-text);
-  margin-bottom: 4px;
-  display: inline-block;
-  width: 24px;
+  align-self: flex-start;
+  min-width: 24px;
   height: 24px;
   line-height: 24px;
   text-align: center;
   border-radius: 50%;
+  padding: 0 4px;
 }
-.ce-cal-events { display: flex; flex-direction: column; gap: 2px; }
+.ce-cal-events { display: flex; flex-direction: column; gap: 3px; }
 .ce-cal-event {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 11px;
-  font-weight: 500;
-  color: var(--ce-text);
+  font-weight: 600;
+  color: color-mix(in srgb, var(--ce-color) 82%, #000);
   text-decoration: none;
-  padding: 2px 4px;
-  border-radius: 3px;
-  background: color-mix(in srgb, var(--ce-color) 12%, transparent);
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ce-color) 14%, #fff);
   overflow: hidden;
   white-space: nowrap;
-  transition: background var(--ce-transition);
+  transition: background var(--ce-transition), transform var(--ce-transition);
 }
-.ce-cal-event:hover { background: color-mix(in srgb, var(--ce-color) 25%, transparent); }
+.ce-cal-event:hover {
+  background: color-mix(in srgb, var(--ce-color) 26%, #fff);
+  transform: translateX(1px);
+}
 .ce-cal-event-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--ce-color);
   flex-shrink: 0;
@@ -670,6 +674,7 @@
 }
 
 .ce-card-item {
+  position: relative;
   background: var(--ce-white);
   border: 1px solid var(--ce-border);
   border-radius: var(--ce-radius);
@@ -692,6 +697,15 @@
   text-decoration: none;
   color: inherit;
 }
+/* Stretched title link makes the whole card clickable; footer actions sit above. */
+.ce-card-link { color: inherit; text-decoration: none; }
+.ce-card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.ce-card-footer { position: relative; z-index: 2; }
 
 /* Image / placeholder area */
 .ce-card-img {
@@ -853,108 +867,374 @@
 }
 .ce-card-ics svg { stroke: currentColor; fill: none; }
 
-/* ─── Tiles (homepage/embed) ─────────────────────────────────────────────── */
+/* ─── Tiles (homepage/embed — blog-card style) ──────────────────────────── */
 .ce-tiles-wrap { }
 .ce-tiles {
   display: grid;
   grid-template-columns: repeat(var(--ce-tile-cols, 3), 1fr);
-  gap: 20px;
+  gap: 28px;
 }
 .ce-tile-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   text-decoration: none;
   color: inherit;
   background: var(--ce-white);
-  border: 1px solid var(--ce-border);
   border-radius: var(--ce-radius);
   overflow: hidden;
-  transition: box-shadow var(--ce-transition), border-color var(--ce-transition), transform var(--ce-transition);
+  box-shadow: var(--ce-shadow);
+  transition: box-shadow .3s ease, transform .3s ease;
 }
 .ce-tile-card:hover {
-  border-color: var(--ce-color);
   box-shadow: var(--ce-shadow-md);
-  transform: translateY(-3px);
+  transform: translateY(-4px);
+}
+/* The title link stretches over the whole card so the card is clickable,
+   while action buttons (z-index above) stay independently clickable. */
+.ce-tile-card-link { color: inherit; text-decoration: none; }
+.ce-tile-card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
 }
 
-.ce-tile-card-img { position: relative; overflow: hidden; aspect-ratio: 16/9; }
-.ce-tile-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
-.ce-tile-card:hover .ce-tile-card-img img { transform: scale(1.04); }
+/* Image */
+.ce-tile-card-img { position: relative; overflow: hidden; }
+.ce-tile-card-img img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  transition: transform .5s ease;
+}
+.ce-tile-card:hover .ce-tile-card-img img { transform: scale(1.05); }
 .ce-tile-card-img--placeholder { }
 .ce-tile-card-placeholder {
   width: 100%;
-  height: 100%;
+  aspect-ratio: 16/9;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+/* Body */
 .ce-tile-card-body {
-  padding: 16px;
+  padding: 24px 28px 28px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   flex: 1;
 }
+
+/* Date label — small caps above the title */
 .ce-tile-card-date {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: color-mix(in srgb, var(--ce-color) 12%, transparent);
-  border-radius: var(--ce-radius-sm);
-  padding: 3px 10px;
-  align-self: flex-start;
-}
-.ce-tile-card-day {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--ce-color);
-  line-height: 1;
-}
-.ce-tile-card-month {
-  font-size: 11px;
-  font-weight: 700;
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .06em;
   text-transform: uppercase;
-  letter-spacing: .04em;
   color: var(--ce-text-muted);
+  margin-bottom: 10px;
 }
 
+/* Title with underline accent */
 .ce-tile-card-title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--ce-text);
   line-height: 1.35;
-  margin: 0;
+  margin: 0 0 12px;
+  padding-bottom: 14px;
+  border-bottom: 3px solid var(--ce-color, var(--ce-primary));
+  display: inline;
+  align-self: flex-start;
 }
 .ce-tile-card:hover .ce-tile-card-title { color: var(--ce-primary); }
 
-.ce-tile-card-meta { display: flex; flex-direction: column; gap: 4px; }
-.ce-tile-card-meta-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+/* Time + location meta */
+.ce-tile-card-time,
+.ce-tile-card-location {
+  display: block;
   font-size: 13px;
   color: var(--ce-text-muted);
+  margin-top: 4px;
 }
-.ce-tile-card-meta-row svg { flex-shrink: 0; color: var(--ce-text-muted); }
 
+/* Excerpt */
 .ce-tile-card-excerpt {
-  font-size: 13px;
-  color: var(--ce-text-muted);
-  line-height: 1.5;
-  margin: 0;
+  font-size: 14px;
+  color: var(--ce-text);
+  line-height: 1.65;
+  margin: 14px 0 0;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
+/* Type badges */
 .ce-tile-card-types {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin-top: auto;
+  gap: 6px;
+  margin-top: 14px;
 }
+
+/* Footer row — CTA + share/ics. Sits above the stretched title overlay. */
+.ce-tile-card-footer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 18px;
+}
+.ce-tile-card-cta {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ce-primary);
+  letter-spacing: .02em;
+  text-decoration: none;
+}
+.ce-tile-card:hover .ce-tile-card-cta { text-decoration: underline; }
+
+/* No-image variant — sleek colored accent bar instead of a picture */
+.ce-tile-card:not(:has(.ce-tile-card-img)) {
+  border-top: 4px solid var(--ce-color, var(--ce-primary));
+}
+.ce-tile-card:not(:has(.ce-tile-card-img)) .ce-tile-card-body {
+  padding-top: 22px;
+}
+
+/* Type badges pick up the event-type colour (falls back to theme primary) */
+.ce-type-badge {
+  background: color-mix(in srgb, var(--ce-color, var(--ce-primary)) 14%, #fff);
+  color: color-mix(in srgb, var(--ce-color, var(--ce-primary)) 78%, #000);
+  border: 1px solid color-mix(in srgb, var(--ce-color, var(--ce-primary)) 30%, transparent);
+}
+
+/* ─── Inline action toolbar (ICS + Share) ───────────────────────────────── */
+.ce-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ce-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--ce-border);
+  background: var(--ce-white);
+  color: var(--ce-text);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--ce-transition);
+  line-height: 1;
+}
+.ce-action-btn svg { flex-shrink: 0; }
+.ce-action-btn:hover {
+  border-color: var(--ce-primary);
+  color: var(--ce-primary);
+  background: var(--ce-primary-lt);
+}
+/* Compact (icon-only) variant for overview cards/tiles */
+.ce-actions--compact .ce-action-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--ce-text-muted);
+}
+.ce-actions--compact .ce-action-btn:hover { color: var(--ce-primary); }
+
+/* ─── Share popover ──────────────────────────────────────────────────────── */
+.ce-share-pop {
+  position: absolute;
+  z-index: 9999;
+  min-width: 168px;
+  background: var(--ce-white);
+  border: 1px solid var(--ce-border);
+  border-radius: var(--ce-radius);
+  box-shadow: 0 8px 28px rgba(0,0,0,.16);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ce-share-pop-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  background: none;
+  border-radius: var(--ce-radius-sm);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ce-text);
+  text-decoration: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--ce-transition);
+}
+.ce-share-pop-item:hover { background: var(--ce-bg); }
+.ce-share-pop-item[data-net="whatsapp"]:hover { color: #128c3e; }
+.ce-share-pop-item[data-net="facebook"]:hover { color: #1877f2; }
+.ce-share-pop-item svg { flex-shrink: 0; }
+
+/* ═══ Events Hub ("Anlässe" page) ═══════════════════════════════════════════ */
+.ce-hub-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.ce-hub-search {
+  position: relative;
+  flex: 1 1 240px;
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+}
+.ce-hub-search svg {
+  position: absolute;
+  left: 14px;
+  color: var(--ce-text-muted);
+  pointer-events: none;
+}
+.ce-hub-search-input {
+  width: 100%;
+  padding: 11px 14px 11px 40px;
+  border: 1.5px solid var(--ce-input-border, var(--ce-border));
+  border-radius: var(--ce-radius);
+  background: var(--ce-input-bg, var(--ce-white));
+  color: var(--ce-text);
+  font-size: 15px;
+  font-family: inherit;
+  transition: border-color var(--ce-transition), box-shadow var(--ce-transition);
+}
+.ce-hub-search-input:focus {
+  outline: none;
+  border-color: var(--ce-input-focus, var(--ce-primary));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ce-primary) 14%, transparent);
+}
+.ce-hub-tools { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+
+.ce-view-switch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--ce-bg);
+  border: 1px solid var(--ce-border);
+  border-radius: var(--ce-radius);
+}
+.ce-view-switch-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 34px;
+  border: none;
+  border-radius: var(--ce-radius-sm);
+  background: transparent;
+  color: var(--ce-text-muted);
+  cursor: pointer;
+  transition: all var(--ce-transition);
+}
+.ce-view-switch-btn:hover { color: var(--ce-text); }
+.ce-view-switch-btn.active {
+  background: var(--ce-white);
+  color: var(--ce-primary);
+  box-shadow: var(--ce-shadow);
+}
+.ce-hub-subscribe { white-space: nowrap; }
+.ce-hub-subscribe svg { flex-shrink: 0; }
+
+.ce-hub-filter { margin-bottom: 24px; }
+.ce-hub-view[hidden] { display: none !important; }
+.ce-filtered-out { display: none !important; }
+.ce-hub-empty { text-align: center; color: var(--ce-text-muted); padding: 40px 0; font-size: 15px; }
+
+/* Hub list view */
+.ce-hub-list { list-style: none; margin: 0; padding: 0; }
+.ce-hub-list-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--ce-border);
+  border-left: 3px solid var(--ce-color, var(--ce-primary));
+  border-radius: var(--ce-radius);
+  background: var(--ce-white);
+  margin-bottom: 10px;
+  box-shadow: var(--ce-shadow);
+  transition: box-shadow var(--ce-transition), transform var(--ce-transition);
+}
+.ce-hub-list-item:hover { box-shadow: var(--ce-shadow-md); transform: translateX(2px); }
+.ce-hub-list-date {
+  flex-shrink: 0;
+  width: 52px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+.ce-hub-list-day { font-size: 22px; font-weight: 800; color: var(--ce-color, var(--ce-primary)); }
+.ce-hub-list-mon { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--ce-text-muted); margin-top: 3px; }
+.ce-hub-list-body { flex: 1; min-width: 0; }
+.ce-hub-list-title { display: block; font-size: 16px; font-weight: 700; color: var(--ce-text); text-decoration: none; }
+.ce-hub-list-title:hover { color: var(--ce-primary); }
+.ce-hub-list-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 4px; font-size: 13px; color: var(--ce-text-muted); }
+.ce-hub-list-actions { flex-shrink: 0; }
+
+/* ─── Center / alternating timeline ─────────────────────────────────────────
+   Applied when [club_events_timeline layout="center"] or the hub timeline. */
+.ce-timeline-wrap--center { max-width: 960px; margin-inline: auto; }
+.ce-timeline--center { position: relative; }
+.ce-timeline--center .ce-month-label { text-align: center; margin: 0 0 24px; border-bottom: none; }
+.ce-timeline--center .ce-month-group { position: relative; }
+/* central vertical line */
+.ce-timeline--center .ce-month-group::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background: var(--ce-border);
+}
+.ce-timeline--center .ce-timeline-item {
+  display: grid;
+  grid-template-columns: 1fr 28px 1fr;
+  align-items: start;
+  margin-bottom: 24px;
+  position: relative;
+}
+.ce-timeline--center .ce-timeline-item::before { display: none; }
+.ce-timeline--center .ce-timeline-dot {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 8px auto 0;
+  justify-self: center;
+}
+.ce-timeline--center .ce-timeline-content { grid-row: 1; display: block; }
+/* odd items → left side, even items → right side */
+.ce-timeline--center .ce-timeline-item:nth-child(odd) .ce-timeline-content { grid-column: 1; text-align: right; }
+.ce-timeline--center .ce-timeline-item:nth-child(even) .ce-timeline-content { grid-column: 3; text-align: left; }
+.ce-timeline--center .ce-timeline-body { display: inline-block; text-align: left; max-width: 100%; }
+.ce-timeline--center .ce-timeline-item:nth-child(odd) .ce-event-meta { justify-content: flex-end; }
 
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
@@ -973,7 +1253,22 @@
   .ce-timeline-item::before { left: 28px; }
   .ce-timeline-dot { margin-left: 22px; }
   .ce-cards-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
-  .ce-tiles { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .ce-tiles { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .ce-tile-card-body { padding: 18px 20px 22px; }
+  .ce-tile-card-title { font-size: 17px; }
+
+  /* Hub toolbar stacks; search takes the full first row */
+  .ce-hub-search { flex-basis: 100%; }
+  .ce-hub-tools { margin-left: 0; }
+
+  /* Center timeline collapses to a single left-aligned rail */
+  .ce-timeline--center .ce-month-label { text-align: left; }
+  .ce-timeline--center .ce-month-group::before { left: 7px; transform: none; }
+  .ce-timeline--center .ce-timeline-item { grid-template-columns: 16px 1fr; column-gap: 12px; }
+  .ce-timeline--center .ce-timeline-dot { grid-column: 1; margin-left: 0; }
+  .ce-timeline--center .ce-timeline-item:nth-child(odd) .ce-timeline-content,
+  .ce-timeline--center .ce-timeline-item:nth-child(even) .ce-timeline-content { grid-column: 2; text-align: left; }
+  .ce-timeline--center .ce-timeline-item:nth-child(odd) .ce-event-meta { justify-content: flex-start; }
 }
 
 @media (max-width: 480px) {
@@ -981,7 +1276,6 @@
   .ce-cal-header, .ce-cal-day-num { font-size: 10px; }
   .ce-event-meta-bar { flex-direction: column; gap: 8px; }
   .ce-cards-grid { grid-template-columns: 1fr; gap: 14px; }
-  .ce-tiles { grid-template-columns: 1fr; gap: 14px; }
   .ce-card-title { padding-right: 0; }
   .ce-card-date-badge { position: static; margin-bottom: 8px; display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; }
   .ce-card-date-day { font-size: 16px; }
@@ -992,6 +1286,17 @@
   .ce-my-events-table { font-size: 13px; }
   .ce-my-events-table th:nth-child(4),
   .ce-my-events-table td:nth-child(4) { display: none; }
+
+  /* Sleek single-column tiles on phones */
+  .ce-tiles { grid-template-columns: 1fr; gap: 16px; }
+  .ce-tile-card-body { padding: 16px 18px 20px; }
+  .ce-tile-card-title { font-size: 17px; }
+  .ce-tile-card-excerpt { -webkit-line-clamp: 2; }
+
+  /* Action buttons: comfortable tap targets */
+  .ce-actions--compact .ce-action-btn { width: 40px; height: 40px; }
+  .ce-share-pop { min-width: 180px; }
+  .ce-share-pop-item { padding: 12px 14px; }
 }
 
 /* ─── Astra Theme Integration ─────────────────────────────────────────────
