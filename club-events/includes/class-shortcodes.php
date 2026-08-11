@@ -3,6 +3,41 @@ defined( 'ABSPATH' ) || exit;
 
 class CE_Shortcodes {
 
+    /**
+     * Normalise a shortcode attribute to a real boolean.
+     *
+     * Shortcode attributes always arrive as strings, so `show_image="false"`
+     * is the truthy string "false" — every documented boolean attribute is
+     * ignored unless it is run through here first. Block attributes already
+     * arrive as real booleans and pass through unchanged.
+     */
+    /**
+     * Build the placeholder gradient for an event colour.
+     *
+     * The second stop used to be produced by appending an alpha suffix to the
+     * colour ("#3b82f6" . "aa"). Event colours fall back to `var(--ce-primary)`
+     * when no explicit colour is set, and "var(--ce-primary)aa" is not a valid
+     * colour — the browser drops the whole declaration and the placeholder
+     * renders blank. Only append the suffix to literal hex colours.
+     */
+    private static function placeholder_gradient( $color, $alpha = 'aa' ) {
+        $to = preg_match( '/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i', (string) $color ) ? $color . $alpha : $color;
+        return sprintf( 'linear-gradient(135deg,%s 0%%,%s 100%%)', $color, $to );
+    }
+
+    public static function bool( $value, $default = false ) {
+        if ( is_bool( $value ) ) {
+            return $value;
+        }
+        if ( null === $value || '' === $value ) {
+            return (bool) $default;
+        }
+        if ( is_string( $value ) ) {
+            return ! in_array( strtolower( trim( $value ) ), [ 'false', 'no', 'off', '0', 'null' ], true );
+        }
+        return (bool) $value;
+    }
+
     public function __construct() {
         add_shortcode( 'club_events_timeline', [ $this, 'timeline' ] );
         add_shortcode( 'club_events_overview', [ $this, 'overview' ] );
@@ -151,6 +186,9 @@ class CE_Shortcodes {
             'layout'      => 'default',
         ], $atts, 'club_events_timeline' );
 
+        $atts['show_past']   = self::bool( $atts['show_past'] );
+        $atts['show_filter'] = self::bool( $atts['show_filter'], true );
+
         $is_center = 'center' === $atts['layout'];
 
         $query_args = [
@@ -293,6 +331,8 @@ class CE_Shortcodes {
             'filter_by'   => 'category',
             'show_filter' => true,
         ], $atts, 'club_events_overview' );
+
+        $atts['show_filter'] = self::bool( $atts['show_filter'], true );
 
         $year  = isset( $_GET['ce_year'] )  ? (int) $_GET['ce_year']  : (int) date( 'Y' );
         $month = isset( $_GET['ce_month'] ) ? (int) $_GET['ce_month'] : (int) date( 'n' );
@@ -452,6 +492,8 @@ class CE_Shortcodes {
             'show_past'  => false,
         ], $atts, 'club_events_list' );
 
+        $atts['show_past'] = self::bool( $atts['show_past'] );
+
         $query_args = [ 'posts_per_page' => (int) $atts['limit'] ];
         if ( ! $atts['show_past'] ) {
             $query_args['from'] = date( 'Y-m-d H:i:s' );
@@ -498,6 +540,10 @@ class CE_Shortcodes {
             'show_filter' => true,
             'show_image'  => true,
         ], $atts, 'club_events_cards' );
+
+        $atts['show_past']   = self::bool( $atts['show_past'] );
+        $atts['show_filter'] = self::bool( $atts['show_filter'], true );
+        $atts['show_image']  = self::bool( $atts['show_image'], true );
 
         $cols = max( 1, min( 4, (int) $atts['columns'] ) );
 
@@ -573,7 +619,7 @@ class CE_Shortcodes {
                         </div>
                         <?php elseif ( ! empty( $atts['show_image'] ) ) : ?>
                         <div class="ce-card-img ce-card-img--placeholder">
-                            <div class="ce-card-placeholder-inner" style="background:linear-gradient(135deg,<?php echo esc_attr( $event['color'] ); ?> 0%,<?php echo esc_attr( $event['color'] ); ?>aa 100%)">
+                            <div class="ce-card-placeholder-inner" style="background:<?php echo esc_attr( self::placeholder_gradient( $event['color'], 'aa' ) ); ?>">
                                 <svg viewBox="0 0 48 48" width="40" height="40" fill="none">
                                     <rect x="6" y="8" width="36" height="36" rx="4" stroke="rgba(255,255,255,.7)" stroke-width="2"/>
                                     <path d="M16 6v6M32 6v6M6 20h36" stroke="rgba(255,255,255,.7)" stroke-width="2" stroke-linecap="round"/>
@@ -609,7 +655,7 @@ class CE_Shortcodes {
                                 <?php elseif ( $weekday ) : ?>
                                 <div class="ce-card-meta-row">
                                     <svg viewBox="0 0 16 16" width="13" height="13" fill="none"><rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 2v2M11 2v2M2 7h12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-                                    <span><?php echo esc_html( $event['allDay'] ? $weekday . ' · ' . esc_html__( 'All day', 'club-events' ) : $weekday ); ?></span>
+                                    <span><?php echo esc_html( $event['allDay'] ? $weekday . ' · ' . __( 'All day', 'club-events' ) : $weekday ); ?></span>
                                 </div>
                                 <?php endif; ?>
 
@@ -772,6 +818,12 @@ class CE_Shortcodes {
             'cta'           => __( 'Weiterlesen', 'club-events' ),
         ], $atts, 'club_events_tiles' );
 
+        foreach ( [ 'show_image' => true, 'show_excerpt' => true, 'show_location' => false,
+                    'show_time' => false, 'show_types' => false, 'show_share' => false,
+                    'show_ics' => false ] as $key => $default ) {
+            $atts[ $key ] = self::bool( $atts[ $key ], $default );
+        }
+
         $cols = max( 1, min( 4, (int) $atts['columns'] ) );
 
         $query_args = [
@@ -827,6 +879,12 @@ class CE_Shortcodes {
             'cta'           => __( 'Weiterlesen', 'club-events' ),
         ] );
 
+        foreach ( [ 'show_image' => true, 'show_excerpt' => true, 'show_time' => false,
+                    'show_location' => false, 'show_types' => false, 'show_share' => false,
+                    'show_ics' => false ] as $key => $default ) {
+            $o[ $key ] = self::bool( $o[ $key ], $default );
+        }
+
         $start_ts   = $event['start'] ? strtotime( $event['start'] ) : null;
         $end_ts     = $event['end']   ? strtotime( $event['end'] )   : null;
         $date_label = $start_ts ? date_i18n( 'j. F Y', $start_ts ) : '';
@@ -846,7 +904,7 @@ class CE_Shortcodes {
             </div>
             <?php elseif ( ! empty( $o['show_image'] ) ) : ?>
             <div class="ce-tile-card-img ce-tile-card-img--placeholder">
-                <div class="ce-tile-card-placeholder" style="background:linear-gradient(135deg,<?php echo esc_attr( $event['color'] ); ?> 0%,<?php echo esc_attr( $event['color'] ); ?>99 100%)">
+                <div class="ce-tile-card-placeholder" style="background:<?php echo esc_attr( self::placeholder_gradient( $event['color'], '99' ) ); ?>">
                     <svg viewBox="0 0 48 48" width="32" height="32" fill="none">
                         <rect x="6" y="8" width="36" height="36" rx="4" stroke="rgba(255,255,255,.7)" stroke-width="2"/>
                         <path d="M16 6v6M32 6v6M6 20h36" stroke="rgba(255,255,255,.7)" stroke-width="2" stroke-linecap="round"/>
@@ -977,7 +1035,7 @@ class CE_Shortcodes {
         }
 
         return self::event_actions( $url, $title, $ics, [
-            'labels' => 'false' !== $atts['labels'],
+            'labels' => self::bool( $atts['labels'], true ),
         ] );
     }
 
@@ -1002,6 +1060,11 @@ class CE_Shortcodes {
             'show_past'       => false,
             'columns'         => 3,
         ], $atts, 'club_events' );
+
+        foreach ( [ 'show_search' => true, 'show_filter' => true,
+                    'show_subscribe' => true, 'show_past' => false ] as $key => $default ) {
+            $atts[ $key ] = self::bool( $atts[ $key ], $default );
+        }
 
         $allowed = [ 'tiles', 'list', 'timeline', 'calendar' ];
         $views   = array_values( array_intersect(

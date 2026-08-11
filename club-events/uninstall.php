@@ -17,6 +17,12 @@ $options = [
     'ce_subscription_from_email',
     'ce_future_months',
     'ce_past_months',
+    'ce_self_service_enabled',
+    'ce_self_service_role',
+    'ce_self_service_auto_publish_role',
+    'ce_events_page',
+    'ce_hide_archive',
+    'ce_db_version',
 ];
 foreach ( $options as $opt ) {
     delete_option( $opt );

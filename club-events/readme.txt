@@ -4,7 +4,7 @@ Tags: events, calendar, google calendar, ics, club
 Requires at least: 5.8
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -43,6 +43,20 @@ theme-adaptive frontend.
 
 == Changelog ==
 
+= 1.2.1 =
+* Fixed: the subscribers table was never created — `CREATE TABLE IF NOT EXISTS`
+  made dbDelta() read both statements as a table named "IF", so only the
+  calendars table survived and email subscriptions failed on every install.
+* Fixed: schema fixes now apply on plugin update, not only on activation.
+* Fixed: boolean shortcode attributes were ignored — `show_image="false"` was
+  the truthy string "false". All documented boolean attributes now work, which
+  also removes the duplicate filter bar in the [club_events] calendar view.
+* Fixed: combining `category` with `event_type` silently dropped the event-type
+  filter in shortcodes and the REST API.
+* Fixed: blank card/tile placeholders for events using the theme fallback
+  colour (invalid `var(--ce-primary)aa` gradient stop).
+* Changed: uninstall now removes the options added in 1.1.0/1.2.0.
+
 = 1.2.0 =
 * New [club_events] hub: search, view switch (tiles/list/timeline/calendar),
   Subscribe (ICS), and a filter bar — a full "Anlässe" page in one shortcode.
@@ -64,3 +78,11 @@ theme-adaptive frontend.
 = 1.0.0 =
 * Initial release: Google Calendar sync, timeline & overview views, blog
   embeds, ICS export, and email subscriptions.
+
+== Upgrade Notice ==
+
+= 1.2.1 =
+Recommended for all installs. Creates the subscribers table that earlier
+versions failed to create (email subscriptions were broken), and repairs it
+automatically on update. Also fixes boolean shortcode attributes, combined
+category + event-type filtering, and blank tile placeholders.

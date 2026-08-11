@@ -42,7 +42,7 @@ automatically to the **Astra** theme (including Astra Pro).
 ## Installation
 
 1. Download the latest `club-events.zip` from the
-   [Releases](https://github.com/lucadesimoni/wp_club_events/releases) page.
+   [Releases](https://github.com/lucadesimoni/wp-club-events/releases) page.
 2. In WordPress: **Plugins → Add New → Upload Plugin**, choose the zip, install,
    and activate.
 3. Open **Club Events** in the admin menu to add events, event types, and

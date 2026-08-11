@@ -336,11 +336,16 @@ class CE_CPT {
             'meta_key'       => '_ce_start_date',
             'orderby'        => 'meta_value',
             'order'          => 'ASC',
-            'meta_query'     => [],
         ];
 
+        // Built from the `from`/`to`/`event_type` shorthands. These are merged
+        // into (not overwritten by) any meta_query/tax_query the caller passes,
+        // so e.g. a category tax_query plus an event_type shorthand both apply.
+        $meta_query = [];
+        $tax_query  = [];
+
         if ( ! empty( $args['from'] ) ) {
-            $defaults['meta_query'][] = [
+            $meta_query[] = [
                 'key'     => '_ce_start_date',
                 'value'   => $args['from'],
                 'compare' => '>=',
@@ -350,7 +355,7 @@ class CE_CPT {
         }
 
         if ( ! empty( $args['to'] ) ) {
-            $defaults['meta_query'][] = [
+            $meta_query[] = [
                 'key'     => '_ce_start_date',
                 'value'   => $args['to'],
                 'compare' => '<=',
@@ -360,7 +365,7 @@ class CE_CPT {
         }
 
         if ( ! empty( $args['event_type'] ) ) {
-            $defaults['tax_query'][] = [
+            $tax_query[] = [
                 'taxonomy' => 'event_type',
                 'field'    => 'slug',
                 'terms'    => (array) $args['event_type'],
@@ -369,7 +374,30 @@ class CE_CPT {
         }
 
         $query_args = wp_parse_args( $args, $defaults );
+
+        $query_args['meta_query'] = array_merge( $meta_query, self::clause_list( $args['meta_query'] ?? [] ) );
+        $query_args['tax_query']  = array_merge( $tax_query, self::clause_list( $args['tax_query'] ?? [] ) );
+
+        foreach ( [ 'meta_query', 'tax_query' ] as $key ) {
+            if ( empty( $query_args[ $key ] ) ) {
+                unset( $query_args[ $key ] );
+            }
+        }
+
         return get_posts( $query_args );
+    }
+
+    /**
+     * Normalise a caller-supplied meta_query/tax_query into a plain list of
+     * clauses so it can be merged with the ones built above. A `relation` key
+     * is dropped — merged clauses are always ANDed, which is WP's default.
+     */
+    private static function clause_list( $query ) {
+        if ( ! is_array( $query ) || empty( $query ) ) {
+            return [];
+        }
+        unset( $query['relation'] );
+        return array_values( $query );
     }
 
     /**

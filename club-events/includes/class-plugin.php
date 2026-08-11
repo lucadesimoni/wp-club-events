@@ -36,6 +36,7 @@ class CE_Plugin {
 
     private function init_hooks() {
         add_action( 'init', [ $this, 'load_textdomain' ] );
+        add_action( 'admin_init', [ $this, 'maybe_upgrade' ] );
         add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_public_assets' ] );
         add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_editor_assets' ] );
         add_filter( 'block_categories_all', [ $this, 'register_block_category' ], 10, 2 );
@@ -61,6 +62,26 @@ class CE_Plugin {
 
     public function load_textdomain() {
         load_plugin_textdomain( 'club-events', false, dirname( CE_PLUGIN_BASE ) . '/languages' );
+    }
+
+    /**
+     * Run schema/option migrations after a plugin update.
+     *
+     * WordPress only fires the activation hook on activation, so updating an
+     * existing install never reaches CE_Plugin::activate(). This compares the
+     * stored schema version with CE_VERSION on each admin request and brings
+     * the database up to date when they differ.
+     */
+    public function maybe_upgrade() {
+        if ( get_option( 'ce_db_version' ) === CE_VERSION ) {
+            return;
+        }
+
+        self::create_tables();
+        self::maybe_upgrade_db();
+        self::set_defaults();
+
+        update_option( 'ce_db_version', CE_VERSION );
     }
 
     public function enqueue_public_assets() {
@@ -119,6 +140,7 @@ class CE_Plugin {
         self::create_tables();
         self::maybe_upgrade_db();
         self::set_defaults();
+        update_option( 'ce_db_version', CE_VERSION );
         flush_rewrite_rules();
 
         if ( ! wp_next_scheduled( 'ce_google_calendar_sync' ) ) {
@@ -131,12 +153,21 @@ class CE_Plugin {
         flush_rewrite_rules();
     }
 
+    /**
+     * Create/upgrade the plugin tables.
+     *
+     * NOTE: dbDelta() identifies a table by matching `CREATE TABLE ([^ ]*)`, so
+     * `CREATE TABLE IF NOT EXISTS <table>` makes it read the table name as
+     * "IF" — every statement collapses onto the same key and only the last one
+     * survives. The statements below must therefore stay plain `CREATE TABLE`.
+     * dbDelta also expects two spaces after PRIMARY KEY.
+     */
     private static function create_tables() {
         global $wpdb;
         $charset = $wpdb->get_charset_collate();
 
         $sql = "
-        CREATE TABLE IF NOT EXISTS {$wpdb->prefix}ce_subscribers (
+        CREATE TABLE {$wpdb->prefix}ce_subscribers (
             id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             email varchar(200) NOT NULL,
             name varchar(200) DEFAULT '',
@@ -144,12 +175,12 @@ class CE_Plugin {
             categories varchar(500) DEFAULT '',
             confirmed tinyint(1) DEFAULT 0,
             created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (id),
+            PRIMARY KEY  (id),
             UNIQUE KEY email (email),
             KEY token (token)
         ) $charset;
 
-        CREATE TABLE IF NOT EXISTS {$wpdb->prefix}ce_calendars (
+        CREATE TABLE {$wpdb->prefix}ce_calendars (
             id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             name varchar(200) NOT NULL,
             calendar_id varchar(500) NOT NULL,
@@ -158,7 +189,7 @@ class CE_Plugin {
             event_types varchar(500) DEFAULT '',
             sync_enabled tinyint(1) DEFAULT 1,
             last_sync datetime DEFAULT NULL,
-            PRIMARY KEY (id)
+            PRIMARY KEY  (id)
         ) $charset;";
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -167,6 +198,14 @@ class CE_Plugin {
 
     public static function maybe_upgrade_db() {
         global $wpdb;
+        $table = $wpdb->prefix . 'ce_calendars';
+
+        // Nothing to migrate if the table isn't there yet — create_tables()
+        // will have laid down the current schema.
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+            return;
+        }
+
         $cols = $wpdb->get_col( "SHOW COLUMNS FROM {$wpdb->prefix}ce_calendars" );
         if ( ! in_array( 'event_types', $cols, true ) ) {
             $wpdb->query( "ALTER TABLE {$wpdb->prefix}ce_calendars ADD COLUMN event_types varchar(500) DEFAULT '' AFTER color" );
