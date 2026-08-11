@@ -12,8 +12,12 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Existing tag to (re)publish, e.g. v1.3.0'
+        description: 'Tag to release, e.g. v1.3.0. Created from `ref` if it does not exist yet.'
         required: true
+      ref:
+        description: 'Branch or commit to tag when the tag does not exist yet'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -23,10 +27,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out the tag
+      - name: Check out the tag (or the ref to tag)
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.tag || github.ref }}
+          ref: ${{ github.event.inputs.tag && (github.event.inputs.ref || github.event.inputs.tag) || github.ref }}
+          fetch-depth: 0
 
       - name: Resolve version
         id: version
@@ -34,6 +39,20 @@ jobs:
           TAG="${{ github.event.inputs.tag || github.ref_name }}"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Create the tag if it does not exist yet
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists on the remote."
+          else
+            git tag -a "$TAG" -m "Club Events Manager ${{ steps.version.outputs.version }}"
+            git push origin "refs/tags/$TAG"
+            echo "Created tag $TAG at $(git rev-parse HEAD)."
+          fi
 
       - name: Verify the tag matches the plugin version
         run: |
