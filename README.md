@@ -80,8 +80,9 @@ Common attributes: `event_type`, `category` (comma-separated slugs), `limit`,
 `columns`, `views`, `default`, `show_search`, `show_filter`, `show_subscribe`,
 `show_image`, `show_time`, `show_location`, `show_types`.
 
-Each shortcode is also available as a Gutenberg block under the *Club Events*
-category.
+Every shortcode is also available as a **Gutenberg block** and an **Elementor
+widget**, both under a *Club Events* category, with the same options exposed as
+editor controls.
 
 ## Development
 
@@ -95,11 +96,18 @@ club-events/
 └─ tests/                  # standalone PHP e2e harness
 ```
 
-Run the end-to-end test suite (no WordPress required):
+Run the test suites (no WordPress required):
 
 ```bash
-php club-events/tests/e2e-aktivriege.php
+php club-events/tests/e2e-aktivriege.php   # end-to-end: import, ICS, REST
+php club-events/tests/widgets-parity.php   # shortcode / block / Elementor parity
 ```
+
+The parity test fails the moment the three editor surfaces drift apart — a
+block registered on only one side, a block attribute that isn't a valid
+shortcode attribute, an Elementor widget passing an unknown attribute, or a
+version number that disagrees between `club-events.php`, `readme.txt`, and
+`CHANGELOG.md`.
 
 See [CHANGELOG.md](CHANGELOG.md) for release notes.
 

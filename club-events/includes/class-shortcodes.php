@@ -120,6 +120,16 @@ class CE_Shortcodes {
             ],
         ] ) );
 
+        register_block_type( 'club-events/share', array_merge( $editor, [
+            'render_callback' => [ $this, 'share' ],
+            'attributes'      => [
+                'url'    => [ 'type' => 'string', 'default' => '' ],
+                'title'  => [ 'type' => 'string', 'default' => '' ],
+                'ics'    => [ 'type' => 'string', 'default' => '' ],
+                'labels' => [ 'type' => 'string', 'default' => 'true' ],
+            ],
+        ] ) );
+
         register_block_type( 'club-events/submit', array_merge( $editor, [
             'render_callback' => [ 'CE_Frontend_Submit', 'render_form_static' ],
             'attributes'      => [],
@@ -133,7 +143,7 @@ class CE_Shortcodes {
         wp_register_script(
             'club-events-blocks',
             CE_PLUGIN_URL . 'blocks/index.js',
-            [ 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n' ],
+            [ 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n', 'wp-server-side-render' ],
             CE_VERSION,
             true
         );

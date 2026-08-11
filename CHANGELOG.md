@@ -3,6 +3,43 @@
 All notable changes to **Club Events Manager** are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] — 2026-08-11
+
+Completes the editor surface: every shortcode is now also a Gutenberg block
+**and** an Elementor widget. No markup, attribute, or option changed, so
+existing pages render exactly as before.
+
+### Added
+- **Events Hub block & Elementor widget** (`[club_events]`). The hub block was
+  registered server-side in 1.2.0 but never registered in the editor script, so
+  it never appeared in the inserter; it now does, with controls for the enabled
+  views, the default view, columns, search, filter bar, and the Subscribe (ICS)
+  button.
+- **Event Tiles block & Elementor widget** (`[club_events_tiles]`) — same fix,
+  plus controls for excerpt, location, time, type badges, share, ICS, and the
+  call-to-action label.
+- **Event Share Actions block & Elementor widget** (`[club_events_share]`) —
+  previously shortcode-only.
+- **Timeline layout control** in both editors, exposing the
+  `layout="center"` alternating timeline added in 1.2.0.
+- `club-events/tests/widgets-parity.php` — a static test that fails if the
+  shortcode, block, and Elementor surfaces drift apart again (a block missing
+  on either side, an attribute mismatch, a widget passing an attribute the
+  shortcode does not accept, or an inconsistent version number).
+
+### Fixed
+- Block previews in the editor: the block script never declared
+  `wp-server-side-render`, so on sites where nothing else enqueued it every
+  block silently fell back to a static placeholder instead of a live preview.
+- Elementor switchers that are off now send an explicit `0` for every `show_*`
+  attribute. Previously only `show_past`, `show_filter`, and `show_image` were
+  translated, so any other toggle turned off would have fallen back to the
+  shortcode default (on).
+- Elementor text controls (category, event type, CTA label) no longer run
+  through `esc_attr()` before being spliced into a shortcode string, which
+  double-encoded ampersands in rendered output. Characters that would break
+  shortcode parsing are stripped instead.
+
 ## [1.2.0] — 2026-07-05
 
 ### Added

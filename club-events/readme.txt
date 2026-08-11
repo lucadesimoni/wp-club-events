@@ -4,7 +4,7 @@ Tags: events, calendar, google calendar, ics, club
 Requires at least: 5.8
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,6 +42,20 @@ theme-adaptive frontend.
 * `[club_events_my_events]` — user event dashboard.
 
 == Changelog ==
+
+= 1.3.0 =
+* Every shortcode is now also a Gutenberg block and an Elementor widget.
+* New Events Hub, Event Tiles, and Event Share blocks + Elementor widgets. The
+  hub and tiles blocks were registered server-side but never appeared in the
+  block inserter — they do now.
+* Timeline layout (default / centred alternating) is now selectable in both
+  editors.
+* Fixed: block previews fell back to a static placeholder because the editor
+  script did not declare wp-server-side-render.
+* Fixed: Elementor toggles other than "show past / filter / image" did not
+  override the shortcode default when switched off.
+* Fixed: double-encoded ampersands in text values passed from Elementor.
+* No markup or attribute changes — existing pages render exactly as before.
 
 = 1.2.0 =
 * New [club_events] hub: search, view switch (tiles/list/timeline/calendar),
