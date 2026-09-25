@@ -49,6 +49,10 @@ jobs:
           if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
             echo "Tag $TAG already exists on the remote."
           else
+            # An annotated tag records a tagger, and the runner has no git
+            # identity configured, so set the Actions bot as the tagger.
+            git config user.name  "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git tag -a "$TAG" -m "Club Events Manager ${{ steps.version.outputs.version }}"
             git push origin "refs/tags/$TAG"
             echo "Created tag $TAG at $(git rev-parse HEAD)."
