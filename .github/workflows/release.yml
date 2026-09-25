@@ -1,0 +1,114 @@
+name: Release
+
+# Publishing a release is a tag push: `git tag -a vX.Y.Z && git push origin vX.Y.Z`.
+# This workflow verifies the tag against the plugin version, runs the test
+# suites, builds the installable club-events.zip, and publishes the GitHub
+# Release with the matching CHANGELOG.md section as its notes.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release, e.g. v1.3.0. Created from `ref` if it does not exist yet.'
+        required: true
+      ref:
+        description: 'Branch or commit to tag when the tag does not exist yet'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the tag (or the ref to tag)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag && (github.event.inputs.ref || github.event.inputs.tag) || github.ref }}
+          fetch-depth: 0
+
+      - name: Resolve version
+        id: version
+        run: |
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Create the tag if it does not exist yet
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists on the remote."
+          else
+            git tag -a "$TAG" -m "Club Events Manager ${{ steps.version.outputs.version }}"
+            git push origin "refs/tags/$TAG"
+            echo "Created tag $TAG at $(git rev-parse HEAD)."
+          fi
+
+      - name: Verify the tag matches the plugin version
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          HEADER=$(grep -oP '^\s*\*\s*Version:\s*\K[0-9.]+' club-events/club-events.php)
+          CONST=$(grep -oP "define\(\s*'CE_VERSION',\s*'\K[0-9.]+" club-events/club-events.php)
+          STABLE=$(grep -oP '^Stable tag:\s*\K[0-9.]+' club-events/readme.txt)
+          echo "tag=$VERSION header=$HEADER const=$CONST stable=$STABLE"
+          for v in "$HEADER" "$CONST" "$STABLE"; do
+            if [ "$v" != "$VERSION" ]; then
+              echo "::error::Version mismatch — tag says $VERSION but the plugin says $v"
+              exit 1
+            fi
+          done
+
+      - name: Lint every PHP file
+        run: find club-events -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Run the test suites
+        run: |
+          php club-events/tests/e2e-aktivriege.php
+          php club-events/tests/widgets-parity.php
+          php club-events/tests/theme-integration.php
+
+      - name: Build club-events.zip
+        run: |
+          zip -r club-events.zip club-events \
+            -x 'club-events/tests/*' \
+            -x '*/.DS_Store'
+          unzip -l club-events.zip | tail -1
+
+      - name: Extract the release notes for this version
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          awk -v marker="## [$VERSION]" '
+            index($0, marker) == 1 { found = 1; next }
+            found && /^## \[/       { exit }
+            found                   { print }
+          ' CHANGELOG.md > RELEASE_NOTES.md
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "::error::CHANGELOG.md has no '## [$VERSION]' section"
+            exit 1
+          fi
+          cat RELEASE_NOTES.md
+
+      - name: Publish the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" club-events.zip --clobber
+            gh release edit "$TAG" --title "Club Events Manager $VERSION" --notes-file RELEASE_NOTES.md
+          else
+            gh release create "$TAG" club-events.zip \
+              --title "Club Events Manager $VERSION" \
+              --notes-file RELEASE_NOTES.md
+          fi

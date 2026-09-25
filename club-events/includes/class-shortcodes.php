@@ -22,9 +22,7 @@ class CE_Shortcodes {
             return;
         }
 
-        $editor = [ 'editor_script' => 'club-events-blocks', 'editor_style' => 'club-events-editor' ];
-
-        register_block_type( 'club-events/timeline', array_merge( $editor, [
+        register_block_type( 'club-events/timeline', $this->block_args( [
             'render_callback' => [ $this, 'timeline' ],
             'attributes'      => [
                 'category'    => [ 'type' => 'string',  'default' => '' ],
@@ -37,7 +35,7 @@ class CE_Shortcodes {
             ],
         ] ) );
 
-        register_block_type( 'club-events/overview', array_merge( $editor, [
+        register_block_type( 'club-events/overview', $this->block_args( [
             'render_callback' => [ $this, 'overview' ],
             'attributes'      => [
                 'category'    => [ 'type' => 'string',  'default' => '' ],
@@ -47,7 +45,7 @@ class CE_Shortcodes {
             ],
         ] ) );
 
-        register_block_type( 'club-events/cards', array_merge( $editor, [
+        register_block_type( 'club-events/cards', $this->block_args( [
             'render_callback' => [ $this, 'cards' ],
             'attributes'      => [
                 'category'    => [ 'type' => 'string',  'default' => '' ],
@@ -61,7 +59,7 @@ class CE_Shortcodes {
             ],
         ] ) );
 
-        register_block_type( 'club-events/list', array_merge( $editor, [
+        register_block_type( 'club-events/list', $this->block_args( [
             'render_callback' => [ $this, 'list_view' ],
             'attributes'      => [
                 'category'    => [ 'type' => 'string',  'default' => '' ],
@@ -71,12 +69,12 @@ class CE_Shortcodes {
             ],
         ] ) );
 
-        register_block_type( 'club-events/subscribe', array_merge( $editor, [
+        register_block_type( 'club-events/subscribe', $this->block_args( [
             'render_callback' => [ $this, 'subscribe_form' ],
             'attributes'      => [],
         ] ) );
 
-        register_block_type( 'club-events/yearly', array_merge( $editor, [
+        register_block_type( 'club-events/yearly', $this->block_args( [
             'render_callback' => [ $this, 'yearly' ],
             'attributes'      => [
                 'category'   => [ 'type' => 'string',  'default' => '' ],
@@ -85,7 +83,7 @@ class CE_Shortcodes {
             ],
         ] ) );
 
-        register_block_type( 'club-events/hub', array_merge( $editor, [
+        register_block_type( 'club-events/hub', $this->block_args( [
             'render_callback' => [ $this, 'hub' ],
             'attributes'      => [
                 'category'       => [ 'type' => 'string',  'default' => '' ],
@@ -102,7 +100,7 @@ class CE_Shortcodes {
             ],
         ] ) );
 
-        register_block_type( 'club-events/tiles', array_merge( $editor, [
+        register_block_type( 'club-events/tiles', $this->block_args( [
             'render_callback' => [ $this, 'tiles' ],
             'attributes'      => [
                 'event_type'    => [ 'type' => 'string',  'default' => '' ],
@@ -120,12 +118,22 @@ class CE_Shortcodes {
             ],
         ] ) );
 
-        register_block_type( 'club-events/submit', array_merge( $editor, [
+        register_block_type( 'club-events/share', $this->block_args( [
+            'render_callback' => [ $this, 'share' ],
+            'attributes'      => [
+                'url'    => [ 'type' => 'string', 'default' => '' ],
+                'title'  => [ 'type' => 'string', 'default' => '' ],
+                'ics'    => [ 'type' => 'string', 'default' => '' ],
+                'labels' => [ 'type' => 'string', 'default' => 'true' ],
+            ],
+        ] ) );
+
+        register_block_type( 'club-events/submit', $this->block_args( [
             'render_callback' => [ 'CE_Frontend_Submit', 'render_form_static' ],
             'attributes'      => [],
         ] ) );
 
-        register_block_type( 'club-events/my-events', array_merge( $editor, [
+        register_block_type( 'club-events/my-events', $this->block_args( [
             'render_callback' => [ 'CE_Frontend_Submit', 'render_my_events_static' ],
             'attributes'      => [],
         ] ) );
@@ -133,10 +141,74 @@ class CE_Shortcodes {
         wp_register_script(
             'club-events-blocks',
             CE_PLUGIN_URL . 'blocks/index.js',
-            [ 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n' ],
+            [ 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data', 'wp-html-entities', 'wp-i18n', 'wp-server-side-render' ],
             CE_VERSION,
             true
         );
+        if ( function_exists( 'wp_set_script_translations' ) ) {
+            wp_set_script_translations( 'club-events-blocks', 'club-events', CE_PLUGIN_DIR . 'languages' );
+        }
+    }
+
+    /**
+     * Shared block registration: API v3 (required for the iframed editor),
+     * the design-tool supports every theme and Spectra understand, an accent
+     * colour, and a render wrapper that applies them.
+     */
+    private function block_args( array $args ): array {
+        $render = $args['render_callback'];
+
+        $args['api_version']     = 3;
+        $args['category']        = 'club-events';
+        $args['editor_script']   = 'club-events-blocks';
+        $args['style']           = 'club-events';
+        $args['attributes']     += [
+            'accentColor' => [ 'type' => 'string', 'default' => '' ],
+            // Declared here too so server-side-render previews validate it.
+            'anchor'      => [ 'type' => 'string' ],
+        ];
+        $args['supports']        = [
+            'html'     => false,
+            'align'    => [ 'wide', 'full' ],
+            'anchor'   => true,
+            'color'    => [ 'background' => true, 'text' => true, 'link' => false ],
+            'spacing'  => [ 'margin' => true, 'padding' => true ],
+        ];
+        $args['render_callback'] = static function ( $attributes, $content = '', $block = null ) use ( $render ) {
+            return self::render_block_wrapper( $render, (array) $attributes );
+        };
+
+        return $args;
+    }
+
+    /**
+     * Render a block's shortcode inside a wrapper carrying the block supports
+     * (alignment, colours, spacing, custom class, anchor) and the accent.
+     */
+    public static function render_block_wrapper( callable $render, array $attributes ): string {
+        // Only the shortcode's own attributes are forwarded.
+        $atts = array_diff_key( $attributes, array_flip( [
+            'accentColor', 'align', 'anchor', 'className', 'style',
+            'backgroundColor', 'textColor', 'lock', 'metadata',
+        ] ) );
+
+        $html = (string) call_user_func( $render, $atts );
+        if ( '' === trim( $html ) ) {
+            return '';
+        }
+
+        $extra = [
+            'class' => 'ce-block',
+            'style' => CE_Style::accent_declarations( $attributes['accentColor'] ?? '' ),
+        ];
+        if ( ! empty( $attributes['anchor'] ) ) {
+            $extra['id'] = sanitize_html_class( $attributes['anchor'] );
+        }
+        $wrapper = function_exists( 'get_block_wrapper_attributes' ) && class_exists( 'WP_Block_Supports' ) && ! empty( WP_Block_Supports::$block_to_render )
+            ? get_block_wrapper_attributes( array_filter( $extra ) )
+            : 'class="ce-block"';
+
+        return '<div ' . $wrapper . '>' . $html . '</div>';
     }
 
     public function timeline( $atts = [], $content = '' ) {

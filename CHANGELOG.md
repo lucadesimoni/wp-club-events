@@ -3,6 +3,106 @@
 All notable changes to **Club Events Manager** are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] — 2026-09-25
+
+Makes the plugin a first-class citizen of Astra, Spectra / Gutenberg and
+Elementor. No shortcode, attribute or option changed; existing pages keep
+rendering, now in the theme's colours.
+
+### Compatibility
+- Requires WordPress **6.5** or later; tested up to **7.1**. Block API v3 and
+  the iframed editor need 6.3+, and 6.5 is the supported floor.
+- Editor controls opt into the WordPress 7.0 control styles
+  (`__nextHasNoMarginBottom`, `__next40pxDefaultSize`). WordPress 6.7-6.9
+  logged a deprecation warning for every text, select, range and toggle
+  control in the block inspector; 7.0 removed the old styles.
+
+### Fixed
+- **The Astra bridge never took effect.** It was printed in `wp_head` before
+  the plugin stylesheet, so the stylesheet's `:root` defaults won the cascade:
+  events stayed plugin-blue and only a few button rules followed Astra. The
+  bridge is now inline CSS on the `club-events` stylesheet (printed after it),
+  which also carries it into the block-editor iframe and the Elementor preview.
+- **Wrong Astra palette slots.** Secondary text mapped to
+  `--ast-global-color-5` (Astra's secondary *background*, white) and subtle
+  backgrounds to `--ast-global-color-7` (near-black in the default palette).
+  Slots now follow Astra's meaning (0 brand, 1 alternate brand, 2 headings,
+  3 text, 4 primary background, 5 surfaces); muted text and borders are mixed
+  from text and surface, so dark palettes stay legible.
+- **Astra typography and buttons.** The bridge referenced CSS variables Astra
+  does not define (`--ast-button-border-radius`, `--ast-heading-font-family`,
+  …), so the hard-coded fallbacks always won and headings were forced to the
+  body font. Button colours, radius (Astra 4 four-corner and legacy), padding,
+  font size, weight, transform and letter spacing, plus heading font, weight
+  and H1–H4 sizes, are now read from the Customizer (`ce_astra_tokens` filter).
+- **Aligned blocks broke the editor preview.** Alignment was declared only in
+  JavaScript, so choosing Wide/Full made the server-side-render request fail
+  with "Invalid parameter(s): attributes", and the front end ignored it.
+- **Elementor editor preview.** Widgets re-rendered after a setting change
+  were never initialised: the Events Hub did not respond and timeline items
+  stayed at opacity 0. The front-end script now initialises idempotently and
+  hooks `frontend/element_ready/global` (exposed as `ClubEvents.init()`).
+- Single events no longer override a sidebar chosen in the Astra meta box or
+  Customizer (the full-bleed hero applies only to the full-width layout);
+  Astra breadcrumbs now cover category, type and tag archives.
+
+### Added
+- **Blocks on API v3** with server-side supports: wide/full alignment, anchor,
+  margin, padding, text and background colour — usable from Gutenberg and
+  Spectra alike. Blocks render inside a wrapper that applies them, and stay
+  inside flex parents such as Spectra containers.
+- **Accent colour** on every block, chosen from the theme palette. Palette
+  values such as `var(--ast-global-color-0)` are kept, so the block follows
+  later palette changes.
+- **Term dropdowns** for category and event type, in the block inspector and
+  the Elementor panel (previously free-text slugs).
+- **Block patterns** ("Club Events" category): Events page, Upcoming events
+  teaser, Calendar with subscribe form — core blocks only.
+- **Elementor Style tab** on all 11 widgets: accent, title, text, secondary
+  text, card background, subtle background and border colours; card and
+  button corner radius; title, text and button typography — with Elementor
+  global colours and fonts. Widgets declare their style/script dependencies.
+- `club-events/tests/theme-integration.php` (run in CI): Astra token parsing,
+  the colour sanitiser, the block wrapper, and static checks for API v3,
+  iframe-ready assets and the Elementor re-init hook.
+
+## [1.3.0] — 2026-08-11
+
+Completes the editor surface: every shortcode is now also a Gutenberg block
+**and** an Elementor widget. No markup, attribute, or option changed, so
+existing pages render exactly as before.
+
+### Added
+- **Events Hub block & Elementor widget** (`[club_events]`). The hub block was
+  registered server-side in 1.2.0 but never registered in the editor script, so
+  it never appeared in the inserter; it now does, with controls for the enabled
+  views, the default view, columns, search, filter bar, and the Subscribe (ICS)
+  button.
+- **Event Tiles block & Elementor widget** (`[club_events_tiles]`) — same fix,
+  plus controls for excerpt, location, time, type badges, share, ICS, and the
+  call-to-action label.
+- **Event Share Actions block & Elementor widget** (`[club_events_share]`) —
+  previously shortcode-only.
+- **Timeline layout control** in both editors, exposing the
+  `layout="center"` alternating timeline added in 1.2.0.
+- `club-events/tests/widgets-parity.php` — a static test that fails if the
+  shortcode, block, and Elementor surfaces drift apart again (a block missing
+  on either side, an attribute mismatch, a widget passing an attribute the
+  shortcode does not accept, or an inconsistent version number).
+
+### Fixed
+- Block previews in the editor: the block script never declared
+  `wp-server-side-render`, so on sites where nothing else enqueued it every
+  block silently fell back to a static placeholder instead of a live preview.
+- Elementor switchers that are off now send an explicit `0` for every `show_*`
+  attribute. Previously only `show_past`, `show_filter`, and `show_image` were
+  translated, so any other toggle turned off would have fallen back to the
+  shortcode default (on).
+- Elementor text controls (category, event type, CTA label) no longer run
+  through `esc_attr()` before being spliced into a shortcode string, which
+  double-encoded ampersands in rendered output. Characters that would break
+  shortcode parsing are stripped instead.
+
 ## [1.2.0] — 2026-07-05
 
 ### Added
