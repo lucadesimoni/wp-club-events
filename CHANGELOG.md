@@ -9,6 +9,14 @@ Makes the plugin a first-class citizen of Astra, Spectra / Gutenberg and
 Elementor. No shortcode, attribute or option changed; existing pages keep
 rendering, now in the theme's colours.
 
+### Compatibility
+- Requires WordPress **6.5** or later; tested up to **7.1**. Block API v3 and
+  the iframed editor need 6.3+, and 6.5 is the supported floor.
+- Editor controls opt into the WordPress 7.0 control styles
+  (`__nextHasNoMarginBottom`, `__next40pxDefaultSize`). WordPress 6.7-6.9
+  logged a deprecation warning for every text, select, range and toggle
+  control in the block inspector; 7.0 removed the old styles.
+
 ### Fixed
 - **The Astra bridge never took effect.** It was printed in `wp_head` before
   the plugin stylesheet, so the stylesheet's `:root` defaults won the cascade:

@@ -1,8 +1,8 @@
 === Club Events Manager ===
 Contributors: lucadesimoni
 Tags: events, calendar, google calendar, ics, club
-Requires at least: 5.8
-Tested up to: 6.7
+Requires at least: 6.5
+Tested up to: 7.1
 Requires PHP: 7.4
 Stable tag: 1.4.0
 License: GPLv2 or later
@@ -44,6 +44,9 @@ theme-adaptive frontend.
 == Changelog ==
 
 = 1.4.0 =
+* Requires WordPress 6.5 or later (tested up to 7.1). Block editor controls use
+  the WordPress 7.0 control styles, so 6.7-6.9 no longer log deprecation
+  warnings and nothing shifts on 7.x.
 * Astra: the design-token bridge now actually applies. It was printed before
   the plugin stylesheet, whose own defaults overrode it, so events kept the
   plugin's blue instead of the Astra palette. It now loads after the

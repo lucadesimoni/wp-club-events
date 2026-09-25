@@ -9,10 +9,19 @@
   var useBlockProps      = blockEditor.useBlockProps;
   var PanelColorSettings = blockEditor.PanelColorSettings;
   var PanelBody    = components.PanelBody;
-  var TextControl  = components.TextControl;
-  var RangeControl = components.RangeControl;
-  var ToggleControl= components.ToggleControl;
-  var SelectControl= components.SelectControl;
+  /*
+   * Opt into the control styles that became the default in WordPress 7.0
+   * (no bottom margin, 40px inputs). Older versions ignore the props;
+   * without them WP 6.7-6.9 log deprecation warnings.
+   */
+  function modern(Control, props) {
+    return function (p) { return el(Control, Object.assign({}, props, p)); };
+  }
+  var sized        = { __nextHasNoMarginBottom: true, __next40pxDefaultSize: true };
+  var TextControl  = modern(components.TextControl, sized);
+  var RangeControl = modern(components.RangeControl, sized);
+  var SelectControl= modern(components.SelectControl, sized);
+  var ToggleControl= modern(components.ToggleControl, { __nextHasNoMarginBottom: true });
   var Disabled     = components.Disabled;
   var useSelect    = data.useSelect;
   var decode       = htmlEntities && htmlEntities.decodeEntities

@@ -166,6 +166,8 @@ check( 'every JS block declares apiVersion 3', count( $reg[0] ) === count( $api[
 check( 'edit() uses useBlockProps', substr_count( $blocks_js, 'useBlockProps()' ) >= count( $reg[0] ) - 3 );
 check( 'no JS block overrides the server supports', false === strpos( $blocks_js, 'supports:' ) );
 check( 'previews skip block-support attributes', false !== strpos( $blocks_js, 'skipBlockSupportAttributes: true' ) );
+check( 'controls use the WordPress 7.0 control styles', false !== strpos( $blocks_js, '__nextHasNoMarginBottom: true' ) && false !== strpos( $blocks_js, '__next40pxDefaultSize: true' ) );
+check( 'plugin header requires WordPress 6.5', (bool) preg_match( '/Requires at least:\s*6\.5/', file_get_contents( $root . '/club-events.php' ) ) );
 check( 'styles load into the editor iframe', false !== strpos( $plugin, "'enqueue_block_assets'" ) );
 check( 'no reliance on the pre-iframe editor hook for styles', false === strpos( $plugin, "enqueue_block_editor_assets" ) );
 
