@@ -3,7 +3,10 @@
  * Plugin Name: Club Events Manager
  * Plugin URI:  https://github.com/lucadesimoni/wp_club_events
  * Description: Modern event management for clubs — sync multiple Google Calendars, timeline & overview views, blog embeds, ICS export, and email subscriptions.
- * Version:     1.3.0
+ * Version:     1.4.0
+ * Requires at least: 6.5
+ * Tested up to: 7.1
+ * Requires PHP: 7.4
  * Author:      Club Events Manager
  * License:     GPL-2.0+
  * Text Domain: club-events
@@ -19,7 +22,7 @@ if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
     return;
 }
 
-define( 'CE_VERSION',     '1.3.0' );
+define( 'CE_VERSION',     '1.4.0' );
 define( 'CE_PLUGIN_FILE', __FILE__ );
 define( 'CE_PLUGIN_DIR',  plugin_dir_path( __FILE__ ) );
 define( 'CE_PLUGIN_URL',  plugin_dir_url( __FILE__ ) );

@@ -1597,3 +1597,24 @@ body.ce-archive-page .ast-container {
   .ce-event-body-wrap { grid-template-columns: 1fr; }
   .ce-sidebar-actions { display: none; }
 }
+
+/* ─── Block wrapper (Gutenberg, Spectra, any block theme) ─────────────────── */
+/* Stays inside flex/grid parents such as Spectra containers and columns. */
+.ce-block {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+/* A text colour picked in the block's Color panel re-tints the component. */
+.ce-block.has-text-color {
+  --ce-text:          currentColor;
+  --ce-heading-color: currentColor;
+  --ce-text-muted:    color-mix(in srgb, currentColor 72%, transparent);
+}
+/* Full-width blocks keep a gutter unless padding is set on the block. */
+.ce-block.alignfull {
+  padding-left:  max(20px, var(--wp--style--root--padding-left, 0px));
+  padding-right: max(20px, var(--wp--style--root--padding-right, 0px));
+}
+.ce-block.alignwide > .ce-timeline-wrap,
+.ce-block.alignfull > .ce-timeline-wrap { margin-left: auto; margin-right: auto; }

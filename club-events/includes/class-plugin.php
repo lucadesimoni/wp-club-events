@@ -19,6 +19,7 @@ class CE_Plugin {
     }
 
     private function load_dependencies() {
+        require_once CE_PLUGIN_DIR . 'includes/class-style.php';
         require_once CE_PLUGIN_DIR . 'includes/class-cpt.php';
         require_once CE_PLUGIN_DIR . 'includes/class-google-calendar.php';
         require_once CE_PLUGIN_DIR . 'includes/class-ics-export.php';
@@ -27,6 +28,7 @@ class CE_Plugin {
         require_once CE_PLUGIN_DIR . 'includes/class-rest-api.php';
         require_once CE_PLUGIN_DIR . 'includes/class-frontend-submit.php';
         require_once CE_PLUGIN_DIR . 'includes/class-astra-compat.php';
+        require_once CE_PLUGIN_DIR . 'includes/class-patterns.php';
         require_once CE_PLUGIN_DIR . 'admin/class-admin.php';
 
         if ( is_admin() ) {
@@ -36,8 +38,11 @@ class CE_Plugin {
 
     private function init_hooks() {
         add_action( 'init', [ $this, 'load_textdomain' ] );
+        // Registered early so blocks can name the handles and the block-editor
+        // iframe can load them.
+        add_action( 'init', [ $this, 'register_public_assets' ], 5 );
         add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_public_assets' ] );
-        add_action( 'enqueue_block_editor_assets', [ $this, 'enqueue_editor_assets' ] );
+        add_action( 'enqueue_block_assets', [ $this, 'enqueue_editor_canvas_assets' ] );
         add_filter( 'block_categories_all', [ $this, 'register_block_category' ], 10, 2 );
 
         new CE_CPT();
@@ -48,6 +53,7 @@ class CE_Plugin {
         new CE_REST_API();
         new CE_Frontend_Submit();
         new CE_Astra_Compat();
+        new CE_Patterns();
 
         if ( did_action( 'elementor/loaded' ) ) {
             require_once CE_PLUGIN_DIR . 'includes/class-elementor.php';
@@ -63,14 +69,14 @@ class CE_Plugin {
         load_plugin_textdomain( 'club-events', false, dirname( CE_PLUGIN_BASE ) . '/languages' );
     }
 
-    public function enqueue_public_assets() {
-        wp_enqueue_style(
+    public function register_public_assets() {
+        wp_register_style(
             'club-events',
             CE_PLUGIN_URL . 'public/css/club-events-public.css',
             [],
             CE_VERSION
         );
-        wp_enqueue_script(
+        wp_register_script(
             'club-events',
             CE_PLUGIN_URL . 'public/js/club-events-public.js',
             [],
@@ -95,14 +101,21 @@ class CE_Plugin {
         ] );
     }
 
-    public function enqueue_editor_assets() {
-        wp_register_style(
-            'club-events-editor',
-            CE_PLUGIN_URL . 'public/css/club-events-public.css',
-            [],
-            CE_VERSION
-        );
-        wp_enqueue_style( 'club-events-editor' );
+    public function enqueue_public_assets() {
+        wp_enqueue_style( 'club-events' );
+        wp_enqueue_script( 'club-events' );
+    }
+
+    /**
+     * Load the public styles into the block editor canvas (the iframe), so
+     * server-rendered previews look like the front end — including the Astra
+     * palette bridge. `enqueue_block_assets` also fires on the front end,
+     * where enqueue_public_assets() already covers it.
+     */
+    public function enqueue_editor_canvas_assets() {
+        if ( is_admin() ) {
+            wp_enqueue_style( 'club-events' );
+        }
     }
 
     public function register_block_category( $categories, $context ) {

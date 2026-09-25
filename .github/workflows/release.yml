@@ -75,6 +75,7 @@ jobs:
         run: |
           php club-events/tests/e2e-aktivriege.php
           php club-events/tests/widgets-parity.php
+          php club-events/tests/theme-integration.php
 
       - name: Build club-events.zip
         run: |
