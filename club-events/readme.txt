@@ -4,7 +4,7 @@ Tags: events, calendar, google calendar, ics, club
 Requires at least: 5.8
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -42,6 +42,34 @@ theme-adaptive frontend.
 * `[club_events_my_events]` — user event dashboard.
 
 == Changelog ==
+
+= 1.4.0 =
+* Astra: the design-token bridge now actually applies. It was printed before
+  the plugin stylesheet, whose own defaults overrode it, so events kept the
+  plugin's blue instead of the Astra palette. It now loads after the
+  stylesheet, and in the block editor and the Elementor preview too.
+* Astra: palette slots fixed. Secondary text used Astra's "secondary
+  background" colour (white) and subtle backgrounds used a supporting colour
+  that is near-black in the default palette. Muted text and borders are now
+  mixed from the text and surface colours, so dark palettes work.
+* Astra: buttons, heading font and heading sizes are read from the Astra
+  Customizer (radius, padding, colours, font size, weight, transform) instead
+  of CSS variables Astra never defines.
+* Astra: a sidebar chosen for events in the Astra meta box or Customizer is
+  respected; breadcrumbs cover category, type and tag archives.
+* Gutenberg / Spectra: blocks use block API v3 (iframed editor) and support
+  wide/full alignment, anchors, margin, padding, and text/background colours.
+  Wide or full alignment used to break the editor preview ("Invalid
+  parameter(s): attributes") and was ignored on the front end.
+* Gutenberg / Spectra: new Accent colour setting on every block, picked from
+  the theme palette (Astra's global colours stay linked to the palette).
+* Gutenberg / Spectra: category and event type are dropdowns of your terms.
+* Gutenberg / Spectra: three block patterns under "Club Events".
+* Elementor: every widget has a Style tab (colours, corner radius, title,
+  text and button typography, Elementor global colours and fonts).
+* Elementor: category and event type are dropdowns of your terms.
+* Elementor: widgets now work in the editor preview after a setting changes.
+  The Events Hub did not respond and timeline items stayed invisible.
 
 = 1.3.0 =
 * Every shortcode is now also a Gutenberg block and an Elementor widget.

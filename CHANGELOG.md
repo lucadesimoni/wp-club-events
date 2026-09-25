@@ -3,6 +3,61 @@
 All notable changes to **Club Events Manager** are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] — 2026-09-25
+
+Makes the plugin a first-class citizen of Astra, Spectra / Gutenberg and
+Elementor. No shortcode, attribute or option changed; existing pages keep
+rendering, now in the theme's colours.
+
+### Fixed
+- **The Astra bridge never took effect.** It was printed in `wp_head` before
+  the plugin stylesheet, so the stylesheet's `:root` defaults won the cascade:
+  events stayed plugin-blue and only a few button rules followed Astra. The
+  bridge is now inline CSS on the `club-events` stylesheet (printed after it),
+  which also carries it into the block-editor iframe and the Elementor preview.
+- **Wrong Astra palette slots.** Secondary text mapped to
+  `--ast-global-color-5` (Astra's secondary *background*, white) and subtle
+  backgrounds to `--ast-global-color-7` (near-black in the default palette).
+  Slots now follow Astra's meaning (0 brand, 1 alternate brand, 2 headings,
+  3 text, 4 primary background, 5 surfaces); muted text and borders are mixed
+  from text and surface, so dark palettes stay legible.
+- **Astra typography and buttons.** The bridge referenced CSS variables Astra
+  does not define (`--ast-button-border-radius`, `--ast-heading-font-family`,
+  …), so the hard-coded fallbacks always won and headings were forced to the
+  body font. Button colours, radius (Astra 4 four-corner and legacy), padding,
+  font size, weight, transform and letter spacing, plus heading font, weight
+  and H1–H4 sizes, are now read from the Customizer (`ce_astra_tokens` filter).
+- **Aligned blocks broke the editor preview.** Alignment was declared only in
+  JavaScript, so choosing Wide/Full made the server-side-render request fail
+  with "Invalid parameter(s): attributes", and the front end ignored it.
+- **Elementor editor preview.** Widgets re-rendered after a setting change
+  were never initialised: the Events Hub did not respond and timeline items
+  stayed at opacity 0. The front-end script now initialises idempotently and
+  hooks `frontend/element_ready/global` (exposed as `ClubEvents.init()`).
+- Single events no longer override a sidebar chosen in the Astra meta box or
+  Customizer (the full-bleed hero applies only to the full-width layout);
+  Astra breadcrumbs now cover category, type and tag archives.
+
+### Added
+- **Blocks on API v3** with server-side supports: wide/full alignment, anchor,
+  margin, padding, text and background colour — usable from Gutenberg and
+  Spectra alike. Blocks render inside a wrapper that applies them, and stay
+  inside flex parents such as Spectra containers.
+- **Accent colour** on every block, chosen from the theme palette. Palette
+  values such as `var(--ast-global-color-0)` are kept, so the block follows
+  later palette changes.
+- **Term dropdowns** for category and event type, in the block inspector and
+  the Elementor panel (previously free-text slugs).
+- **Block patterns** ("Club Events" category): Events page, Upcoming events
+  teaser, Calendar with subscribe form — core blocks only.
+- **Elementor Style tab** on all 11 widgets: accent, title, text, secondary
+  text, card background, subtle background and border colours; card and
+  button corner radius; title, text and button typography — with Elementor
+  global colours and fonts. Widgets declare their style/script dependencies.
+- `club-events/tests/theme-integration.php` (run in CI): Astra token parsing,
+  the colour sanitiser, the block wrapper, and static checks for API v3,
+  iframe-ready assets and the Elementor re-init hook.
+
 ## [1.3.0] — 2026-08-11
 
 Completes the editor surface: every shortcode is now also a Gutenberg block

@@ -3,7 +3,11 @@
   'use strict';
 
   /* ─── Events Hub: search + view switch + filter ───────────────────────── */
-  document.querySelectorAll('.ce-hub').forEach(function (hub) {
+  function initHub(hub) {
+    // Page builders re-render widgets in place; bind each hub only once.
+    if (hub.dataset.ceReady) return;
+    hub.dataset.ceReady = '1';
+
     var searchInput = hub.querySelector('.ce-hub-search-input');
     var switchBtns  = hub.querySelectorAll('.ce-view-switch-btn');
     var views       = hub.querySelectorAll('.ce-hub-view');
@@ -87,7 +91,7 @@
         applyFilter();
       });
     });
-  });
+  }
 
   /* ─── Filter bar ──────────────────────────────────────────────────────── */
   document.addEventListener('click', function (e) {
@@ -300,12 +304,18 @@
   window.addEventListener('scroll', closePopover, true);
 
   /* ─── Animate timeline items on scroll ───────────────────────────────── */
-  if ('IntersectionObserver' in window) {
+  var io = null;
+  // No reveal animation inside page-builder editors: items rendered after
+  // load would otherwise stay invisible until scrolled.
+  var inEditor = document.body.classList.contains('elementor-editor-active')
+    || document.body.classList.contains('block-editor-page');
+
+  if ('IntersectionObserver' in window && !inEditor) {
     var style = document.createElement('style');
-    style.textContent = '.ce-timeline-item{opacity:0;transform:translateY(16px);transition:opacity .4s ease,transform .4s ease}.ce-timeline-item.is-visible{opacity:1;transform:none}';
+    style.textContent = '.ce-timeline-item:not(.is-visible){opacity:0;transform:translateY(16px)}.ce-timeline-item{transition:opacity .4s ease,transform .4s ease}';
     document.head.appendChild(style);
 
-    var io = new IntersectionObserver(function (entries) {
+    io = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
           entry.target.classList.add('is-visible');
@@ -313,10 +323,40 @@
         }
       });
     }, { threshold: 0.1 });
+  }
 
-    document.querySelectorAll('.ce-timeline-item').forEach(function (item) {
-      io.observe(item);
+  function initTimeline(root) {
+    root.querySelectorAll('.ce-timeline-item:not(.is-visible)').forEach(function (item) {
+      if (io) {
+        io.observe(item);
+      } else {
+        item.classList.add('is-visible');
+      }
     });
+  }
+
+  /* ─── Init (document, and anything a page builder renders later) ─────── */
+  function init(root) {
+    root = root || document;
+    if (root.matches && root.matches('.ce-hub')) initHub(root);
+    root.querySelectorAll('.ce-hub').forEach(initHub);
+    initTimeline(root);
+  }
+
+  init(document);
+  window.ClubEvents = { init: init };
+
+  // Elementor renders widgets again whenever a setting changes in the
+  // editor, and can lazy-render them on the front end (popups, tabs).
+  function hookElementor() {
+    window.elementorFrontend.hooks.addAction('frontend/element_ready/global', function ($scope) {
+      if ($scope && $scope[0]) init($scope[0]);
+    });
+  }
+  if (window.elementorFrontend && window.elementorFrontend.hooks) {
+    hookElementor();
+  } else if (window.jQuery) {
+    window.jQuery(window).on('elementor/frontend/init', hookElementor);
   }
 
 })();

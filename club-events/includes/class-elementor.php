@@ -45,19 +45,7 @@ trait CE_Elementor_Controls {
             'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
         ] );
 
-        $this->add_control( 'category', [
-            'label'       => __( 'Category Slug', 'club-events' ),
-            'type'        => \Elementor\Controls_Manager::TEXT,
-            'default'     => '',
-            'description' => __( 'Filter by event category slug. Leave empty for all.', 'club-events' ),
-        ] );
-
-        $this->add_control( 'event_type', [
-            'label'       => __( 'Event Type Slug', 'club-events' ),
-            'type'        => \Elementor\Controls_Manager::TEXT,
-            'default'     => '',
-            'description' => __( 'Filter by event type slug. Leave empty for all.', 'club-events' ),
-        ] );
+        $this->add_taxonomy_controls();
 
         if ( ! empty( $opts['filter_by'] ) ) {
             $this->add_control( 'filter_by', [
@@ -133,6 +121,129 @@ trait CE_Elementor_Controls {
         $this->end_controls_section();
     }
 
+    /** Category and event type dropdowns, listing the site's terms. */
+    protected function add_taxonomy_controls() {
+        $this->add_control( 'category', [
+            'label'       => __( 'Category', 'club-events' ),
+            'type'        => \Elementor\Controls_Manager::SELECT,
+            'default'     => '',
+            'options'     => self::term_options( 'event_category' ),
+            'description' => __( 'Show only events in this category.', 'club-events' ),
+        ] );
+
+        $this->add_control( 'event_type', [
+            'label'       => __( 'Event Type', 'club-events' ),
+            'type'        => \Elementor\Controls_Manager::SELECT,
+            'default'     => '',
+            'options'     => self::term_options( 'event_type' ),
+            'description' => __( 'Show only events of this type.', 'club-events' ),
+        ] );
+    }
+
+    protected static function term_options( string $taxonomy ): array {
+        $options = [ '' => __( 'All', 'club-events' ) ];
+        $terms   = get_terms( [ 'taxonomy' => $taxonomy, 'hide_empty' => false ] );
+        if ( ! is_wp_error( $terms ) ) {
+            foreach ( $terms as $term ) {
+                $options[ $term->slug ] = $term->name;
+            }
+        }
+        return $options;
+    }
+
+    /**
+     * Style tab shared by every widget. Colours override the --ce-* tokens on
+     * the widget wrapper, so one choice re-tints the whole component; left
+     * empty, the widget follows the theme (Astra palette) like the blocks do.
+     * Elementor's global colours and fonts can be picked in every control.
+     */
+    protected function add_style_controls() {
+        $this->start_controls_section( 'section_style_colors', [
+            'label' => __( 'Colours', 'club-events' ),
+            'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+        ] );
+
+        $this->add_control( 'accent_color', [
+            'label'     => __( 'Accent', 'club-events' ),
+            'type'      => \Elementor\Controls_Manager::COLOR,
+            'selectors' => [ '{{WRAPPER}}' => CE_Style::accent_template( '{{VALUE}}' ) ],
+        ] );
+
+        $tokens = [
+            'heading_color' => [ __( 'Titles', 'club-events' ), '--ce-heading-color' ],
+            'text_color'    => [ __( 'Text', 'club-events' ), '--ce-text' ],
+            'muted_color'   => [ __( 'Secondary text', 'club-events' ), '--ce-text-muted' ],
+            'surface_color' => [ __( 'Card background', 'club-events' ), '--ce-white' ],
+            'subtle_color'  => [ __( 'Subtle background', 'club-events' ), '--ce-bg' ],
+            'border_color'  => [ __( 'Borders', 'club-events' ), '--ce-border' ],
+        ];
+        foreach ( $tokens as $id => $token ) {
+            $this->add_control( $id, [
+                'label'     => $token[0],
+                'type'      => \Elementor\Controls_Manager::COLOR,
+                'selectors' => [ '{{WRAPPER}}' => $token[1] . ': {{VALUE}};' ],
+            ] );
+        }
+
+        $this->end_controls_section();
+
+        $this->start_controls_section( 'section_style_shape', [
+            'label' => __( 'Shape', 'club-events' ),
+            'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+        ] );
+
+        $this->add_responsive_control( 'card_radius', [
+            'label'      => __( 'Card corner radius', 'club-events' ),
+            'type'       => \Elementor\Controls_Manager::SLIDER,
+            'size_units' => [ 'px' ],
+            'range'      => [ 'px' => [ 'min' => 0, 'max' => 40 ] ],
+            'selectors'  => [ '{{WRAPPER}}' => '--ce-radius: {{SIZE}}{{UNIT}}; --ce-radius-sm: calc({{SIZE}}{{UNIT}} * .6);' ],
+        ] );
+
+        $this->add_responsive_control( 'button_radius', [
+            'label'      => __( 'Button corner radius', 'club-events' ),
+            'type'       => \Elementor\Controls_Manager::SLIDER,
+            'size_units' => [ 'px' ],
+            'range'      => [ 'px' => [ 'min' => 0, 'max' => 50 ] ],
+            'selectors'  => [
+                '{{WRAPPER}}' => '--ce-btn-radius: {{SIZE}}{{UNIT}};',
+                '{{WRAPPER}} .ce-btn, {{WRAPPER}} .ce-filter-btn' => 'border-radius: {{SIZE}}{{UNIT}};',
+            ],
+        ] );
+
+        $this->end_controls_section();
+
+        $this->start_controls_section( 'section_style_typography', [
+            'label' => __( 'Typography', 'club-events' ),
+            'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+        ] );
+
+        $this->add_group_control( \Elementor\Group_Control_Typography::get_type(), [
+            'name'     => 'title_typography',
+            'label'    => __( 'Titles', 'club-events' ),
+            'selector' => '{{WRAPPER}} .ce-event-title, {{WRAPPER}} .ce-card-title, {{WRAPPER}} .ce-tile-card-title, '
+                . '{{WRAPPER}} .ce-list-title, {{WRAPPER}} .ce-upcoming-title, {{WRAPPER}} .ce-yearly-event-title, '
+                . '{{WRAPPER}} .ce-subscribe-title, {{WRAPPER}} .ce-cal-title',
+        ] );
+
+        $this->add_group_control( \Elementor\Group_Control_Typography::get_type(), [
+            'name'     => 'text_typography',
+            'label'    => __( 'Text', 'club-events' ),
+            'selector' => '{{WRAPPER}}',
+        ] );
+
+        $this->add_group_control( \Elementor\Group_Control_Typography::get_type(), [
+            'name'     => 'button_typography',
+            'label'    => __( 'Buttons', 'club-events' ),
+            'selector' => '{{WRAPPER}} .ce-btn, {{WRAPPER}} .ce-filter-btn',
+        ] );
+
+        $this->end_controls_section();
+    }
+
+    public function get_style_depends(): array  { return [ 'club-events' ]; }
+    public function get_script_depends(): array { return [ 'club-events' ]; }
+
     /** A SWITCHER that maps to a shortcode boolean, defaulting to off. */
     protected function add_switcher( string $id, string $label, string $default = '' ) {
         $this->add_control( $id, [
@@ -196,6 +307,8 @@ class CE_Elementor_Timeline extends \Elementor\Widget_Base {
             'show_filter' => true,
             'layout'      => true,
         ] );
+
+        $this->add_style_controls();
     }
 
     protected function render() {
@@ -255,6 +368,8 @@ class CE_Elementor_Hub extends \Elementor\Widget_Base {
         $this->add_switcher( 'show_subscribe', __( 'Show Subscribe (ICS) Button', 'club-events' ), 'yes' );
 
         $this->end_controls_section();
+
+        $this->add_style_controls();
     }
 
     protected function render() {
@@ -305,6 +420,8 @@ class CE_Elementor_Tiles extends \Elementor\Widget_Base {
         ] );
 
         $this->end_controls_section();
+
+        $this->add_style_controls();
     }
 
     protected function render() {
@@ -333,6 +450,8 @@ class CE_Elementor_Overview extends \Elementor\Widget_Base {
             'filter_by'   => true,
             'show_filter' => true,
         ] );
+
+        $this->add_style_controls();
     }
 
     protected function render() {
@@ -363,6 +482,8 @@ class CE_Elementor_Cards extends \Elementor\Widget_Base {
             'show_filter' => true,
             'show_image'  => true,
         ] );
+
+        $this->add_style_controls();
     }
 
     protected function render() {
@@ -390,6 +511,8 @@ class CE_Elementor_List extends \Elementor\Widget_Base {
             'limit'     => 5,
             'show_past' => true,
         ] );
+
+        $this->add_style_controls();
     }
 
     protected function render() {
@@ -417,17 +540,7 @@ class CE_Elementor_Yearly extends \Elementor\Widget_Base {
             'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
         ] );
 
-        $this->add_control( 'category', [
-            'label'   => __( 'Category Slug', 'club-events' ),
-            'type'    => \Elementor\Controls_Manager::TEXT,
-            'default' => '',
-        ] );
-
-        $this->add_control( 'event_type', [
-            'label'   => __( 'Event Type Slug', 'club-events' ),
-            'type'    => \Elementor\Controls_Manager::TEXT,
-            'default' => '',
-        ] );
+        $this->add_taxonomy_controls();
 
         $this->add_control( 'year', [
             'label'   => __( 'Year (0 = current)', 'club-events' ),
@@ -438,6 +551,8 @@ class CE_Elementor_Yearly extends \Elementor\Widget_Base {
         ] );
 
         $this->end_controls_section();
+
+        $this->add_style_controls();
     }
 
     protected function render() {
@@ -497,6 +612,8 @@ class CE_Elementor_Share extends \Elementor\Widget_Base {
         ] );
 
         $this->end_controls_section();
+
+        $this->add_style_controls();
     }
 
     protected function render() {
@@ -510,6 +627,7 @@ class CE_Elementor_Share extends \Elementor\Widget_Base {
 /*  Widget: Events Subscribe Form                                        */
 /* ═══════════════════════════════════════════════════════════════════════ */
 class CE_Elementor_Subscribe extends \Elementor\Widget_Base {
+    use CE_Elementor_Controls;
 
     public function get_name()       { return 'club-events-subscribe'; }
     public function get_title()      { return __( 'Events Subscribe Form', 'club-events' ); }
@@ -517,7 +635,9 @@ class CE_Elementor_Subscribe extends \Elementor\Widget_Base {
     public function get_categories() { return [ 'club-events' ]; }
     public function get_keywords()   { return [ 'events', 'subscribe', 'email', 'newsletter' ]; }
 
-    protected function register_controls() {}
+    protected function register_controls() {
+        $this->add_style_controls();
+    }
 
     protected function render() {
         echo do_shortcode( '[club_events_subscribe]' );
@@ -528,6 +648,7 @@ class CE_Elementor_Subscribe extends \Elementor\Widget_Base {
 /*  Widget: Event Submit Form                                            */
 /* ═══════════════════════════════════════════════════════════════════════ */
 class CE_Elementor_Submit extends \Elementor\Widget_Base {
+    use CE_Elementor_Controls;
 
     public function get_name()       { return 'club-events-submit'; }
     public function get_title()      { return __( 'Event Submit Form', 'club-events' ); }
@@ -535,7 +656,9 @@ class CE_Elementor_Submit extends \Elementor\Widget_Base {
     public function get_categories() { return [ 'club-events' ]; }
     public function get_keywords()   { return [ 'events', 'submit', 'form', 'self-service' ]; }
 
-    protected function register_controls() {}
+    protected function register_controls() {
+        $this->add_style_controls();
+    }
 
     protected function render() {
         echo do_shortcode( '[club_events_submit]' );
@@ -546,6 +669,7 @@ class CE_Elementor_Submit extends \Elementor\Widget_Base {
 /*  Widget: My Events                                                    */
 /* ═══════════════════════════════════════════════════════════════════════ */
 class CE_Elementor_MyEvents extends \Elementor\Widget_Base {
+    use CE_Elementor_Controls;
 
     public function get_name()       { return 'club-events-my-events'; }
     public function get_title()      { return __( 'My Events', 'club-events' ); }
@@ -553,7 +677,9 @@ class CE_Elementor_MyEvents extends \Elementor\Widget_Base {
     public function get_categories() { return [ 'club-events' ]; }
     public function get_keywords()   { return [ 'events', 'my', 'submitted', 'user', 'self-service' ]; }
 
-    protected function register_controls() {}
+    protected function register_controls() {
+        $this->add_style_controls();
+    }
 
     protected function render() {
         echo do_shortcode( '[club_events_my_events]' );
