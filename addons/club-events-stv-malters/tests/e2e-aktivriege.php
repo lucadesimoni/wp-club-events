@@ -62,10 +62,10 @@ function expect_not_contains(string $haystack, string $needle, string $label = '
 
 // ─── Load the import data directly from the import script ────────────────────
 // Extract the $events array without executing the import function
-$import_source = file_get_contents(__DIR__ . '/../tools/import-aktivriege-2026.php');
+$import_source = file_get_contents(__DIR__ . '/../import-aktivriege-2026.php');
 
 // Run import function in isolation — we inject a stubbed version
-require_once __DIR__ . '/../tools/import-aktivriege-2026.php';
+require_once __DIR__ . '/../import-aktivriege-2026.php';
 
 // ════════════════════════════════════════════════════════════════════════════
 echo "\n=== 1. Import Data Integrity ===\n";
@@ -385,7 +385,7 @@ t('Turnfest Kerzers location is Kerzers', function() {
 echo "\n=== 6. ICS Export — Aktivriege Events ===\n";
 
 t('ICS export for Turnfest Kerzers uses DATE (all-day) format', function() {
-    require_once __DIR__ . '/../includes/class-ics-export.php';
+    require_once __DIR__ . '/../../../club-events/includes/class-ics-export.php';
     $export = new CE_ICS_Export();
     $ref = new ReflectionMethod($export, 'build_ics');
     $ref->setAccessible(true);
@@ -538,7 +538,7 @@ t('ICS line lengths all ≤ 75 octets (RFC 5545 §3.1)', function() use ($events
 echo "\n=== 7. REST API — event_type Filtering ===\n";
 
 t('REST /events?event_type=aktivriege returns array', function() {
-    require_once __DIR__ . '/../includes/class-rest-api.php';
+    require_once __DIR__ . '/../../../club-events/includes/class-rest-api.php';
     $api = new CE_REST_API();
     $req = new WP_REST_Request([
         'event_type' => 'aktivriege',

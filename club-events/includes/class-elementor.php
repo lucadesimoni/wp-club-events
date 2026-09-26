@@ -312,7 +312,7 @@ class CE_Elementor_Timeline extends \Elementor\Widget_Base {
     }
 
     protected function render() {
-        echo $this->build_shortcode( 'club_events_timeline', [
+        echo $this->build_shortcode( 'club_events_timeline', [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer.
             'category', 'event_type', 'filter_by', 'limit', 'show_past', 'show_filter', 'layout',
         ] );
     }
@@ -373,7 +373,7 @@ class CE_Elementor_Hub extends \Elementor\Widget_Base {
     }
 
     protected function render() {
-        echo $this->build_shortcode( 'club_events', [
+        echo $this->build_shortcode( 'club_events', [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer.
             'category', 'event_type', 'filter_by', 'limit', 'columns',
             'show_past', 'show_filter', 'show_search', 'show_subscribe',
             'views',
@@ -416,7 +416,8 @@ class CE_Elementor_Tiles extends \Elementor\Widget_Base {
         $this->add_control( 'cta', [
             'label'   => __( 'Call to Action Label', 'club-events' ),
             'type'    => \Elementor\Controls_Manager::TEXT,
-            'default' => __( 'Weiterlesen', 'club-events' ),
+            'default' => '',
+            'placeholder' => __( 'Read more', 'club-events' ),
         ] );
 
         $this->end_controls_section();
@@ -425,7 +426,7 @@ class CE_Elementor_Tiles extends \Elementor\Widget_Base {
     }
 
     protected function render() {
-        echo $this->build_shortcode( 'club_events_tiles', [
+        echo $this->build_shortcode( 'club_events_tiles', [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer.
             'category', 'event_type', 'limit', 'columns', 'show_image',
             'show_excerpt', 'show_location', 'show_time', 'show_types',
             'show_share', 'show_ics', 'cta',
@@ -455,7 +456,7 @@ class CE_Elementor_Overview extends \Elementor\Widget_Base {
     }
 
     protected function render() {
-        echo $this->build_shortcode( 'club_events_overview', [
+        echo $this->build_shortcode( 'club_events_overview', [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer.
             'category', 'event_type', 'filter_by', 'show_filter',
         ] );
     }
@@ -487,7 +488,7 @@ class CE_Elementor_Cards extends \Elementor\Widget_Base {
     }
 
     protected function render() {
-        echo $this->build_shortcode( 'club_events_cards', [
+        echo $this->build_shortcode( 'club_events_cards', [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer.
             'category', 'event_type', 'filter_by', 'limit', 'columns',
             'show_past', 'show_filter', 'show_image',
         ] );
@@ -516,7 +517,7 @@ class CE_Elementor_List extends \Elementor\Widget_Base {
     }
 
     protected function render() {
-        echo $this->build_shortcode( 'club_events_list', [
+        echo $this->build_shortcode( 'club_events_list', [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer.
             'category', 'event_type', 'limit', 'show_past',
         ] );
     }
@@ -556,7 +557,7 @@ class CE_Elementor_Yearly extends \Elementor\Widget_Base {
     }
 
     protected function render() {
-        echo $this->build_shortcode( 'club_events_yearly', [
+        echo $this->build_shortcode( 'club_events_yearly', [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer.
             'category', 'event_type', 'year',
         ] );
     }
@@ -617,7 +618,7 @@ class CE_Elementor_Share extends \Elementor\Widget_Base {
     }
 
     protected function render() {
-        echo $this->build_shortcode( 'club_events_share', [
+        echo $this->build_shortcode( 'club_events_share', [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer.
             'url', 'title', 'ics', 'labels',
         ] );
     }
@@ -640,7 +641,7 @@ class CE_Elementor_Subscribe extends \Elementor\Widget_Base {
     }
 
     protected function render() {
-        echo do_shortcode( '[club_events_subscribe]' );
+        echo do_shortcode( '[club_events_subscribe]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer.
     }
 }
 
@@ -661,7 +662,7 @@ class CE_Elementor_Submit extends \Elementor\Widget_Base {
     }
 
     protected function render() {
-        echo do_shortcode( '[club_events_submit]' );
+        echo do_shortcode( '[club_events_submit]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer.
     }
 }
 
@@ -682,6 +683,6 @@ class CE_Elementor_MyEvents extends \Elementor\Widget_Base {
     }
 
     protected function render() {
-        echo do_shortcode( '[club_events_my_events]' );
+        echo do_shortcode( '[club_events_my_events]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer.
     }
 }

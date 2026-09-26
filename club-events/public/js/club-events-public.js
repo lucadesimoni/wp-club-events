@@ -226,7 +226,7 @@
       '<a class="ce-share-pop-item" data-net="email">' +
         '<svg viewBox="0 0 24 24" width="18" height="18" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M4 7l8 6 8-6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>E-Mail</span></a>' +
       '<button type="button" class="ce-share-pop-item" data-net="copy">' +
-        '<svg viewBox="0 0 24 24" width="18" height="18" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M5 15V5a2 2 0 0 1 2-2h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span class="ce-share-copy-label">' + (I18N.copyLink || 'Link kopieren') + '</span></button>';
+        '<svg viewBox="0 0 24 24" width="18" height="18" fill="none"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M5 15V5a2 2 0 0 1 2-2h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span class="ce-share-copy-label">' + (I18N.copyLink || 'Copy link') + '</span></button>';
     document.body.appendChild(pop);
     return pop;
   }
@@ -302,6 +302,113 @@
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closePopover(); });
   window.addEventListener('scroll', closePopover, true);
+
+  /* ─── Forms: subscribe, submit event, delete my event ─────────────────
+   * Delegated from document, so forms rendered later (page builders,
+   * popups) work too. Strings and the AJAX URL come from wp_localize_script.
+   */
+  function post(data) {
+    return fetch((window.CE && CE.ajaxUrl) || '/wp-admin/admin-ajax.php', { method: 'POST', body: data })
+      .then(function (r) { return r.json(); });
+  }
+  function showMsg(msg, ok, text) {
+    if (!msg) return;
+    msg.hidden = false;
+    msg.className = 'ce-form-msg ' + (ok ? 'ce-form-msg--success' : 'ce-form-msg--error');
+    msg.textContent = text;
+  }
+
+  document.addEventListener('submit', function (e) {
+    var form = e.target;
+    if (form.matches('.ce-subscribe-form')) {
+      e.preventDefault();
+      var btn = form.querySelector('button[type="submit"]');
+      var msg = form.querySelector('.ce-form-msg');
+      btn.disabled = true;
+      btn.textContent = I18N.subscribing || 'Subscribing…';
+      var data = new FormData(form);
+      var cats = Array.from(form.querySelectorAll('[name="categories[]"]:checked')).map(function (c) { return c.value; });
+      data.set('categories', cats.join(','));
+      data.set('action', 'ce_subscribe');
+      data.set('nonce', form.querySelector('[name="ce_subscribe_nonce_field"]').value);
+      post(data).then(function (res) {
+        showMsg(msg, res.success, res.data);
+        if (res.success) {
+          form.reset();
+          btn.textContent = I18N.subscribed || 'Subscribed!';
+        } else {
+          btn.disabled = false;
+          btn.textContent = I18N.subscribe || 'Subscribe';
+        }
+      }).catch(function () {
+        btn.disabled = false;
+        btn.textContent = I18N.subscribe || 'Subscribe';
+      });
+    } else if (form.matches('.ce-submit-form')) {
+      e.preventDefault();
+      var sbtn = form.querySelector('button[type="submit"]');
+      var smsg = form.querySelector('.ce-form-msg');
+      sbtn.disabled = true;
+      sbtn.textContent = I18N.submitting || 'Submitting…';
+      var sdata = new FormData(form);
+      sdata.append('action', 'ce_submit_event');
+      post(sdata).then(function (res) {
+        showMsg(smsg, res.success, res.data);
+        if (res.success) {
+          form.reset();
+          var color = form.querySelector('#ce-submit-color');
+          if (color) color.value = '#3b82f6';
+        }
+      }).catch(function () {
+        showMsg(smsg, false, I18N.error || 'Something went wrong. Please try again.');
+      }).then(function () {
+        sbtn.disabled = false;
+        sbtn.textContent = I18N.submitEvent || 'Submit Event';
+      });
+    }
+  });
+
+  // All-day toggle on the submit form switches the date inputs.
+  document.addEventListener('change', function (e) {
+    if (e.target.id !== 'ce-submit-allday') return;
+    var form = e.target.closest('form');
+    ['ce-submit-start', 'ce-submit-end'].forEach(function (id) {
+      var input = form && form.querySelector('#' + id);
+      if (input) input.type = e.target.checked ? 'date' : 'datetime-local';
+    });
+  });
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.ce-delete-my-event');
+    if (!btn) return;
+    if (!window.confirm(I18N.confirmDelete || 'Delete this event?')) return;
+    var wrap = btn.closest('.ce-my-events');
+    var row = btn.closest('tr');
+    var data = new FormData();
+    data.append('action', 'ce_delete_my_event');
+    data.append('id', btn.dataset.id);
+    data.append('nonce', wrap ? wrap.dataset.nonce : '');
+    post(data).then(function (res) {
+      if (res.success && row) {
+        row.style.transition = 'opacity .3s';
+        row.style.opacity = '0';
+        setTimeout(function () { row.remove(); }, 300);
+      }
+    });
+  });
+
+  /* ─── Event archive: timeline / cards / calendar switcher ────────────── */
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.ce-view-btn[data-view]');
+    if (!btn) return;
+    e.preventDefault();
+    var bar = btn.parentElement;
+    bar.querySelectorAll('.ce-view-btn').forEach(function (b) { b.classList.toggle('active', b === btn); });
+    ['timeline', 'cards', 'overview'].forEach(function (k) {
+      var view = document.getElementById('ce-view-' + k);
+      if (view) view.hidden = (k !== btn.dataset.view);
+    });
+  });
 
   /* ─── Animate timeline items on scroll ───────────────────────────────── */
   var io = null;

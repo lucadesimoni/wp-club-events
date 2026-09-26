@@ -121,53 +121,6 @@ class CE_Frontend_Submit {
                 <div id="ce-submit-msg" class="ce-form-msg" hidden></div>
             </form>
         </div>
-        <script>
-        (function(){
-            var form = document.getElementById('ce-submit-form');
-            if (!form) return;
-
-            var allDay = document.getElementById('ce-submit-allday');
-            if (allDay) {
-                allDay.addEventListener('change', function() {
-                    var startInput = document.getElementById('ce-submit-start');
-                    var endInput = document.getElementById('ce-submit-end');
-                    startInput.type = this.checked ? 'date' : 'datetime-local';
-                    endInput.type = this.checked ? 'date' : 'datetime-local';
-                });
-            }
-
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                var btn = document.getElementById('ce-submit-btn');
-                var msg = document.getElementById('ce-submit-msg');
-                btn.disabled = true;
-                btn.textContent = '<?php echo esc_js( __( 'Submitting…', 'club-events' ) ); ?>';
-
-                var data = new FormData(form);
-                data.append('action', 'ce_submit_event');
-
-                fetch('<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>', {
-                    method: 'POST', body: data
-                }).then(function(r){ return r.json(); }).then(function(res) {
-                    msg.hidden = false;
-                    msg.className = 'ce-form-msg ' + (res.success ? 'ce-form-msg--success' : 'ce-form-msg--error');
-                    msg.textContent = res.data;
-                    if (res.success) {
-                        form.reset();
-                        document.getElementById('ce-submit-color').value = '#3b82f6';
-                    }
-                    btn.disabled = false;
-                    btn.textContent = '<?php echo esc_js( __( 'Submit Event', 'club-events' ) ); ?>';
-                }).catch(function() {
-                    msg.hidden = false;
-                    msg.className = 'ce-form-msg ce-form-msg--error';
-                    msg.textContent = '<?php echo esc_js( __( 'Something went wrong. Please try again.', 'club-events' ) ); ?>';
-                    btn.disabled = false;
-                    btn.textContent = '<?php echo esc_js( __( 'Submit Event', 'club-events' ) ); ?>';
-                });
-            });
-        })();
-        </script>
         <?php
         return ob_get_clean();
     }
@@ -199,7 +152,7 @@ class CE_Frontend_Submit {
 
         ob_start();
         ?>
-        <div class="ce-my-events">
+        <div class="ce-my-events" data-nonce="<?php echo esc_attr( wp_create_nonce( 'ce_delete_my_event' ) ); ?>">
             <?php if ( empty( $posts ) ) : ?>
             <p class="ce-empty"><?php esc_html_e( 'You have not submitted any events yet.', 'club-events' ); ?></p>
             <?php else : ?>
@@ -249,29 +202,6 @@ class CE_Frontend_Submit {
             </table>
             <?php endif; ?>
         </div>
-        <script>
-        (function(){
-            document.addEventListener('click', function(e) {
-                var btn = e.target.closest('.ce-delete-my-event');
-                if (!btn) return;
-                if (!confirm('<?php echo esc_js( __( 'Delete this event?', 'club-events' ) ); ?>')) return;
-                var row = btn.closest('tr');
-                var data = new FormData();
-                data.append('action', 'ce_delete_my_event');
-                data.append('id', btn.dataset.id);
-                data.append('nonce', '<?php echo esc_js( wp_create_nonce( 'ce_delete_my_event' ) ); ?>');
-                fetch('<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>', {
-                    method: 'POST', body: data
-                }).then(function(r){ return r.json(); }).then(function(res) {
-                    if (res.success && row) {
-                        row.style.opacity = '0';
-                        row.style.transition = 'opacity .3s';
-                        setTimeout(function(){ row.remove(); }, 300);
-                    }
-                });
-            });
-        })();
-        </script>
         <?php
         return ob_get_clean();
     }
@@ -293,30 +223,30 @@ class CE_Frontend_Submit {
             wp_send_json_error( __( 'You do not have permission to submit events.', 'club-events' ) );
         }
 
-        $title = sanitize_text_field( $_POST['title'] ?? '' );
+        $title = sanitize_text_field( wp_unslash( $_POST['title'] ?? '' ) );
         if ( empty( $title ) ) {
             wp_send_json_error( __( 'Please enter an event title.', 'club-events' ) );
         }
 
-        $start = sanitize_text_field( $_POST['start_date'] ?? '' );
+        $start = sanitize_text_field( wp_unslash( $_POST['start_date'] ?? '' ) );
         if ( empty( $start ) ) {
             wp_send_json_error( __( 'Please enter a start date.', 'club-events' ) );
         }
 
         $all_day     = ! empty( $_POST['all_day'] );
-        $end         = sanitize_text_field( $_POST['end_date'] ?? '' );
-        $location    = sanitize_text_field( $_POST['location'] ?? '' );
-        $description = sanitize_textarea_field( $_POST['description'] ?? '' );
-        $color       = sanitize_hex_color( $_POST['color'] ?? '' ) ?: '#3b82f6';
-        $category    = sanitize_text_field( $_POST['category'] ?? '' );
-        $event_type  = sanitize_text_field( $_POST['event_type'] ?? '' );
+        $end         = sanitize_text_field( wp_unslash( $_POST['end_date'] ?? '' ) );
+        $location    = sanitize_text_field( wp_unslash( $_POST['location'] ?? '' ) );
+        $description = sanitize_textarea_field( wp_unslash( $_POST['description'] ?? '' ) );
+        $color       = sanitize_hex_color( wp_unslash( $_POST['color'] ?? '' ) ) ?: '#3b82f6';
+        $category    = sanitize_text_field( wp_unslash( $_POST['category'] ?? '' ) );
+        $event_type  = sanitize_text_field( wp_unslash( $_POST['event_type'] ?? '' ) );
 
         if ( $all_day ) {
-            $start_date = date( 'Y-m-d', strtotime( $start ) ) . ' 00:00:00';
-            $end_date   = $end ? date( 'Y-m-d', strtotime( $end ) ) . ' 23:59:59' : date( 'Y-m-d', strtotime( $start ) ) . ' 23:59:59';
+            $start_date = gmdate( 'Y-m-d', strtotime( $start ) ) . ' 00:00:00';
+            $end_date   = $end ? gmdate( 'Y-m-d', strtotime( $end ) ) . ' 23:59:59' : gmdate( 'Y-m-d', strtotime( $start ) ) . ' 23:59:59';
         } else {
-            $start_date = date( 'Y-m-d H:i:s', strtotime( $start ) );
-            $end_date   = $end ? date( 'Y-m-d H:i:s', strtotime( $end ) ) : '';
+            $start_date = gmdate( 'Y-m-d H:i:s', strtotime( $start ) );
+            $end_date   = $end ? gmdate( 'Y-m-d H:i:s', strtotime( $end ) ) : '';
         }
 
         $auto_publish_role = get_option( 'ce_self_service_auto_publish_role', 'editor' );

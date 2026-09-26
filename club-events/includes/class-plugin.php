@@ -31,9 +31,6 @@ class CE_Plugin {
         require_once CE_PLUGIN_DIR . 'includes/class-patterns.php';
         require_once CE_PLUGIN_DIR . 'admin/class-admin.php';
 
-        if ( is_admin() ) {
-            require_once CE_PLUGIN_DIR . 'tools/import-aktivriege-2026.php';
-        }
     }
 
     private function init_hooks() {
@@ -97,6 +94,11 @@ class CE_Plugin {
                 'share'       => __( 'Share', 'club-events' ),
                 'copyLink'    => __( 'Copy link', 'club-events' ),
                 'linkCopied'  => __( 'Link copied!', 'club-events' ),
+                'subscribing' => __( 'Subscribing…', 'club-events' ),
+                'submitting'  => __( 'Submitting…', 'club-events' ),
+                'submitEvent' => __( 'Submit Event', 'club-events' ),
+                'error'       => __( 'Something went wrong. Please try again.', 'club-events' ),
+                'confirmDelete' => __( 'Delete this event?', 'club-events' ),
             ],
         ] );
     }
@@ -149,7 +151,7 @@ class CE_Plugin {
         $charset = $wpdb->get_charset_collate();
 
         $sql = "
-        CREATE TABLE IF NOT EXISTS {$wpdb->prefix}ce_subscribers (
+        CREATE TABLE {$wpdb->prefix}ce_subscribers (
             id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             email varchar(200) NOT NULL,
             name varchar(200) DEFAULT '',
@@ -157,12 +159,12 @@ class CE_Plugin {
             categories varchar(500) DEFAULT '',
             confirmed tinyint(1) DEFAULT 0,
             created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (id),
+            PRIMARY KEY  (id),
             UNIQUE KEY email (email),
             KEY token (token)
         ) $charset;
 
-        CREATE TABLE IF NOT EXISTS {$wpdb->prefix}ce_calendars (
+        CREATE TABLE {$wpdb->prefix}ce_calendars (
             id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             name varchar(200) NOT NULL,
             calendar_id varchar(500) NOT NULL,
@@ -171,9 +173,14 @@ class CE_Plugin {
             event_types varchar(500) DEFAULT '',
             sync_enabled tinyint(1) DEFAULT 1,
             last_sync datetime DEFAULT NULL,
-            PRIMARY KEY (id)
+            last_sync_status varchar(20) DEFAULT '',
+            last_sync_message varchar(500) DEFAULT '',
+            PRIMARY KEY  (id)
         ) $charset;";
 
+        // dbDelta() parses the statement itself: it needs plain CREATE TABLE
+        // (IF NOT EXISTS makes it read the table name as "IF") and two spaces
+        // after PRIMARY KEY, or it cannot diff and upgrade the schema.
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta( $sql );
     }

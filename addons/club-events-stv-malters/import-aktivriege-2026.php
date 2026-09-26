@@ -3,7 +3,7 @@
  * One-time import: STV Malters — Aktivriege Jahresprogramm 2025/2026
  *
  * Usage (WP-CLI):
- *   wp eval-file wp-content/plugins/club-events/tools/import-aktivriege-2026.php
+ *   wp eval-file wp-content/plugins/club-events-stv-malters/import-aktivriege-2026.php
  *
  * Usage (browser, admin only):
  *   Add ?ce_run_import=aktivriege2026 to any admin URL, e.g.

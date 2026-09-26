@@ -171,13 +171,13 @@ class CE_CPT {
                 <div>
                     <label for="ce_start_date"><?php esc_html_e( 'Start', 'club-events' ); ?></label>
                     <input type="datetime-local" id="ce_start_date" name="ce_start_date"
-                           value="<?php echo esc_attr( $start ? date( 'Y-m-d\TH:i', strtotime( $start ) ) : '' ); ?>"
+                           value="<?php echo esc_attr( $start ? gmdate( 'Y-m-d\TH:i', strtotime( $start ) ) : '' ); ?>"
                            class="widefat">
                 </div>
                 <div>
                     <label for="ce_end_date"><?php esc_html_e( 'End', 'club-events' ); ?></label>
                     <input type="datetime-local" id="ce_end_date" name="ce_end_date"
-                           value="<?php echo esc_attr( $end ? date( 'Y-m-d\TH:i', strtotime( $end ) ) : '' ); ?>"
+                           value="<?php echo esc_attr( $end ? gmdate( 'Y-m-d\TH:i', strtotime( $end ) ) : '' ); ?>"
                            class="widefat">
                 </div>
             </div>
@@ -229,7 +229,7 @@ class CE_CPT {
     public function save_meta( $post_id, $post ) {
         if (
             ! isset( $_POST['ce_event_nonce'] ) ||
-            ! wp_verify_nonce( sanitize_key( $_POST['ce_event_nonce'] ), 'ce_save_event_meta' ) ||
+            ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['ce_event_nonce'] ) ), 'ce_save_event_meta' ) ||
             defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ||
             ! current_user_can( 'edit_post', $post_id )
         ) {
@@ -247,11 +247,12 @@ class CE_CPT {
         ];
 
         foreach ( $fields as $meta_key => $config ) {
-            $raw = isset( $_POST[ $config['key'] ] ) ? $_POST[ $config['key'] ] : '';
+            // Sanitised by the field's callback on the next line.
+            $raw = isset( $_POST[ $config['key'] ] ) ? wp_unslash( $_POST[ $config['key'] ] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
             $value = call_user_func( $config['sanitize_callback'], $raw );
 
             if ( '_ce_start_date' === $meta_key || '_ce_end_date' === $meta_key ) {
-                $value = $value ? date( 'Y-m-d H:i:s', strtotime( str_replace( 'T', ' ', $value ) ) ) : '';
+                $value = $value ? gmdate( 'Y-m-d H:i:s', strtotime( str_replace( 'T', ' ', $value ) ) ) : '';
             }
 
             update_post_meta( $post_id, $meta_key, $value );

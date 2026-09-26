@@ -114,7 +114,7 @@ class CE_Shortcodes {
                 'show_types'    => [ 'type' => 'boolean', 'default' => false ],
                 'show_share'    => [ 'type' => 'boolean', 'default' => false ],
                 'show_ics'      => [ 'type' => 'boolean', 'default' => false ],
-                'cta'           => [ 'type' => 'string',  'default' => 'Weiterlesen' ],
+                'cta'           => [ 'type' => 'string',  'default' => '' ],
             ],
         ] ) );
 
@@ -230,7 +230,7 @@ class CE_Shortcodes {
         ];
 
         if ( ! $atts['show_past'] ) {
-            $query_args['from'] = date( 'Y-m-d H:i:s' );
+            $query_args['from'] = gmdate( 'Y-m-d H:i:s' );
         }
 
         if ( $atts['category'] ) {
@@ -366,18 +366,18 @@ class CE_Shortcodes {
             'show_filter' => true,
         ], $atts, 'club_events_overview' );
 
-        $year  = isset( $_GET['ce_year'] )  ? (int) $_GET['ce_year']  : (int) date( 'Y' );
-        $month = isset( $_GET['ce_month'] ) ? (int) $_GET['ce_month'] : (int) date( 'n' );
+        $year  = isset( $_GET['ce_year'] )  ? (int) $_GET['ce_year']  : (int) gmdate( 'Y' );
+        $month = isset( $_GET['ce_month'] ) ? (int) $_GET['ce_month'] : (int) gmdate( 'n' );
 
         $month = max( 1, min( 12, $month ) );
 
         $first_day   = mktime( 0, 0, 0, $month, 1, $year );
-        $days_in_mon = (int) date( 't', $first_day );
+        $days_in_mon = (int) gmdate( 't', $first_day );
         $sow         = (int) get_option( 'start_of_week', 1 ); // 0=Sun, 1=Mon
-        $start_dow   = ( (int) date( 'w', $first_day ) - $sow + 7 ) % 7;
+        $start_dow   = ( (int) gmdate( 'w', $first_day ) - $sow + 7 ) % 7;
 
-        $from = date( 'Y-m-d H:i:s', $first_day );
-        $to   = date( 'Y-m-d H:i:s', mktime( 23, 59, 59, $month, $days_in_mon, $year ) );
+        $from = gmdate( 'Y-m-d H:i:s', $first_day );
+        $to   = gmdate( 'Y-m-d H:i:s', mktime( 23, 59, 59, $month, $days_in_mon, $year ) );
 
         $query_args = [ 'from' => $from, 'to' => $to, 'posts_per_page' => 200 ];
         if ( $atts['category'] ) {
@@ -391,7 +391,7 @@ class CE_Shortcodes {
         $events_by_day = [];
         foreach ( $posts as $post ) {
             $ev  = CE_CPT::format_event( $post->ID );
-            $day = (int) date( 'j', strtotime( $ev['start'] ) );
+            $day = (int) gmdate( 'j', strtotime( $ev['start'] ) );
             $events_by_day[ $day ][] = $ev;
         }
 
@@ -444,9 +444,9 @@ class CE_Shortcodes {
                     echo '<div class="ce-cal-day ce-cal-empty"></div>';
                 }
 
-                $today = (int) date( 'j' );
-                $today_month = (int) date( 'n' );
-                $today_year  = (int) date( 'Y' );
+                $today = (int) gmdate( 'j' );
+                $today_month = (int) gmdate( 'n' );
+                $today_year  = (int) gmdate( 'Y' );
 
                 for ( $day = 1; $day <= $days_in_mon; $day++ ) {
                     $is_today = ( $day === $today && $month === $today_month && $year === $today_year );
@@ -526,7 +526,7 @@ class CE_Shortcodes {
 
         $query_args = [ 'posts_per_page' => (int) $atts['limit'] ];
         if ( ! $atts['show_past'] ) {
-            $query_args['from'] = date( 'Y-m-d H:i:s' );
+            $query_args['from'] = gmdate( 'Y-m-d H:i:s' );
         }
         if ( $atts['category'] ) {
             $query_args['tax_query'] = [ [ 'taxonomy' => 'event_category', 'field' => 'slug', 'terms' => sanitize_text_field( $atts['category'] ) ] ];
@@ -575,7 +575,7 @@ class CE_Shortcodes {
 
         $query_args = [ 'posts_per_page' => (int) $atts['limit'] ];
         if ( ! $atts['show_past'] ) {
-            $query_args['from'] = date( 'Y-m-d H:i:s' );
+            $query_args['from'] = gmdate( 'Y-m-d H:i:s' );
         }
         if ( $atts['category'] ) {
             $query_args['tax_query'] = [ [
@@ -707,7 +707,7 @@ class CE_Shortcodes {
 
                             <div class="ce-card-footer">
                                 <span class="ce-card-cta"><?php esc_html_e( 'More details', 'club-events' ); ?> →</span>
-                                <?php echo self::event_actions( $event['url'], $event['title'], $event['ics'], [
+                                <?php echo self::event_actions( $event['url'], $event['title'], $event['ics'], [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
                                     'labels' => false,
                                     'stop'   => true,
                                     'class'  => 'ce-actions--compact',
@@ -734,7 +734,7 @@ class CE_Shortcodes {
 
         $year = (int) $atts['year'];
         if ( ! $year ) {
-            $year = isset( $_GET['ce_year'] ) ? (int) $_GET['ce_year'] : (int) date( 'Y' );
+            $year = isset( $_GET['ce_year'] ) ? (int) $_GET['ce_year'] : (int) gmdate( 'Y' );
         }
 
         $from = "$year-01-01 00:00:00";
@@ -752,7 +752,7 @@ class CE_Shortcodes {
         $events_by_month = [];
         foreach ( $posts as $post ) {
             $ev = CE_CPT::format_event( $post->ID );
-            $m  = (int) date( 'n', strtotime( $ev['start'] ) );
+            $m  = (int) gmdate( 'n', strtotime( $ev['start'] ) );
             $events_by_month[ $m ][] = $ev;
         }
 
@@ -779,7 +779,7 @@ class CE_Shortcodes {
                 $month_names[ $i ] = date_i18n( 'F', mktime( 0, 0, 0, $i, 1 ) );
             }
 
-            $today_str = date( 'Y-m-d' );
+            $today_str = gmdate( 'Y-m-d' );
 
             foreach ( $month_names as $m => $name ) :
                 $events = $events_by_month[ $m ] ?? [];
@@ -796,7 +796,7 @@ class CE_Shortcodes {
                         $day       = date_i18n( 'j', $start_ts );
                         $weekday   = date_i18n( 'D', $start_ts );
                         $time      = ( ! $ev['allDay'] ) ? date_i18n( get_option( 'time_format' ), $start_ts ) : '';
-                        $is_past   = date( 'Y-m-d', $start_ts ) < $today_str;
+                        $is_past   = gmdate( 'Y-m-d', $start_ts ) < $today_str;
                         $row_class = 'ce-yearly-event' . ( $is_past ? ' ce-yearly-event--past' : '' );
                     ?>
                     <a href="<?php echo esc_url( $ev['url'] ); ?>" class="<?php echo esc_attr( $row_class ); ?>"
@@ -841,14 +841,19 @@ class CE_Shortcodes {
             'show_types'    => false,
             'show_share'    => false,
             'show_ics'      => false,
-            'cta'           => __( 'Weiterlesen', 'club-events' ),
+            'cta'           => '',
         ], $atts, 'club_events_tiles' );
+
+        // An empty label (the block/widget default) means the translated default.
+        if ( '' === trim( (string) $atts['cta'] ) ) {
+            $atts['cta'] = __( 'Read more', 'club-events' );
+        }
 
         $cols = max( 1, min( 4, (int) $atts['columns'] ) );
 
         $query_args = [
             'posts_per_page' => (int) $atts['limit'],
-            'from'           => date( 'Y-m-d H:i:s' ),
+            'from'           => gmdate( 'Y-m-d H:i:s' ),
         ];
         if ( $atts['event_type'] ) {
             $slugs = array_map( 'trim', explode( ',', sanitize_text_field( $atts['event_type'] ) ) );
@@ -873,7 +878,7 @@ class CE_Shortcodes {
             <?php else : ?>
             <div class="ce-tiles">
                 <?php foreach ( $events as $event ) {
-                    echo self::render_tile_card( $event, $atts );
+                    echo self::render_tile_card( $event, $atts ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
                 } ?>
             </div>
             <?php endif; ?>
@@ -896,7 +901,7 @@ class CE_Shortcodes {
             'show_types'    => false,
             'show_share'    => false,
             'show_ics'      => false,
-            'cta'           => __( 'Weiterlesen', 'club-events' ),
+            'cta'           => __( 'Read more', 'club-events' ),
         ] );
 
         $start_ts   = $event['start'] ? strtotime( $event['start'] ) : null;
@@ -964,7 +969,7 @@ class CE_Shortcodes {
                     <a href="<?php echo esc_url( $event['url'] ); ?>" class="ce-tile-card-cta"><?php echo esc_html( $o['cta'] ); ?> →</a>
                     <?php endif; ?>
                     <?php if ( $show_actions ) {
-                        echo self::event_actions( $event['url'], $event['title'], $event['ics'], [
+                        echo self::event_actions( $event['url'], $event['title'], $event['ics'], [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
                             'ics'    => ! empty( $o['show_ics'] ),
                             'share'  => ! empty( $o['show_share'] ),
                             'labels' => false,
@@ -1012,7 +1017,7 @@ class CE_Shortcodes {
                title="<?php esc_attr_e( 'Add to calendar', 'club-events' ); ?>"
                aria-label="<?php esc_attr_e( 'Add to calendar', 'club-events' ); ?>"
                <?php if ( $stop ) echo 'onclick="' . esc_attr( $stop ) . '"'; ?>>
-                <?php echo $ics_svg; ?>
+                <?php echo $ics_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed inline SVG icon. ?>
                 <?php if ( $args['labels'] ) : ?><span class="ce-action-label"><?php esc_html_e( 'Add to calendar', 'club-events' ); ?></span><?php endif; ?>
             </a>
             <?php endif; ?>
@@ -1023,7 +1028,7 @@ class CE_Shortcodes {
                     title="<?php esc_attr_e( 'Share', 'club-events' ); ?>"
                     aria-label="<?php esc_attr_e( 'Share', 'club-events' ); ?>"
                     onclick="event.preventDefault();<?php echo esc_attr( $stop ); ?>">
-                <?php echo $share_svg; ?>
+                <?php echo $share_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed inline SVG icon. ?>
                 <?php if ( $args['labels'] ) : ?><span class="ce-action-label"><?php esc_html_e( 'Share', 'club-events' ); ?></span><?php endif; ?>
             </button>
             <?php endif; ?>
@@ -1089,7 +1094,7 @@ class CE_Shortcodes {
         // Query the events that feed the tiles / list / timeline views.
         $query_args = [ 'posts_per_page' => (int) $atts['limit'] ];
         if ( ! $atts['show_past'] ) {
-            $query_args['from'] = date( 'Y-m-d H:i:s' );
+            $query_args['from'] = gmdate( 'Y-m-d H:i:s' );
         }
         if ( $atts['event_type'] ) {
             $query_args['event_type'] = array_map( 'trim', explode( ',', sanitize_text_field( $atts['event_type'] ) ) );
@@ -1167,7 +1172,7 @@ class CE_Shortcodes {
                     if ( 'tiles' === $v ) {
                         echo '<div class="ce-tiles" style="--ce-tile-cols:' . esc_attr( $cols ) . '">';
                         foreach ( $events as $event ) {
-                            echo self::render_tile_card( $event, [
+                            echo self::render_tile_card( $event, [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
                                 'show_image'    => true,
                                 'show_excerpt'  => false,
                                 'show_time'     => true,
@@ -1179,11 +1184,11 @@ class CE_Shortcodes {
                         }
                         echo '</div>';
                     } elseif ( 'list' === $v ) {
-                        echo self::render_hub_list( $events );
+                        echo self::render_hub_list( $events ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
                     } elseif ( 'timeline' === $v ) {
-                        echo self::render_timeline( $events, [ 'layout' => 'center', 'filter_by' => $atts['filter_by'] ] );
+                        echo self::render_timeline( $events, [ 'layout' => 'center', 'filter_by' => $atts['filter_by'] ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
                     } elseif ( 'calendar' === $v ) {
-                        echo do_shortcode( '[club_events_overview show_filter="false"]' );
+                        echo do_shortcode( '[club_events_overview show_filter="false"]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer.
                     }
                     ?>
                 </div>
@@ -1227,7 +1232,7 @@ class CE_Shortcodes {
                     </span>
                 </span>
                 <span class="ce-hub-list-actions">
-                    <?php echo self::event_actions( $ev['url'], $ev['title'], $ev['ics'], [ 'labels' => false, 'class' => 'ce-actions--compact' ] ); ?>
+                    <?php echo self::event_actions( $ev['url'], $ev['title'], $ev['ics'], [ 'labels' => false, 'class' => 'ce-actions--compact' ] ); ?> // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
                 </span>
             </li>
             <?php
@@ -1368,43 +1373,6 @@ class CE_Shortcodes {
                 <div id="ce-subscribe-msg" class="ce-form-msg" hidden></div>
             </form>
         </div>
-        <script>
-        (function(){
-            var form = document.getElementById('ce-subscribe-form');
-            if (!form) return;
-            form.addEventListener('submit', function(e){
-                e.preventDefault();
-                var btn = document.getElementById('ce-subscribe-btn');
-                var msg = document.getElementById('ce-subscribe-msg');
-                btn.disabled = true;
-                btn.textContent = '<?php echo esc_js( __( 'Subscribing…', 'club-events' ) ); ?>';
-
-                var data = new FormData(form);
-                var cats = Array.from(form.querySelectorAll('[name="categories[]"]:checked')).map(function(c){return c.value;});
-                data.set('categories', cats.join(','));
-                data.set('action', 'ce_subscribe');
-                data.set('nonce', form.querySelector('[name="ce_subscribe_nonce_field"]').value);
-
-                fetch('<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>', {
-                    method: 'POST', body: data
-                }).then(function(r){return r.json();}).then(function(res){
-                    msg.hidden = false;
-                    msg.className = 'ce-form-msg ' + (res.success ? 'ce-form-msg--success' : 'ce-form-msg--error');
-                    msg.textContent = res.data;
-                    if (res.success) {
-                        form.reset();
-                        btn.textContent = '<?php echo esc_js( __( 'Subscribed!', 'club-events' ) ); ?>';
-                    } else {
-                        btn.disabled = false;
-                        btn.textContent = '<?php echo esc_js( __( 'Subscribe', 'club-events' ) ); ?>';
-                    }
-                }).catch(function(){
-                    btn.disabled = false;
-                    btn.textContent = '<?php echo esc_js( __( 'Subscribe', 'club-events' ) ); ?>';
-                });
-            });
-        })();
-        </script>
         <?php
         return ob_get_clean();
     }

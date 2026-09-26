@@ -67,37 +67,16 @@ if ( $is_astra ) {
     </div>
 
     <div id="ce-view-timeline">
-        <?php echo do_shortcode( '[club_events_timeline show_filter="true" limit="30"]' ); ?>
+        <?php echo do_shortcode( '[club_events_timeline show_filter="true" limit="30"]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer. ?>
     </div>
     <div id="ce-view-cards" hidden>
-        <?php echo do_shortcode( '[club_events_cards show_filter="true" columns="3" limit="12"]' ); ?>
+        <?php echo do_shortcode( '[club_events_cards show_filter="true" columns="3" limit="12"]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer. ?>
     </div>
     <div id="ce-view-overview" hidden>
-        <?php echo do_shortcode( '[club_events_overview show_filter="true"]' ); ?>
+        <?php echo do_shortcode( '[club_events_overview show_filter="true"]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer. ?>
     </div>
 </div>
 
-<script>
-(function () {
-    var btns = document.querySelectorAll('.ce-view-btn');
-    var views = {
-        timeline: document.getElementById('ce-view-timeline'),
-        cards:    document.getElementById('ce-view-cards'),
-        overview: document.getElementById('ce-view-overview'),
-    };
-    btns.forEach(function (btn) {
-        btn.addEventListener('click', function (e) {
-            e.preventDefault();
-            btns.forEach(function (b) { b.classList.remove('active'); });
-            btn.classList.add('active');
-            var view = btn.dataset.view;
-            Object.keys(views).forEach(function (k) {
-                if (views[k]) views[k].hidden = (k !== view);
-            });
-        });
-    });
-})();
-</script>
 
 <?php
 if ( $is_astra ) {

@@ -89,11 +89,11 @@ class CE_Admin {
         $settings = [
             'ce_ics_feed_enabled'        => isset( $_POST['ce_ics_feed_enabled'] ) ? '1' : '0',
             'ce_subscription_enabled'    => isset( $_POST['ce_subscription_enabled'] ) ? '1' : '0',
-            'ce_subscription_from_name'  => sanitize_text_field( $_POST['ce_subscription_from_name'] ?? '' ),
-            'ce_subscription_from_email' => sanitize_email( $_POST['ce_subscription_from_email'] ?? '' ),
+            'ce_subscription_from_name'  => sanitize_text_field( wp_unslash( $_POST['ce_subscription_from_name'] ?? '' ) ),
+            'ce_subscription_from_email' => sanitize_email( wp_unslash( $_POST['ce_subscription_from_email'] ?? '' ) ),
             'ce_self_service_enabled'    => isset( $_POST['ce_self_service_enabled'] ) ? '1' : '0',
-            'ce_self_service_role'       => sanitize_text_field( $_POST['ce_self_service_role'] ?? 'subscriber' ),
-            'ce_self_service_auto_publish_role' => sanitize_text_field( $_POST['ce_self_service_auto_publish_role'] ?? 'editor' ),
+            'ce_self_service_role'       => sanitize_text_field( wp_unslash( $_POST['ce_self_service_role'] ?? 'subscriber' ) ),
+            'ce_self_service_auto_publish_role' => sanitize_text_field( wp_unslash( $_POST['ce_self_service_auto_publish_role'] ?? 'editor' ) ),
             'ce_events_page'             => (string) max( 0, (int) ( $_POST['ce_events_page'] ?? 0 ) ),
             'ce_hide_archive'            => isset( $_POST['ce_hide_archive'] ) ? '1' : '0',
         ];
@@ -112,8 +112,8 @@ class CE_Admin {
         }
 
         $settings = [
-            'ce_google_api_key' => sanitize_text_field( $_POST['ce_google_api_key'] ?? '' ),
-            'ce_sync_interval'  => sanitize_text_field( $_POST['ce_sync_interval'] ?? 'hourly' ),
+            'ce_google_api_key' => sanitize_text_field( wp_unslash( $_POST['ce_google_api_key'] ?? '' ) ),
+            'ce_sync_interval'  => sanitize_text_field( wp_unslash( $_POST['ce_sync_interval'] ?? 'hourly' ) ),
             'ce_future_months'  => (string) max( 1, min( 24, (int) ( $_POST['ce_future_months'] ?? 6 ) ) ),
             'ce_past_months'    => (string) max( 0, min( 12, (int) ( $_POST['ce_past_months'] ?? 1 ) ) ),
         ];
@@ -137,14 +137,16 @@ class CE_Admin {
         }
 
         $id   = (int) ( $_POST['id'] ?? 0 );
+        // WordPress slashes request data; unslash before sanitising, or a
+        // name like "Kid's Club" is stored as "Kid\'s Club".
         $raw_types = isset( $_POST['event_types'] ) && is_array( $_POST['event_types'] )
-            ? array_map( 'sanitize_text_field', $_POST['event_types'] )
+            ? array_map( 'sanitize_text_field', wp_unslash( $_POST['event_types'] ) )
             : [];
         $data = [
-            'name'         => $_POST['name'] ?? '',
-            'calendar_id'  => $_POST['calendar_id'] ?? '',
-            'api_key'      => $_POST['api_key'] ?? '',
-            'color'        => $_POST['color'] ?? '#3b82f6',
+            'name'         => sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) ),
+            'calendar_id'  => sanitize_text_field( wp_unslash( $_POST['calendar_id'] ?? '' ) ),
+            'api_key'      => sanitize_text_field( wp_unslash( $_POST['api_key'] ?? '' ) ),
+            'color'        => sanitize_hex_color( wp_unslash( $_POST['color'] ?? '' ) ) ?: '#3b82f6',
             'event_types'  => implode( ',', $raw_types ),
             'sync_enabled' => ! empty( $_POST['sync_enabled'] ),
         ];
@@ -183,10 +185,10 @@ class CE_Admin {
         }
 
         $term_id     = (int) ( $_POST['term_id'] ?? 0 );
-        $name        = sanitize_text_field( $_POST['name'] ?? '' );
+        $name        = sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) );
         $use_theme   = ! empty( $_POST['theme_color'] );
         // Empty stored colour = "use theme" → frontend resolves to var(--ce-primary).
-        $color       = $use_theme ? '' : ( sanitize_hex_color( $_POST['color'] ?? '' ) ?: '#3b82f6' );
+        $color       = $use_theme ? '' : ( sanitize_hex_color( wp_unslash( $_POST['color'] ?? '' ) ) ?: '#3b82f6' );
         // What the frontend/admin should render for this type right now.
         $display     = $color ?: 'var(--ce-primary)';
 
@@ -247,7 +249,7 @@ class CE_Admin {
         global $wpdb;
         $total_subs    = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}ce_subscribers WHERE confirmed = 1" );
         $total_cals    = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}ce_calendars" );
-        $upcoming      = CE_CPT::get_events( [ 'from' => date( 'Y-m-d H:i:s' ), 'posts_per_page' => 20 ] );
+        $upcoming      = CE_CPT::get_events( [ 'from' => gmdate( 'Y-m-d H:i:s' ), 'posts_per_page' => 20 ] );
         $event_types   = get_terms( [ 'taxonomy' => 'event_type', 'hide_empty' => false ] );
         if ( is_wp_error( $event_types ) ) {
             $event_types = [];

@@ -73,13 +73,14 @@ jobs:
           done
 
       - name: Lint every PHP file
-        run: find club-events -name '*.php' -print0 | xargs -0 -n1 php -l
+        run: find club-events addons -name '*.php' -print0 | xargs -0 -n1 php -l
 
       - name: Run the test suites
         run: |
-          php club-events/tests/e2e-aktivriege.php
+          php addons/club-events-stv-malters/tests/e2e-aktivriege.php
           php club-events/tests/widgets-parity.php
           php club-events/tests/theme-integration.php
+          php club-events/tests/directory-readiness.php
 
       - name: Build club-events.zip
         run: |
@@ -87,6 +88,9 @@ jobs:
             -x 'club-events/tests/*' \
             -x '*/.DS_Store'
           unzip -l club-events.zip | tail -1
+          # Site-specific add-on (not part of the directory plugin).
+          (cd addons && zip -r ../club-events-stv-malters.zip club-events-stv-malters -x 'club-events-stv-malters/tests/*')
+          unzip -l club-events-stv-malters.zip | tail -1
 
       - name: Extract the release notes for this version
         run: |
@@ -109,10 +113,10 @@ jobs:
           TAG="${{ steps.version.outputs.tag }}"
           VERSION="${{ steps.version.outputs.version }}"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" club-events.zip --clobber
+            gh release upload "$TAG" club-events.zip club-events-stv-malters.zip --clobber
             gh release edit "$TAG" --title "Club Events Manager $VERSION" --notes-file RELEASE_NOTES.md
           else
-            gh release create "$TAG" club-events.zip \
+            gh release create "$TAG" club-events.zip club-events-stv-malters.zip \
               --title "Club Events Manager $VERSION" \
               --notes-file RELEASE_NOTES.md
           fi

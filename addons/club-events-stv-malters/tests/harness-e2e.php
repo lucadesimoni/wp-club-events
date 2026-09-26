@@ -247,7 +247,7 @@ function rest_ensure_response( $data ) { return $data; }
 function current_user_can( string $cap ): bool { return true; }
 
 // ── Bootstrap: include import script (auto-runs via WP_CLI path) ──────────────
-require_once __DIR__ . '/../tools/import-aktivriege-2026.php';
+require_once __DIR__ . '/../import-aktivriege-2026.php';
 
 // Capture lines written to WP_CLI::line() as the canonical import log
 E2E_WP::$import_log = WP_CLI::$lines;

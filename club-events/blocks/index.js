@@ -437,7 +437,7 @@
       show_types:    { type: 'boolean', default: false },
       show_share:    { type: 'boolean', default: false },
       show_ics:      { type: 'boolean', default: false },
-      cta:           { type: 'string',  default: 'Weiterlesen' },
+      cta:           { type: 'string',  default: '' },
     }),
     edit: function (props) {
       var attrs = props.attributes;
@@ -466,6 +466,7 @@
             toggle(props, 'show_ics',      __('Show "Add to calendar" button', 'club-events')),
             el(TextControl, {
               label: __('Call to action label', 'club-events'),
+              help:  __('Leave empty for the default "Read more" (translated).', 'club-events'),
               value: attrs.cta,
               onChange: function (v) { props.setAttributes({ cta: v }); },
             })

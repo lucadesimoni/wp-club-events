@@ -129,7 +129,7 @@ if ( $is_astra ) {
                         <p>
                             <?php if ( $all_day ) : ?>
                                 <?php echo esc_html( date_i18n( $date_fmt, $start_ts ) ); ?>
-                                <?php if ( $end_ts && date( 'Ymd', $start_ts ) !== date( 'Ymd', $end_ts ) ) echo ' – ' . esc_html( date_i18n( $date_fmt, $end_ts ) ); ?>
+                                <?php if ( $end_ts && gmdate( 'Ymd', $start_ts ) !== gmdate( 'Ymd', $end_ts ) ) echo ' – ' . esc_html( date_i18n( $date_fmt, $end_ts ) ); ?>
                             <?php else : ?>
                                 <?php echo esc_html( date_i18n( $date_fmt . ' ' . $time_fmt, $start_ts ) ); ?>
                                 <?php if ( $end_ts ) echo ' – ' . esc_html( date_i18n( $time_fmt, $end_ts ) ); ?>
@@ -178,7 +178,7 @@ if ( $is_astra ) {
 
             <?php if ( get_option( 'ce_subscription_enabled', '1' ) === '1' ) : ?>
             <div class="ce-sidebar-card">
-                <?php echo do_shortcode( '[club_events_subscribe]' ); ?>
+                <?php echo do_shortcode( '[club_events_subscribe]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer. ?>
             </div>
             <?php endif; ?>
         </aside>
