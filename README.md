@@ -1,4 +1,4 @@
-# Club Events Manager
+# WP Club Events Simple
 
 Modern event management for clubs — sync multiple Google Calendars, show events
 as tiles, timelines, cards, or a monthly calendar, export ICS feeds, let members

@@ -107,8 +107,8 @@ class CE_Google_Calendar {
         $future_months = (int) get_option( 'ce_future_months', 6 );
         $past_months   = (int) get_option( 'ce_past_months', 1 );
 
-        $time_min = date( 'c', strtotime( "-{$past_months} months" ) );
-        $time_max = date( 'c', strtotime( "+{$future_months} months" ) );
+        $time_min = gmdate( 'c', strtotime( "-{$past_months} months" ) );
+        $time_max = gmdate( 'c', strtotime( "+{$future_months} months" ) );
 
         $url = add_query_arg( [
             'key'          => $api_key,
@@ -210,10 +210,10 @@ class CE_Google_Calendar {
 
     private function parse_date( $date_field ) {
         if ( isset( $date_field['dateTime'] ) ) {
-            return date( 'Y-m-d H:i:s', strtotime( $date_field['dateTime'] ) );
+            return gmdate( 'Y-m-d H:i:s', strtotime( $date_field['dateTime'] ) );
         }
         if ( isset( $date_field['date'] ) ) {
-            return date( 'Y-m-d', strtotime( $date_field['date'] ) ) . ' 00:00:00';
+            return gmdate( 'Y-m-d', strtotime( $date_field['date'] ) ) . ' 00:00:00';
         }
         return '';
     }
@@ -246,8 +246,8 @@ class CE_Google_Calendar {
                  AND pm_start.meta_value BETWEEN %s AND %s
              WHERE p.post_type = 'club_event' AND p.post_status = 'publish'",
             array_merge( [ $cal_db_id ], $synced_ids, [
-                date( 'Y-m-d H:i:s', strtotime( $time_min ) ),
-                date( 'Y-m-d H:i:s', strtotime( $time_max ) ),
+                gmdate( 'Y-m-d H:i:s', strtotime( $time_min ) ),
+                gmdate( 'Y-m-d H:i:s', strtotime( $time_max ) ),
             ] )
         ) );
 

@@ -1,6 +1,6 @@
 <?php
 /**
- * E2E test harness — WordPress stub environment for Club Events Manager
+ * E2E test harness — WordPress stub environment for WP Club Events Simple
  *
  * Provides: WordPress function stubs, stub classes (WP_Error, WP_REST_*),
  * the E2E_WP state tracker, a CE_CPT stub, and auto-runs the Aktivriege
@@ -247,7 +247,7 @@ function rest_ensure_response( $data ) { return $data; }
 function current_user_can( string $cap ): bool { return true; }
 
 // ── Bootstrap: include import script (auto-runs via WP_CLI path) ──────────────
-require_once __DIR__ . '/../tools/import-aktivriege-2026.php';
+require_once __DIR__ . '/../import-aktivriege-2026.php';
 
 // Capture lines written to WP_CLI::line() as the canonical import log
 E2E_WP::$import_log = WP_CLI::$lines;

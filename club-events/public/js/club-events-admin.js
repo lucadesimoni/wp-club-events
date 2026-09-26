@@ -1,4 +1,4 @@
-/* Club Events Manager — Admin JS */
+/* WP Club Events Simple — Admin JS */
 (function () {
   'use strict';
 

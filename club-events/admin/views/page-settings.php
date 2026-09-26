@@ -29,7 +29,7 @@
                 ] );
                 ?>
                 <p class="description">
-                    <?php esc_html_e( 'Pick an existing page (e.g. your "Anlässe" page that already lists all events with a shortcode). Event links and the "All Events" back-link will point here instead of the built-in /events archive.', 'club-events' ); ?>
+                    <?php esc_html_e( 'Pick an existing page (e.g. your "Events" page that already lists all events with a shortcode). Event links and the "All Events" back-link will point here instead of the built-in /events archive.', 'club-events' ); ?>
                 </p>
             </div>
 

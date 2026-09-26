@@ -18,9 +18,9 @@ class CE_Subscription {
             wp_send_json_error( __( 'Subscriptions are disabled.', 'club-events' ) );
         }
 
-        $email = sanitize_email( $_POST['email'] ?? '' );
-        $name  = sanitize_text_field( $_POST['name'] ?? '' );
-        $cats  = sanitize_text_field( $_POST['categories'] ?? '' );
+        $email = sanitize_email( wp_unslash( $_POST['email'] ?? '' ) );
+        $name  = sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) );
+        $cats  = sanitize_text_field( wp_unslash( $_POST['categories'] ?? '' ) );
 
         if ( ! is_email( $email ) ) {
             wp_send_json_error( __( 'Please enter a valid email address.', 'club-events' ) );

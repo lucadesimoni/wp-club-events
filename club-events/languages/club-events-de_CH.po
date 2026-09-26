@@ -1,0 +1,66 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Club Events Simple\n"
+"Language: de_CH\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: club-events\n"
+
+msgid "All"
+msgstr "Alle"
+
+msgid "No upcoming events."
+msgstr "Keine bevorstehenden Anlässe."
+
+msgid "No events found."
+msgstr "Keine Anlässe gefunden."
+
+msgid "Add to Calendar"
+msgstr "Zum Kalender hinzufügen"
+
+msgid "Add to Calendar (.ics)"
+msgstr "Zum Kalender (.ics)"
+
+msgid "Subscribe"
+msgstr "Abonnieren"
+
+msgid "Subscribed!"
+msgstr "Abonniert!"
+
+msgid "Subscribing…"
+msgstr "Wird abonniert…"
+
+msgid "Loading…"
+msgstr "Wird geladen…"
+
+msgid "All day"
+msgstr "Ganztägig"
+
+msgid "All-day event"
+msgstr "Ganztägiger Anlass"
+
+msgid "Location"
+msgstr "Ort"
+
+msgid "Details"
+msgstr "Details"
+
+msgid "Upcoming"
+msgstr "Bevorstehend"
+
+msgid "Past"
+msgstr "Vergangen"
+
+msgid "Read more"
+msgstr "Weiterlesen"
+
+msgid "Share"
+msgstr "Teilen"
+
+msgid "Copy link"
+msgstr "Link kopieren"
+
+msgid "Link copied!"
+msgstr "Link kopiert!"

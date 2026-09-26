@@ -364,7 +364,7 @@ CSS;
             '@type'       => 'Event',
             'name'        => get_the_title( $post_id ),
             'description' => wp_strip_all_tags( get_post_field( 'post_excerpt', $post_id ) ?: get_post_field( 'post_content', $post_id ) ),
-            'startDate'   => date( 'c', strtotime( $start ) ),
+            'startDate'   => gmdate( 'c', strtotime( $start ) ),
             'url'         => get_permalink( $post_id ),
             'organizer'   => [
                 '@type' => 'Organization',
@@ -374,7 +374,7 @@ CSS;
         ];
 
         if ( $end ) {
-            $schema['endDate'] = date( 'c', strtotime( $end ) );
+            $schema['endDate'] = gmdate( 'c', strtotime( $end ) );
         }
 
         if ( $location ) {

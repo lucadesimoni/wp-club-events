@@ -26,7 +26,7 @@ class CE_ICS_Export {
         }
 
         if ( get_query_var( 'ce_ics_feed' ) ) {
-            $category = isset( $_GET['category'] ) ? sanitize_text_field( $_GET['category'] ) : '';
+            $category = isset( $_GET['category'] ) ? sanitize_text_field( wp_unslash( $_GET['category'] ) ) : '';
             $this->output_feed( $category );
             exit;
         }
@@ -40,8 +40,8 @@ class CE_ICS_Export {
 
     private function output_feed( $category = '' ) {
         $args = [
-            'from' => date( 'Y-m-d H:i:s', strtotime( '-1 month' ) ),
-            'to'   => date( 'Y-m-d H:i:s', strtotime( '+12 months' ) ),
+            'from' => gmdate( 'Y-m-d H:i:s', strtotime( '-1 month' ) ),
+            'to'   => gmdate( 'Y-m-d H:i:s', strtotime( '+12 months' ) ),
         ];
 
         if ( $category ) {
@@ -61,7 +61,7 @@ class CE_ICS_Export {
         header( 'Content-Disposition: attachment; filename="events.ics"' );
         header( 'Cache-Control: no-cache, no-store, must-revalidate' );
 
-        echo $this->build_ics( $events, $site_name . ' — ' . __( 'Events', 'club-events' ) );
+        echo $this->build_ics( $events, $site_name . ' — ' . __( 'Events', 'club-events' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- text/calendar body; values are escaped for RFC 5545 in ics_escape().
     }
 
     private function output_single( $post_id ) {
@@ -75,14 +75,14 @@ class CE_ICS_Export {
         header( 'Content-Type: text/calendar; charset=utf-8' );
         header( 'Content-Disposition: attachment; filename="event-' . $post_id . '.ics"' );
 
-        echo $this->build_ics( [ $event ], $event['title'] );
+        echo $this->build_ics( [ $event ], $event['title'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- text/calendar body; values are escaped for RFC 5545 in ics_escape().
     }
 
     private function build_ics( array $events, $cal_name ) {
         $lines   = [];
         $lines[] = 'BEGIN:VCALENDAR';
         $lines[] = 'VERSION:2.0';
-        $lines[] = 'PRODID:-//Club Events Manager//WordPress//EN';
+        $lines[] = 'PRODID:-//WP Club Events Simple//WordPress//EN';
         $lines[] = 'CALSCALE:GREGORIAN';
         $lines[] = 'METHOD:PUBLISH';
         $lines[] = $this->fold_property( 'X-WR-CALNAME', $this->ics_escape( $cal_name ) );
@@ -99,15 +99,15 @@ class CE_ICS_Export {
             $lines[] = $this->fold_property( 'SUMMARY', $this->ics_escape( $event['title'] ) );
 
             if ( $event['allDay'] ) {
-                $lines[] = 'DTSTART;VALUE=DATE:' . date( 'Ymd', strtotime( $event['start'] ) );
+                $lines[] = 'DTSTART;VALUE=DATE:' . gmdate( 'Ymd', strtotime( $event['start'] ) );
                 if ( $event['end'] ) {
-                    $lines[] = 'DTEND;VALUE=DATE:' . date( 'Ymd', strtotime( $event['end'] ) );
+                    $lines[] = 'DTEND;VALUE=DATE:' . gmdate( 'Ymd', strtotime( $event['end'] ) );
                 }
             } else {
                 $tz = get_option( 'timezone_string', 'UTC' );
-                $lines[] = 'DTSTART;TZID=' . $tz . ':' . date( 'Ymd\THis', strtotime( $event['start'] ) );
+                $lines[] = 'DTSTART;TZID=' . $tz . ':' . gmdate( 'Ymd\THis', strtotime( $event['start'] ) );
                 if ( $event['end'] ) {
-                    $lines[] = 'DTEND;TZID=' . $tz . ':' . date( 'Ymd\THis', strtotime( $event['end'] ) );
+                    $lines[] = 'DTEND;TZID=' . $tz . ':' . gmdate( 'Ymd\THis', strtotime( $event['end'] ) );
                 }
             }
 

@@ -1,34 +1,82 @@
-=== Club Events Manager ===
+=== WP Club Events Simple ===
 Contributors: lucadesimoni
-Tags: events, calendar, google calendar, ics, club
+Tags: events, calendar, google calendar, ics, gutenberg
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Modern event management for clubs — sync multiple Google Calendars, timeline,
-overview, tiles & blog embeds, ICS export, sharing, and email subscriptions.
+Event calendar for clubs and associations: Google Calendar sync, timeline, calendar and tile views, ICS export, sharing and email subscriptions.
 
 == Description ==
 
-Club Events Manager helps clubs publish and manage events with a polished,
-theme-adaptive frontend.
+WP Club Events Simple helps clubs and associations publish their events with a
+polished front end that adapts to the active theme.
 
-* Configurable event types with per-type colours (falls back to the Astra
-  theme colour when none is set).
-* Connect multiple Google Calendars and sync multiple event types each.
-* Display events as tiles, cards, a vertical timeline, a monthly overview, a
-  yearly agenda, or compact lists.
-* Sharing (native Web Share with WhatsApp / Facebook / Email / Copy fallback)
-  and one-click ICS "Add to calendar" — inline on listings and event pages.
-* Email subscriptions and a frontend submission form.
-* Comprehensive Astra theme bridge for colours, typography, and buttons.
+* Create events in WordPress, or sync them from one or more Google Calendars.
+* Show events as tiles, cards, a vertical timeline, a monthly calendar, a
+  yearly agenda, compact lists, or an all-in-one events hub with search.
+* One-click "Add to calendar" (.ics) per event, plus a subscribable ICS feed.
+* Share buttons: the device's native share sheet, with WhatsApp, Facebook,
+  email and copy-link as fallback.
+* Email subscriptions for new events, and an optional front-end form where
+  logged-in members submit events for review.
+* Every view is available as a block (Gutenberg, Spectra), an Elementor widget
+  and a shortcode, with alignment, spacing and colour controls.
+* Follows the Astra theme's palette, buttons and typography automatically;
+  works with any other theme using its own defaults.
+
+== Installation ==
+
+1. Upload the plugin through *Plugins > Add New > Upload Plugin*, or install it
+   from the plugin directory, and activate it.
+2. Add events under *Club Events > Add Event*, or connect a Google Calendar
+   under *Club Events > Google Calendars*.
+3. Insert one of the *Club Events* blocks (or Elementor widgets) on a page, or
+   use a shortcode listed below.
+
+== Frequently Asked Questions ==
+
+= Do I need a Google account? =
+
+No. Google Calendar sync is optional; events created in WordPress work
+without it.
+
+= Which themes are supported? =
+
+Any theme. With Astra the plugin also picks up the global colour palette,
+button style and heading font from the Customizer.
+
+= Is the plugin translated? =
+
+It is translation-ready and ships German (Germany, Switzerland, Austria).
+
+== External services ==
+
+This plugin connects to the **Google Calendar API** (Google LLC), only if you
+connect a Google Calendar under *Club Events > Google Calendars*.
+
+* What is sent: the calendar ID and the API key you entered, plus the date range
+  to fetch. No visitor data is sent.
+* When: on the scheduled sync (hourly by default, configurable) and when you
+  press "Sync now".
+* Terms of service: https://developers.google.com/terms
+* Privacy policy: https://policies.google.com/privacy
+
+The share buttons link to WhatsApp (https://wa.me), Facebook
+(https://www.facebook.com/sharer/sharer.php) and the visitor's email app.
+Nothing is sent to these services unless a visitor clicks the button, and then
+only the event's title and URL.
+
+* WhatsApp terms and privacy: https://www.whatsapp.com/legal
+* Facebook terms: https://www.facebook.com/terms.php, privacy:
+  https://www.facebook.com/privacy/policy
 
 == Shortcodes ==
 
-* `[club_events]` — the full Anlässe hub: search, view switcher (tiles / list
+* `[club_events]` — the full events hub: search, view switcher (tiles / list
   / timeline / calendar) and Subscribe (ICS).
 * `[club_events_tiles]` — blog-card style previews of the next events.
 * `[club_events_timeline]` — vertical timeline grouped by month.
@@ -42,6 +90,25 @@ theme-adaptive frontend.
 * `[club_events_my_events]` — user event dashboard.
 
 == Changelog ==
+
+= 1.5.0 =
+* Renamed to WP Club Events Simple (the plugin slug, shortcodes and blocks
+  are unchanged, so updating keeps everything working). Author: Outthinkx Club.
+* Prepared for the WordPress.org plugin directory. No change for visitors on a
+  German-language site.
+* German now comes from bundled translation files (de_DE, de_CH, de_AT and
+  their formal/informal variants) instead of being forced on every site; the
+  default tile button label is the translatable "Read more".
+* The Aktivriege 2026 import moved to the separate "Club Events – STV Malters"
+  add-on.
+* Front-end scripts for the subscribe form, event submission, "My events" and
+  the archive view switcher moved from inline <script> tags into the enqueued
+  script.
+* Fix: text entered in the settings and the calendar editor gained
+  backslashes before quotes (request data was never unslashed).
+* Fix: the database schema could not be upgraded (dbDelta could not parse
+  CREATE TABLE IF NOT EXISTS).
+* Readme: installation, FAQ and the External services disclosure.
 
 = 1.4.0 =
 * Requires WordPress 6.5 or later (tested up to 7.1). Block editor controls use
@@ -109,3 +176,8 @@ theme-adaptive frontend.
 = 1.0.0 =
 * Initial release: Google Calendar sync, timeline & overview views, blog
   embeds, ICS export, and email subscriptions.
+
+== Upgrade Notice ==
+
+= 1.5.0 =
+The Aktivriege 2026 import tool is now a separate add-on. Install "Club Events – STV Malters" if you still need it.

@@ -3,6 +3,42 @@
 All notable changes to **Club Events Manager** are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.0] — 2026-09-26
+
+Prepares the plugin for the WordPress.org plugin directory. Visitors on a
+German-language site see no difference.
+
+### Changed
+- **Renamed to WP Club Events Simple**, author Outthinkx Club. Display name
+  only: the `club-events` slug, text domain, shortcodes, blocks and options are
+  unchanged, so existing sites update in place.
+- **German via translation files.** A `gettext` filter forced 15 strings to
+  German on every site, whatever its language. They now ship as catalogs in
+  `club-events/languages/` (de_DE, de_DE_formal, de_CH, de_CH_informal, de_AT;
+  built by `tools/i18n/build-de.py`), and the tile button default is the
+  translatable "Read more" instead of a hard-coded "Weiterlesen".
+- **Club-specific import moved out.** The Aktivriege 2026 import (and its e2e
+  test) is now the separate add-on `addons/club-events-stv-malters`, released
+  as `club-events-stv-malters.zip` next to the plugin.
+- **No inline scripts.** The subscribe form, event submission, "My events"
+  delete and the archive view switcher were printed as inline `<script>`
+  tags; they now live in the enqueued `club-events-public.js` as delegated
+  handlers (strings via `wp_localize_script`, nonce via a data attribute).
+- `date()` → `gmdate()` (identical under WordPress, which runs PHP in UTC);
+  renderer output that is escaped internally is annotated for PHPCS.
+- Plugin header: author, GPL-2.0-or-later, Plugin URI; readme gains
+  Installation, FAQ, **External services** (Google Calendar API, share links)
+  and Upgrade Notice sections.
+
+### Fixed
+- **Backslashes in saved text.** Request data was sanitised but never
+  unslashed, so a quote in the sender name, a calendar name or a submitted
+  event gained a backslash (`Kid\'s Club`). All 21 inputs now use
+  `wp_unslash()` before sanitising.
+- **Schema upgrades never applied.** `CREATE TABLE IF NOT EXISTS` made
+  `dbDelta()` read the table name as "IF"; the sync-status columns are now part
+  of the table definition.
+
 ## [1.4.0] — 2026-09-25
 
 Makes the plugin a first-class citizen of Astra, Spectra / Gutenberg and
