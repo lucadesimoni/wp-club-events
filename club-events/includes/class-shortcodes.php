@@ -4,15 +4,15 @@ defined( 'ABSPATH' ) || exit;
 class CE_Shortcodes {
 
     public function __construct() {
-        add_shortcode( 'club_events_timeline', [ $this, 'timeline' ] );
-        add_shortcode( 'club_events_overview', [ $this, 'overview' ] );
-        add_shortcode( 'club_events_list', [ $this, 'list_view' ] );
-        add_shortcode( 'club_events_cards', [ $this, 'cards' ] );
-        add_shortcode( 'club_events_subscribe', [ $this, 'subscribe_form' ] );
-        add_shortcode( 'club_events_yearly', [ $this, 'yearly' ] );
-        add_shortcode( 'club_events_tiles', [ $this, 'tiles' ] );
-        add_shortcode( 'club_events_share', [ $this, 'share' ] );
-        add_shortcode( 'club_events', [ $this, 'hub' ] );
+        add_shortcode( 'club_events_timeline', CE_Safe::renderer( '[club_events_timeline]', [ $this, 'timeline' ] ) );
+        add_shortcode( 'club_events_overview', CE_Safe::renderer( '[club_events_overview]', [ $this, 'overview' ] ) );
+        add_shortcode( 'club_events_list', CE_Safe::renderer( '[club_events_list]', [ $this, 'list_view' ] ) );
+        add_shortcode( 'club_events_cards', CE_Safe::renderer( '[club_events_cards]', [ $this, 'cards' ] ) );
+        add_shortcode( 'club_events_subscribe', CE_Safe::renderer( '[club_events_subscribe]', [ $this, 'subscribe_form' ] ) );
+        add_shortcode( 'club_events_yearly', CE_Safe::renderer( '[club_events_yearly]', [ $this, 'yearly' ] ) );
+        add_shortcode( 'club_events_tiles', CE_Safe::renderer( '[club_events_tiles]', [ $this, 'tiles' ] ) );
+        add_shortcode( 'club_events_share', CE_Safe::renderer( '[club_events_share]', [ $this, 'share' ] ) );
+        add_shortcode( 'club_events', CE_Safe::renderer( '[club_events]', [ $this, 'hub' ] ) );
 
         add_action( 'init', [ $this, 'register_blocks' ] );
     }
@@ -192,7 +192,7 @@ class CE_Shortcodes {
             'backgroundColor', 'textColor', 'lock', 'metadata',
         ] ) );
 
-        $html = (string) call_user_func( $render, $atts );
+        $html = CE_Safe::render( 'block', $render, [ $atts ] );
         if ( '' === trim( $html ) ) {
             return '';
         }

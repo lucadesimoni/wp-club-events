@@ -6,9 +6,9 @@ class CE_Subscription {
     public function __construct() {
         add_action( 'wp_ajax_nopriv_ce_subscribe', [ $this, 'handle_subscribe' ] );
         add_action( 'wp_ajax_ce_subscribe', [ $this, 'handle_subscribe' ] );
-        add_action( 'init', [ $this, 'handle_confirm' ] );
-        add_action( 'init', [ $this, 'handle_unsubscribe' ] );
-        add_action( 'publish_club_event', [ $this, 'notify_subscribers' ], 20, 2 );
+        add_action( 'init', CE_Safe::action( 'init', [ $this, 'handle_confirm' ] ) );
+        add_action( 'init', CE_Safe::action( 'init', [ $this, 'handle_unsubscribe' ] ) );
+        add_action( 'publish_club_event', CE_Safe::action( 'publish_club_event', [ $this, 'notify_subscribers' ] ), 20, 2 );
     }
 
     public function handle_subscribe() {

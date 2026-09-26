@@ -4,9 +4,9 @@ defined( 'ABSPATH' ) || exit;
 class CE_ICS_Export {
 
     public function __construct() {
-        add_action( 'init', [ $this, 'register_rewrite_rules' ] );
-        add_action( 'template_redirect', [ $this, 'handle_feed' ] );
-        add_filter( 'query_vars', [ $this, 'add_query_vars' ] );
+        add_action( 'init', CE_Safe::action( 'init', [ $this, 'register_rewrite_rules' ] ) );
+        add_action( 'template_redirect', CE_Safe::action( 'template_redirect', [ $this, 'handle_feed' ] ) );
+        add_filter( 'query_vars', CE_Safe::filter( 'query_vars', [ $this, 'add_query_vars' ] ) );
     }
 
     public function register_rewrite_rules() {

@@ -443,11 +443,21 @@
   }
 
   /* ─── Init (document, and anything a page builder renders later) ─────── */
+  // Each component is set up on its own: an error in one never stops the
+  // others, or any other script on the page.
+  function safely(fn, arg) {
+    try {
+      fn(arg);
+    } catch (err) {
+      if (window.console && console.error) console.error('WP Club Events Simple:', err);
+    }
+  }
+
   function init(root) {
     root = root || document;
-    if (root.matches && root.matches('.ce-hub')) initHub(root);
-    root.querySelectorAll('.ce-hub').forEach(initHub);
-    initTimeline(root);
+    if (root.matches && root.matches('.ce-hub')) safely(initHub, root);
+    root.querySelectorAll('.ce-hub').forEach(function (hub) { safely(initHub, hub); });
+    safely(initTimeline, root);
   }
 
   init(document);

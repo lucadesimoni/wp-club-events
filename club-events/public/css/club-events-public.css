@@ -475,7 +475,7 @@
   cursor: pointer;
   font-weight: 400 !important;
 }
-.required { color: #ef4444; }
+.ce-subscribe-form .required, .ce-submit-form .required { color: #ef4444; }
 .ce-form-msg {
   padding: 10px 14px;
   border-radius: var(--ce-radius-sm);

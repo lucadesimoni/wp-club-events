@@ -3,6 +3,36 @@
 All notable changes to **Club Events Manager** are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.6.0] — 2026-09-26
+
+Makes sure the plugin cannot break a website.
+
+### Added
+- **Error containment (`CE_Safe`).** Every shortcode, block render, Elementor
+  hook and theme/template hook (`pre_get_posts`, `template_include`,
+  `body_class`, the Astra filters, `wp_head`, `init` handlers, publish
+  notifications) runs inside a guard. A failure discards its partial output,
+  returns the unfiltered value or an empty string (a short note for editors),
+  and is reported via `wp_trigger_error()` under WP_DEBUG and the
+  `ce_render_error` action. Verified by injecting failures into every renderer
+  in a sandbox: each page still loaded completely.
+- **Safe loading.** Instead of fataling, the plugin shows an admin notice and
+  stays inactive when a second copy is active, when another plugin already
+  defines one of its classes (checked for all 25), or on WordPress < 6.5 /
+  PHP < 7.4. Start-up errors are caught the same way. `ce_plugin()` is
+  declared conditionally.
+- **Schema self-repair.** `ce_db_version` triggers `create_tables()` once per
+  version, because updates do not run the activation hook; this also creates
+  the subscriber table on sites where 1.4.0 and earlier never did.
+- `club-events/tests/robustness.php` (22 checks, run in CI).
+
+### Changed
+- The Astra header `z-index` rule (previously `!important` on every page)
+  only applies on single event pages; `.required` is scoped to the plugin's
+  forms.
+- Front-end initialisation is isolated per component (`safely()`).
+- Uninstall removes all 14 plugin options (it left six behind).
+
 ## [1.5.0] — 2026-09-26
 
 Prepares the plugin for the WordPress.org plugin directory. Visitors on a

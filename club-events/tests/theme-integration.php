@@ -56,6 +56,7 @@ function get_block_wrapper_attributes( $extra = [] ) {
 }
 class WP_Block_Supports { public static $block_to_render = [ 'blockName' => 'club-events/hub' ]; }
 
+require $root . '/includes/class-safe.php';
 require $root . '/includes/class-style.php';
 require $root . '/includes/class-astra-compat.php';
 

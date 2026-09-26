@@ -4,9 +4,9 @@ defined( 'ABSPATH' ) || exit;
 class CE_Elementor {
 
     public function __construct() {
-        add_action( 'elementor/widgets/register', [ $this, 'register_widgets' ] );
-        add_action( 'elementor/elements/categories_registered', [ $this, 'register_categories' ] );
-        add_action( 'elementor/frontend/after_enqueue_styles', [ $this, 'frontend_styles' ] );
+        add_action( 'elementor/widgets/register', CE_Safe::action( 'elementor/widgets/register', [ $this, 'register_widgets' ] ) );
+        add_action( 'elementor/elements/categories_registered', CE_Safe::action( 'elementor/elements/categories_registered', [ $this, 'register_categories' ] ) );
+        add_action( 'elementor/frontend/after_enqueue_styles', CE_Safe::action( 'elementor/frontend/after_enqueue_styles', [ $this, 'frontend_styles' ] ) );
     }
 
     public function register_categories( $elements_manager ) {

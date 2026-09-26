@@ -247,6 +247,8 @@ function rest_ensure_response( $data ) { return $data; }
 function current_user_can( string $cap ): bool { return true; }
 
 // ── Bootstrap: include import script (auto-runs via WP_CLI path) ──────────────
+// Plugin classes used by the tests register hooks through CE_Safe.
+require_once __DIR__ . '/../../../club-events/includes/class-safe.php';
 require_once __DIR__ . '/../import-aktivriege-2026.php';
 
 // Capture lines written to WP_CLI::line() as the canonical import log
