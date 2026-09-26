@@ -1,12 +1,13 @@
 <?php
 /**
  * Plugin Name:       Club Events – STV Malters
- * Description:       Site-specific add-on for Club Events Manager: the one-time import of the Aktivriege 2025/2026 annual programme.
+ * Description:       Site-specific add-on for WP Club Events Simple: the one-time import of the Aktivriege 2025/2026 annual programme.
  * Version:           1.0.0
  * Requires at least: 6.5
  * Requires PHP:      7.4
  * Requires Plugins:  club-events
- * Author:            Luca De Simoni
+ * Author:            Outthinkx Club
+ * Author URI:        https://github.com/lucadesimoni
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain:       club-events-stv-malters

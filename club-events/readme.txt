@@ -1,4 +1,4 @@
-=== Club Events Manager ===
+=== WP Club Events Simple ===
 Contributors: lucadesimoni
 Tags: events, calendar, google calendar, ics, gutenberg
 Requires at least: 6.5
@@ -12,7 +12,7 @@ Event calendar for clubs and associations: Google Calendar sync, timeline, calen
 
 == Description ==
 
-Club Events Manager helps clubs and associations publish their events with a
+WP Club Events Simple helps clubs and associations publish their events with a
 polished front end that adapts to the active theme.
 
 * Create events in WordPress, or sync them from one or more Google Calendars.
@@ -92,6 +92,8 @@ only the event's title and URL.
 == Changelog ==
 
 = 1.5.0 =
+* Renamed to WP Club Events Simple (the plugin slug, shortcodes and blocks
+  are unchanged, so updating keeps everything working). Author: Outthinkx Club.
 * Prepared for the WordPress.org plugin directory. No change for visitors on a
   German-language site.
 * German now comes from bundled translation files (de_DE, de_CH, de_AT and

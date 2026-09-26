@@ -9,6 +9,9 @@ Prepares the plugin for the WordPress.org plugin directory. Visitors on a
 German-language site see no difference.
 
 ### Changed
+- **Renamed to WP Club Events Simple**, author Outthinkx Club. Display name
+  only: the `club-events` slug, text domain, shortcodes, blocks and options are
+  unchanged, so existing sites update in place.
 - **German via translation files.** A `gettext` filter forced 15 strings to
   German on every site, whatever its language. They now ship as catalogs in
   `club-events/languages/` (de_DE, de_DE_formal, de_CH, de_CH_informal, de_AT;

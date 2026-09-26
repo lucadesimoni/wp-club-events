@@ -53,7 +53,7 @@ jobs:
             # identity configured, so set the Actions bot as the tagger.
             git config user.name  "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git tag -a "$TAG" -m "Club Events Manager ${{ steps.version.outputs.version }}"
+            git tag -a "$TAG" -m "WP Club Events Simple ${{ steps.version.outputs.version }}"
             git push origin "refs/tags/$TAG"
             echo "Created tag $TAG at $(git rev-parse HEAD)."
           fi
@@ -114,9 +114,9 @@ jobs:
           VERSION="${{ steps.version.outputs.version }}"
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" club-events.zip club-events-stv-malters.zip --clobber
-            gh release edit "$TAG" --title "Club Events Manager $VERSION" --notes-file RELEASE_NOTES.md
+            gh release edit "$TAG" --title "WP Club Events Simple $VERSION" --notes-file RELEASE_NOTES.md
           else
             gh release create "$TAG" club-events.zip club-events-stv-malters.zip \
-              --title "Club Events Manager $VERSION" \
+              --title "WP Club Events Simple $VERSION" \
               --notes-file RELEASE_NOTES.md
           fi

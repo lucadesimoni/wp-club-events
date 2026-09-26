@@ -82,7 +82,7 @@ class CE_ICS_Export {
         $lines   = [];
         $lines[] = 'BEGIN:VCALENDAR';
         $lines[] = 'VERSION:2.0';
-        $lines[] = 'PRODID:-//Club Events Manager//WordPress//EN';
+        $lines[] = 'PRODID:-//WP Club Events Simple//WordPress//EN';
         $lines[] = 'CALSCALE:GREGORIAN';
         $lines[] = 'METHOD:PUBLISH';
         $lines[] = $this->fold_property( 'X-WR-CALNAME', $this->ics_escape( $cal_name ) );

@@ -49,7 +49,7 @@ def main():
         lines = [
             'msgid ""',
             'msgstr ""',
-            '"Project-Id-Version: Club Events Manager\\n"',
+            '"Project-Id-Version: WP Club Events Simple\\n"',
             f'"Language: {locale}\\n"',
             '"MIME-Version: 1.0\\n"',
             '"Content-Type: text/plain; charset=UTF-8\\n"',

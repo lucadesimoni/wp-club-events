@@ -1,6 +1,6 @@
 <?php
 /**
- * E2E test harness — WordPress stub environment for Club Events Manager
+ * E2E test harness — WordPress stub environment for WP Club Events Simple
  *
  * Provides: WordPress function stubs, stub classes (WP_Error, WP_REST_*),
  * the E2E_WP state tracker, a CE_CPT stub, and auto-runs the Aktivriege

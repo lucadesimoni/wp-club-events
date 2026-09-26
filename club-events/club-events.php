@@ -1,13 +1,13 @@
 <?php
 /**
- * Plugin Name:       Club Events Manager
+ * Plugin Name:       WP Club Events Simple
  * Plugin URI:        https://github.com/lucadesimoni/wp-club-events
  * Description:       Event calendar for clubs and associations: Google Calendar sync, timeline, calendar and tile views, ICS export, sharing and email subscriptions.
  * Version:           1.5.0
  * Requires at least: 6.5
  * Tested up to:      7.1
  * Requires PHP:      7.4
- * Author:            Luca De Simoni
+ * Author:            Outthinkx Club
  * Author URI:        https://github.com/lucadesimoni
  * License:           GPL-2.0-or-later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 
 if ( version_compare( PHP_VERSION, '7.4', '<' ) ) {
     add_action( 'admin_notices', function () {
-        echo '<div class="notice notice-error"><p><strong>Club Events Manager</strong> requires PHP 7.4 or higher. You are running PHP ' . esc_html( PHP_VERSION ) . '.</p></div>';
+        echo '<div class="notice notice-error"><p><strong>WP Club Events Simple</strong> requires PHP 7.4 or higher. You are running PHP ' . esc_html( PHP_VERSION ) . '.</p></div>';
     } );
     return;
 }

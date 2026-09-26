@@ -1,4 +1,4 @@
-/* Club Events Manager — Public JS */
+/* WP Club Events Simple — Public JS */
 (function () {
   'use strict';
 
