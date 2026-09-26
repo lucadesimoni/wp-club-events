@@ -4,7 +4,7 @@ Tags: events, calendar, google calendar, ics, gutenberg
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.5.0
+Stable tag: 1.6.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -90,6 +90,24 @@ only the event's title and URL.
 * `[club_events_my_events]` — user event dashboard.
 
 == Changelog ==
+
+= 1.6.0 =
+* Robustness: nothing the plugin renders or hooks into can take a page down.
+  Every shortcode, block, Elementor widget and theme/template hook is guarded;
+  if one fails, visitors see the rest of the page, editors see a short note,
+  and the error is logged (with WP_DEBUG).
+* The plugin refuses to load, with an admin notice instead of a fatal error,
+  when a second copy is active, when another plugin uses one of its class
+  names, or when WordPress/PHP are too old.
+* The database schema is repaired automatically after an update (updates do
+  not re-run activation); sites where the subscriber table was never created
+  are fixed on the next page view.
+* CSS no longer touches anything outside the plugin: the Astra header z-index
+  rule now only applies on event pages, and the required-field asterisk style
+  is scoped to the plugin's forms.
+* Front-end scripts set up each component separately, so one failure cannot
+  stop the others or other scripts on the page.
+* Uninstall removes all plugin options.
 
 = 1.5.0 =
 * Renamed to WP Club Events Simple (the plugin slug, shortcodes and blocks

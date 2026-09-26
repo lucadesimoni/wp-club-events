@@ -4,8 +4,8 @@ defined( 'ABSPATH' ) || exit;
 class CE_Frontend_Submit {
 
     public function __construct() {
-        add_shortcode( 'club_events_submit', [ $this, 'render_form' ] );
-        add_shortcode( 'club_events_my_events', [ $this, 'render_my_events' ] );
+        add_shortcode( 'club_events_submit', CE_Safe::renderer( '[club_events_submit]', [ $this, 'render_form' ] ) );
+        add_shortcode( 'club_events_my_events', CE_Safe::renderer( '[club_events_my_events]', [ $this, 'render_my_events' ] ) );
         add_action( 'wp_ajax_ce_submit_event', [ $this, 'handle_submit' ] );
         add_action( 'wp_ajax_ce_delete_my_event', [ $this, 'handle_delete' ] );
     }

@@ -30,24 +30,24 @@ class CE_Astra_Compat {
         // The bridge rides on the plugin stylesheet as inline CSS, so it prints
         // after it (and wins the cascade) and follows it into the block-editor
         // iframe and the Elementor preview.
-        add_action( 'wp_enqueue_scripts',   [ $this, 'attach_bridge' ], 5 );
-        add_action( 'enqueue_block_assets', [ $this, 'attach_bridge' ], 5 );
+        add_action( 'wp_enqueue_scripts',   CE_Safe::action( 'wp_enqueue_scripts', [ $this, 'attach_bridge' ] ), 5 );
+        add_action( 'enqueue_block_assets', CE_Safe::action( 'enqueue_block_assets', [ $this, 'attach_bridge' ] ), 5 );
 
-        add_action( 'wp_head',            [ $this, 'output_event_schema' ],      20 );
-        add_filter( 'body_class',         [ $this, 'body_classes' ]                );
-        add_filter( 'astra_page_layout',  [ $this, 'single_event_layout' ]         );
-        add_filter( 'astra_content_width',[ $this, 'archive_content_width' ]       );
+        add_action( 'wp_head',            CE_Safe::action( 'wp_head', [ $this, 'output_event_schema' ] ),      20 );
+        add_filter( 'body_class',         CE_Safe::filter( 'body_class', [ $this, 'body_classes' ] )                );
+        add_filter( 'astra_page_layout',  CE_Safe::filter( 'astra_page_layout', [ $this, 'single_event_layout' ] )         );
+        add_filter( 'astra_content_width',CE_Safe::filter( 'astra_content_width', [ $this, 'archive_content_width' ] )       );
 
-        add_filter( 'astra_banner_visibility',      [ $this, 'hide_title_bar_on_single' ] );
-        add_filter( 'astra_the_title_enabled',      [ $this, 'hide_title_bar_on_single' ] );
-        add_filter( 'astra_title_bar_enabled',      [ $this, 'hide_title_bar_on_single' ] );
-        add_filter( 'astra_addon_banner_visibility',[ $this, 'hide_title_bar_on_single' ] );
+        add_filter( 'astra_banner_visibility',      CE_Safe::filter( 'astra_banner_visibility', [ $this, 'hide_title_bar_on_single' ] ) );
+        add_filter( 'astra_the_title_enabled',      CE_Safe::filter( 'astra_the_title_enabled', [ $this, 'hide_title_bar_on_single' ] ) );
+        add_filter( 'astra_title_bar_enabled',      CE_Safe::filter( 'astra_title_bar_enabled', [ $this, 'hide_title_bar_on_single' ] ) );
+        add_filter( 'astra_addon_banner_visibility',CE_Safe::filter( 'astra_addon_banner_visibility', [ $this, 'hide_title_bar_on_single' ] ) );
 
-        add_filter( 'astra_breadcrumb_trail_items', [ $this, 'event_breadcrumbs' ], 10, 2 );
+        add_filter( 'astra_breadcrumb_trail_items', CE_Safe::filter( 'astra_breadcrumb_trail_items', [ $this, 'event_breadcrumbs' ] ), 10, 2 );
 
-        add_filter( 'astra_metabox_page_types', [ $this, 'register_for_metabox' ] );
+        add_filter( 'astra_metabox_page_types', CE_Safe::filter( 'astra_metabox_page_types', [ $this, 'register_for_metabox' ] ) );
 
-        add_action( 'astra_single_post_before_content', [ $this, 'maybe_suppress_entry_header' ] );
+        add_action( 'astra_single_post_before_content', CE_Safe::action( 'astra_single_post_before_content', [ $this, 'maybe_suppress_entry_header' ] ) );
     }
 
     // ─── CSS Variable Bridge ──────────────────────────────────────────────
@@ -327,11 +327,13 @@ body.single-club_event .entry-header .entry-title { display: none; }
 .ce-block > .ce-event-list, .elementor-widget-container > [class^="ce-"] { padding-top: 0; }
 .ce-archive-wrap, .site-main > .ce-single-event { padding-bottom: var(--ce-section-spacing); }
 
-/* ── Header stacking ──────────────────────────────────────────────── */
-#masthead, .main-header-bar, .ast-primary-sticky-header { z-index: 1000 !important; }
+/* ── Header stacking (event pages only: keeps Astra's header above the
+ *    full-bleed hero without touching headers anywhere else) ──────── */
+body.single-club_event #masthead, body.single-club_event .main-header-bar,
+body.single-club_event .ast-primary-sticky-header { z-index: 1000; }
 .ce-filter-bar, .ce-cal-nav { z-index: 10; }
-.ast-header-above-grid-enabled #content,
-.ast-header-below-grid-enabled #content { position: relative; z-index: 1; }
+body.single-club_event.ast-header-above-grid-enabled #content,
+body.single-club_event.ast-header-below-grid-enabled #content { position: relative; z-index: 1; }
 
 /* ── Breadcrumb ───────────────────────────────────────────────────── */
 .ce-breadcrumb-wrap { padding: 10px 0 0; font-size: 13px; }

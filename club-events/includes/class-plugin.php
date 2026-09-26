@@ -19,6 +19,7 @@ class CE_Plugin {
     }
 
     private function load_dependencies() {
+        require_once CE_PLUGIN_DIR . 'includes/class-safe.php';
         require_once CE_PLUGIN_DIR . 'includes/class-style.php';
         require_once CE_PLUGIN_DIR . 'includes/class-cpt.php';
         require_once CE_PLUGIN_DIR . 'includes/class-google-calendar.php';
@@ -34,13 +35,16 @@ class CE_Plugin {
     }
 
     private function init_hooks() {
-        add_action( 'init', [ $this, 'load_textdomain' ] );
+        // Plugin updates (zip upload, auto-update) do not re-run activation,
+        // so bring the database schema up to date whenever the version changes.
+        add_action( 'init', CE_Safe::action( 'ce_upgrade_schema', [ __CLASS__, 'maybe_upgrade_schema' ] ), 1 );
+        add_action( 'init', CE_Safe::action( 'init', [ $this, 'load_textdomain' ] ) );
         // Registered early so blocks can name the handles and the block-editor
         // iframe can load them.
-        add_action( 'init', [ $this, 'register_public_assets' ], 5 );
-        add_action( 'wp_enqueue_scripts', [ $this, 'enqueue_public_assets' ] );
-        add_action( 'enqueue_block_assets', [ $this, 'enqueue_editor_canvas_assets' ] );
-        add_filter( 'block_categories_all', [ $this, 'register_block_category' ], 10, 2 );
+        add_action( 'init', CE_Safe::action( 'init', [ $this, 'register_public_assets' ] ), 5 );
+        add_action( 'wp_enqueue_scripts', CE_Safe::action( 'wp_enqueue_scripts', [ $this, 'enqueue_public_assets' ] ) );
+        add_action( 'enqueue_block_assets', CE_Safe::action( 'enqueue_block_assets', [ $this, 'enqueue_editor_canvas_assets' ] ) );
+        add_filter( 'block_categories_all', CE_Safe::filter( 'block_categories_all', [ $this, 'register_block_category' ] ), 10, 2 );
 
         new CE_CPT();
         new CE_Google_Calendar();
@@ -133,6 +137,7 @@ class CE_Plugin {
     public static function activate() {
         self::create_tables();
         self::maybe_upgrade_db();
+        update_option( 'ce_db_version', CE_VERSION );
         self::set_defaults();
         flush_rewrite_rules();
 
@@ -183,6 +188,19 @@ class CE_Plugin {
         // after PRIMARY KEY, or it cannot diff and upgrade the schema.
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta( $sql );
+    }
+
+    /**
+     * Create or upgrade the tables once per plugin version. Also repairs sites
+     * where 1.4.0 and earlier never created them (see create_tables()).
+     */
+    public static function maybe_upgrade_schema() {
+        if ( get_option( 'ce_db_version' ) === CE_VERSION ) {
+            return;
+        }
+        self::create_tables();
+        self::maybe_upgrade_db();
+        update_option( 'ce_db_version', CE_VERSION );
     }
 
     public static function maybe_upgrade_db() {

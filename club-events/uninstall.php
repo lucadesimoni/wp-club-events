@@ -9,14 +9,20 @@ $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}ce_calendars" );
 
 // Remove plugin options
 $options = [
-    'ce_google_api_key',
-    'ce_sync_interval',
-    'ce_ics_feed_enabled',
-    'ce_subscription_enabled',
-    'ce_subscription_from_name',
-    'ce_subscription_from_email',
+    'ce_db_version',
+    'ce_events_page',
     'ce_future_months',
+    'ce_google_api_key',
+    'ce_hide_archive',
+    'ce_ics_feed_enabled',
     'ce_past_months',
+    'ce_self_service_auto_publish_role',
+    'ce_self_service_enabled',
+    'ce_self_service_role',
+    'ce_subscription_enabled',
+    'ce_subscription_from_email',
+    'ce_subscription_from_name',
+    'ce_sync_interval',
 ];
 foreach ( $options as $opt ) {
     delete_option( $opt );

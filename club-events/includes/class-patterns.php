@@ -11,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
 class CE_Patterns {
 
     public function __construct() {
-        add_action( 'init', [ $this, 'register' ], 20 );
+        add_action( 'init', CE_Safe::action( 'init', [ $this, 'register' ] ), 20 );
     }
 
     public function register(): void {

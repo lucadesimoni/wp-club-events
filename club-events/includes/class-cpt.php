@@ -4,16 +4,16 @@ defined( 'ABSPATH' ) || exit;
 class CE_CPT {
 
     public function __construct() {
-        add_action( 'init', [ $this, 'register_post_type' ] );
-        add_action( 'init', [ $this, 'register_taxonomies' ] );
-        add_action( 'add_meta_boxes', [ $this, 'add_meta_boxes' ] );
-        add_action( 'save_post_club_event', [ $this, 'save_meta' ], 10, 2 );
-        add_filter( 'manage_club_event_posts_columns', [ $this, 'admin_columns' ] );
-        add_action( 'manage_club_event_posts_custom_column', [ $this, 'admin_column_content' ], 10, 2 );
-        add_filter( 'manage_edit-club_event_sortable_columns', [ $this, 'sortable_columns' ] );
-        add_action( 'pre_get_posts', [ $this, 'default_sort' ] );
-        add_filter( 'template_include', [ $this, 'load_template' ] );
-        add_action( 'template_redirect', [ $this, 'maybe_redirect_archive' ] );
+        add_action( 'init', CE_Safe::action( 'init', [ $this, 'register_post_type' ] ) );
+        add_action( 'init', CE_Safe::action( 'init', [ $this, 'register_taxonomies' ] ) );
+        add_action( 'add_meta_boxes', CE_Safe::action( 'add_meta_boxes', [ $this, 'add_meta_boxes' ] ) );
+        add_action( 'save_post_club_event', CE_Safe::action( 'save_post_club_event', [ $this, 'save_meta' ] ), 10, 2 );
+        add_filter( 'manage_club_event_posts_columns', CE_Safe::filter( 'manage_club_event_posts_columns', [ $this, 'admin_columns' ] ) );
+        add_action( 'manage_club_event_posts_custom_column', CE_Safe::action( 'manage_club_event_posts_custom_column', [ $this, 'admin_column_content' ] ), 10, 2 );
+        add_filter( 'manage_edit-club_event_sortable_columns', CE_Safe::filter( 'manage_edit-club_event_sortable_columns', [ $this, 'sortable_columns' ] ) );
+        add_action( 'pre_get_posts', CE_Safe::action( 'pre_get_posts', [ $this, 'default_sort' ] ) );
+        add_filter( 'template_include', CE_Safe::filter( 'template_include', [ $this, 'load_template' ] ) );
+        add_action( 'template_redirect', CE_Safe::action( 'template_redirect', [ $this, 'maybe_redirect_archive' ] ) );
     }
 
     /**

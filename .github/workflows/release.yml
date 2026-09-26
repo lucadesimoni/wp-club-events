@@ -81,6 +81,7 @@ jobs:
           php club-events/tests/widgets-parity.php
           php club-events/tests/theme-integration.php
           php club-events/tests/directory-readiness.php
+          php club-events/tests/robustness.php
 
       - name: Build club-events.zip
         run: |
