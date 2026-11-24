@@ -96,9 +96,13 @@ class CE_Google_Calendar {
 
     private function notify_admin_sync_failure( $calendar_name, $error_message ) {
         $admin_email = get_option( 'admin_email' );
-        $subject     = sprintf( __( '[%s] Google Calendar sync failed: %s', 'club-events' ), get_bloginfo( 'name' ), $calendar_name );
+        /* translators: 1: site name, 2: calendar name. */
+        $subject     = sprintf( __( '[%1$s] Google Calendar sync failed: %2$s', 'club-events' ), get_bloginfo( 'name' ), $calendar_name );
+        /* translators: %s: calendar name. */
         $message     = sprintf( __( 'The Google Calendar sync for "%s" has failed after 3 attempts.', 'club-events' ), $calendar_name ) . "\n\n"
+            /* translators: %s: error message from Google. */
             . sprintf( __( 'Error: %s', 'club-events' ), $error_message ) . "\n\n"
+            /* translators: %s: URL of the calendar settings screen. */
             . sprintf( __( 'Check settings: %s', 'club-events' ), admin_url( 'admin.php?page=ce-calendars' ) ) . "\n";
         wp_mail( $admin_email, $subject, $message );
     }
@@ -252,6 +256,9 @@ class CE_Google_Calendar {
         $placeholders = implode( ',', array_fill( 0, count( $synced_ids ), '%s' ) );
         global $wpdb;
 
+        // One %s placeholder per synced ID is built above and the values are
+        // passed as an array, which PHPCS cannot count statically.
+        // phpcs:disable WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $stale_ids = $wpdb->get_col( $wpdb->prepare(
             "SELECT p.ID FROM {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm_cal ON p.ID = pm_cal.post_id
@@ -264,10 +271,11 @@ class CE_Google_Calendar {
                  AND pm_start.meta_value BETWEEN %s AND %s
              WHERE p.post_type = 'club_event' AND p.post_status = 'publish'",
             array_merge( [ $cal_db_id ], $synced_ids, [
-                gmdate( 'Y-m-d H:i:s', strtotime( $time_min ) ),
-                gmdate( 'Y-m-d H:i:s', strtotime( $time_max ) ),
+                ( new DateTimeImmutable( $time_min ) )->setTimezone( wp_timezone() )->format( 'Y-m-d H:i:s' ),
+                ( new DateTimeImmutable( $time_max ) )->setTimezone( wp_timezone() )->format( 'Y-m-d H:i:s' ),
             ] )
         ) );
+        // phpcs:enable WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         foreach ( $stale_ids as $id ) {
             wp_trash_post( (int) $id );

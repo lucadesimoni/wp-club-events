@@ -60,6 +60,30 @@ Fixes found by checking the live STV Malters site (which still ran 1.2.1).
 - German labels for the post type and taxonomies (the breadcrumb read
   "Events"), 124 catalog entries.
 
+### Tested on a real WordPress install
+Installed on WordPress 6.9 (SQLite) with a German locale and realistic
+events, then checked every shortcode, block, single page, ICS, REST, the
+admin screens and the block editor. Findings fixed:
+- **Date queries returned nothing on SQLite** (`type => DATETIME` casts).
+  Stored values are `Y-m-d H:i:s`, so they are now compared as text: correct
+  on MySQL/MariaDB and SQLite (WordPress Playground, SQLite integration).
+- **`/events/123.ics` answered 301** to `/events/123.ics/` (canonical
+  redirect ran first); the feed handler now runs before it.
+- **schema.org Event data only appeared with Astra**; it is now output on
+  every theme, and `JSON_HEX_TAG` keeps a `</script>` in a title from
+  breaking out of the JSON-LD tag.
+- **A code comment was printed on the page** in the hub's list view
+  (`// phpcs:ignore …` outside the PHP tag).
+- Google sync: the stale-event window compared UTC with local times.
+
+### WordPress coding standards
+`phpcs.xml.dist` (WordPress.Security, prepared SQL, i18n, globals, PHP 7.4+)
+passes and runs in CI. Request data is unslashed and sanitised everywhere,
+redirects use `wp_safe_redirect()`, the subscriber table is passed with the
+`%i` identifier placeholder, translatable strings carry translator comments
+and ordered placeholders, and admin views/templates no longer overwrite
+WordPress globals (`$post`, `$term`, `$cat`, `$post_id`, `$id`).
+
 ### Headings
 - `[club_events_timeline]` and `[club_events]` take `heading_level`
   (default 3: month = h3, event titles = h4). Set `2` when the timeline sits

@@ -94,7 +94,7 @@ class CE_Admin {
             'ce_self_service_enabled'    => isset( $_POST['ce_self_service_enabled'] ) ? '1' : '0',
             'ce_self_service_role'       => sanitize_text_field( wp_unslash( $_POST['ce_self_service_role'] ?? 'subscriber' ) ),
             'ce_self_service_auto_publish_role' => sanitize_text_field( wp_unslash( $_POST['ce_self_service_auto_publish_role'] ?? 'editor' ) ),
-            'ce_events_page'             => (string) max( 0, (int) ( $_POST['ce_events_page'] ?? 0 ) ),
+            'ce_events_page'             => (string) max( 0, absint( wp_unslash( $_POST['ce_events_page'] ?? 0 ) ) ),
             'ce_hide_archive'            => isset( $_POST['ce_hide_archive'] ) ? '1' : '0',
         ];
 
@@ -102,7 +102,7 @@ class CE_Admin {
             update_option( $key, $value );
         }
 
-        wp_redirect( add_query_arg( [ 'page' => 'ce-settings', 'saved' => '1' ], admin_url( 'admin.php' ) ) );
+        wp_safe_redirect( add_query_arg( [ 'page' => 'ce-settings', 'saved' => '1' ], admin_url( 'admin.php' ) ) );
         exit;
     }
 
@@ -114,8 +114,8 @@ class CE_Admin {
         $settings = [
             'ce_google_api_key' => sanitize_text_field( wp_unslash( $_POST['ce_google_api_key'] ?? '' ) ),
             'ce_sync_interval'  => sanitize_text_field( wp_unslash( $_POST['ce_sync_interval'] ?? 'hourly' ) ),
-            'ce_future_months'  => (string) max( 1, min( 24, (int) ( $_POST['ce_future_months'] ?? 6 ) ) ),
-            'ce_past_months'    => (string) max( 0, min( 12, (int) ( $_POST['ce_past_months'] ?? 1 ) ) ),
+            'ce_future_months'  => (string) max( 1, min( 24, absint( wp_unslash( $_POST['ce_future_months'] ?? 6 ) ) ) ),
+            'ce_past_months'    => (string) max( 0, min( 12, absint( wp_unslash( $_POST['ce_past_months'] ?? 1 ) ) ) ),
         ];
 
         foreach ( $settings as $key => $value ) {
@@ -126,7 +126,7 @@ class CE_Admin {
         wp_clear_scheduled_hook( 'ce_google_calendar_sync' );
         wp_schedule_event( time(), $interval, 'ce_google_calendar_sync' );
 
-        wp_redirect( add_query_arg( [ 'page' => 'ce-calendars', 'saved' => '1' ], admin_url( 'admin.php' ) ) );
+        wp_safe_redirect( add_query_arg( [ 'page' => 'ce-calendars', 'saved' => '1' ], admin_url( 'admin.php' ) ) );
         exit;
     }
 
@@ -136,7 +136,7 @@ class CE_Admin {
             wp_send_json_error( 'Insufficient permissions.' );
         }
 
-        $id   = (int) ( $_POST['id'] ?? 0 );
+        $id   = absint( wp_unslash( $_POST['id'] ?? 0 ) );
         // WordPress slashes request data; unslash before sanitising, or a
         // name like "Kid's Club" is stored as "Kid\'s Club".
         $raw_types = isset( $_POST['event_types'] ) && is_array( $_POST['event_types'] )
@@ -165,7 +165,7 @@ class CE_Admin {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( 'Insufficient permissions.' );
         }
-        CE_Google_Calendar::delete_calendar( (int) ( $_POST['id'] ?? 0 ) );
+        CE_Google_Calendar::delete_calendar( absint( wp_unslash( $_POST['id'] ?? 0 ) ) );
         wp_send_json_success();
     }
 
@@ -174,7 +174,7 @@ class CE_Admin {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( 'Insufficient permissions.' );
         }
-        CE_Subscription::delete_subscriber( (int) ( $_POST['id'] ?? 0 ) );
+        CE_Subscription::delete_subscriber( absint( wp_unslash( $_POST['id'] ?? 0 ) ) );
         wp_send_json_success();
     }
 
@@ -184,7 +184,7 @@ class CE_Admin {
             wp_send_json_error( 'Insufficient permissions.' );
         }
 
-        $term_id     = (int) ( $_POST['term_id'] ?? 0 );
+        $term_id     = absint( wp_unslash( $_POST['term_id'] ?? 0 ) );
         $name        = sanitize_text_field( wp_unslash( $_POST['name'] ?? '' ) );
         $use_theme   = ! empty( $_POST['theme_color'] );
         // Empty stored colour = "use theme" → frontend resolves to var(--ce-primary).
@@ -237,7 +237,7 @@ class CE_Admin {
         if ( ! current_user_can( 'manage_options' ) ) {
             wp_send_json_error( 'Insufficient permissions.' );
         }
-        $term_id = (int) ( $_POST['term_id'] ?? 0 );
+        $term_id = absint( wp_unslash( $_POST['term_id'] ?? 0 ) );
         if ( $term_id ) {
             wp_delete_term( $term_id, 'event_type' );
         }
@@ -276,7 +276,7 @@ class CE_Admin {
     }
 
     public function page_subscribers() {
-        $page    = max( 1, (int) ( $_GET['paged'] ?? 1 ) );
+        $page    = max( 1, absint( wp_unslash( $_GET['paged'] ?? 1 ) ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view parameter, nothing is changed.
         $result  = CE_Subscription::get_subscribers( $page );
         require CE_PLUGIN_DIR . 'admin/views/page-subscribers.php';
     }

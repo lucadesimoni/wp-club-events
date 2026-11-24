@@ -301,9 +301,9 @@ class CE_Shortcodes {
                                 <?php endif; ?>
                             </div>
                             <div class="ce-timeline-body">
-                                <<?php echo $h_title; ?> class="ce-event-title">
+                                <<?php echo $h_title; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tag from heading_tag() whitelist. ?> class="ce-event-title">
                                     <a href="<?php echo esc_url( $event['url'] ); ?>"><?php echo esc_html( $event['title'] ); ?></a>
-                                </<?php echo $h_title; ?>>
+                                </<?php echo $h_title; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tag from heading_tag() whitelist. ?>>
                                 <div class="ce-event-meta">
                                     <?php if ( $event['start'] && ! $event['allDay'] ) : ?>
                                     <span class="ce-meta-item ce-meta-time">
@@ -371,8 +371,8 @@ class CE_Shortcodes {
             'show_filter' => true,
         ], $atts, 'club_events_overview' );
 
-        $year  = isset( $_GET['ce_year'] )  ? (int) $_GET['ce_year']  : (int) current_time( 'Y' );
-        $month = isset( $_GET['ce_month'] ) ? (int) $_GET['ce_month'] : (int) current_time( 'n' );
+        $year  = isset( $_GET['ce_year'] )  ? (int) $_GET['ce_year']  : (int) current_time( 'Y' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view parameter, nothing is changed.
+        $month = isset( $_GET['ce_month'] ) ? (int) $_GET['ce_month'] : (int) current_time( 'n' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view parameter, nothing is changed.
 
         $month = max( 1, min( 12, $month ) );
 
@@ -739,7 +739,7 @@ class CE_Shortcodes {
 
         $year = (int) $atts['year'];
         if ( ! $year ) {
-            $year = isset( $_GET['ce_year'] ) ? (int) $_GET['ce_year'] : (int) current_time( 'Y' );
+            $year = isset( $_GET['ce_year'] ) ? (int) $_GET['ce_year'] : (int) current_time( 'Y' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view parameter, nothing is changed.
         }
 
         $from = "$year-01-01 00:00:00";
@@ -826,7 +826,10 @@ class CE_Shortcodes {
             <?php endforeach; ?>
 
             <div class="ce-yearly-total">
-                <?php printf( esc_html__( '%d events in %d', 'club-events' ), count( $posts ), $year ); ?>
+                <?php
+                /* translators: 1: number of events, 2: year. */
+                printf( esc_html__( '%1$d events in %2$d', 'club-events' ), (int) count( $posts ), (int) $year );
+                ?>
             </div>
         </div>
         <?php
@@ -974,12 +977,14 @@ class CE_Shortcodes {
                     <a href="<?php echo esc_url( $event['url'] ); ?>" class="ce-tile-card-cta"><?php echo esc_html( $o['cta'] ); ?> →</a>
                     <?php endif; ?>
                     <?php if ( $show_actions ) {
+                        // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
                         echo self::event_actions( $event['url'], $event['title'], $event['ics'], [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
                             'ics'    => ! empty( $o['show_ics'] ),
                             'share'  => ! empty( $o['show_share'] ),
                             'labels' => false,
                             'class'  => 'ce-actions--compact',
                         ] );
+                        // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
                     } ?>
                 </div>
                 <?php endif; ?>
@@ -1238,7 +1243,7 @@ class CE_Shortcodes {
                     </span>
                 </span>
                 <span class="ce-hub-list-actions">
-                    <?php echo self::event_actions( $ev['url'], $ev['title'], $ev['ics'], [ 'labels' => false, 'class' => 'ce-actions--compact' ] ); ?> // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
+                    <?php echo self::event_actions( $ev['url'], $ev['title'], $ev['ics'], [ 'labels' => false, 'class' => 'ce-actions--compact' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer. ?>
                 </span>
             </li>
             <?php
@@ -1340,10 +1345,10 @@ class CE_Shortcodes {
             return '';
         }
 
-        if ( isset( $_GET['ce_subscribed'] ) ) {
+        if ( isset( $_GET['ce_subscribed'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view parameter, nothing is changed.
             return '<div class="ce-subscribe-success"><p>' . esc_html__( 'You are now subscribed to event updates!', 'club-events' ) . '</p></div>';
         }
-        if ( isset( $_GET['ce_unsubscribed'] ) ) {
+        if ( isset( $_GET['ce_unsubscribed'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view parameter, nothing is changed.
             return '<div class="ce-subscribe-success"><p>' . esc_html__( 'You have been unsubscribed.', 'club-events' ) . '</p></div>';
         }
 

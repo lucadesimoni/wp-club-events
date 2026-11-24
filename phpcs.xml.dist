@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<ruleset name="club-events">
+  <description>WordPress security, database, i18n and PHP-compatibility rules for Club Events. Run: vendor/bin/phpcs</description>
+  <file>club-events</file>
+  <exclude-pattern>*/tests/*</exclude-pattern>
+  <arg name="extensions" value="php"/>
+  <arg value="s"/>
+
+  <rule ref="WordPress.Security"/>
+  <rule ref="WordPress.DB.PreparedSQL"/>
+  <rule ref="WordPress.DB.PreparedSQLPlaceholders"/>
+  <rule ref="WordPress.WP.GlobalVariablesOverride"/>
+  <rule ref="WordPress.WP.I18n">
+    <properties><property name="text_domain" type="array"><element value="club-events"/></property></properties>
+  </rule>
+  <rule ref="PHPCompatibilityWP"/>
+  <config name="testVersion" value="7.4-"/>
+  <config name="minimum_wp_version" value="6.5"/>
+</ruleset>

@@ -69,7 +69,7 @@ STRINGS = {
     "All events": "Alle Anlässe",
     "More details": "Mehr Details",
     "No events": "Keine Anlässe",
-    "%d events in %d": "%d Anlässe im Jahr %d",
+    "%1$d events in %2$d": "%1$d Anlässe im Jahr %2$d",
     "Add to calendar": "Zum Kalender hinzufügen",
     "Search events…": "Anlässe durchsuchen…",
     "Search events": "Anlässe durchsuchen",

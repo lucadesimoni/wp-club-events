@@ -13,6 +13,7 @@ class CE_CPT {
         add_filter( 'manage_edit-club_event_sortable_columns', CE_Safe::filter( 'manage_edit-club_event_sortable_columns', [ $this, 'sortable_columns' ] ) );
         add_action( 'pre_get_posts', CE_Safe::action( 'pre_get_posts', [ $this, 'default_sort' ] ) );
         add_filter( 'template_include', CE_Safe::filter( 'template_include', [ $this, 'load_template' ] ) );
+        add_action( 'wp_head', CE_Safe::action( 'wp_head', [ $this, 'output_event_schema' ] ), 20 );
         add_action( 'template_redirect', CE_Safe::action( 'template_redirect', [ $this, 'maybe_redirect_archive' ] ) );
     }
 
@@ -329,6 +330,71 @@ class CE_CPT {
         return $template;
     }
 
+    // ─── JSON-LD Event Schema ─────────────────────────────────────────────
+
+    /**
+     * schema.org Event data for search engines, on every theme.
+     * JSON_HEX_TAG keeps a "</script>" in a title from ending the tag.
+     */
+    public function output_event_schema(): void {
+        if ( ! is_singular( 'club_event' ) ) {
+            return;
+        }
+
+        $post_id  = get_the_ID();
+        $start    = get_post_meta( $post_id, '_ce_start_date', true );
+        $end      = get_post_meta( $post_id, '_ce_end_date', true );
+        $all_day  = (bool) get_post_meta( $post_id, '_ce_all_day', true );
+        $location = get_post_meta( $post_id, '_ce_location', true );
+        $loc_url  = get_post_meta( $post_id, '_ce_location_url', true );
+        $ext_url  = get_post_meta( $post_id, '_ce_external_url', true );
+
+        if ( ! $start ) {
+            return;
+        }
+
+        $schema = [
+            '@context'    => 'https://schema.org',
+            '@type'       => 'Event',
+            'name'        => get_the_title( $post_id ),
+            'description' => wp_strip_all_tags( get_post_field( 'post_excerpt', $post_id ) ?: get_post_field( 'post_content', $post_id ) ),
+            'startDate'   => self::to_iso8601( $start, $all_day ),
+            'url'         => get_permalink( $post_id ),
+            'organizer'   => [
+                '@type' => 'Organization',
+                'name'  => get_bloginfo( 'name' ),
+                'url'   => home_url(),
+            ],
+        ];
+
+        if ( $end ) {
+            $schema['endDate'] = self::to_iso8601( $end, $all_day );
+        }
+
+        if ( $location ) {
+            $schema['location'] = [
+                '@type' => 'Place',
+                'name'  => $location,
+            ];
+            if ( $loc_url ) {
+                $schema['location']['url'] = $loc_url;
+            }
+        }
+
+        if ( $ext_url ) {
+            $schema['url'] = $ext_url;
+        }
+
+        if ( has_post_thumbnail( $post_id ) ) {
+            $schema['image'] = get_the_post_thumbnail_url( $post_id, 'large' );
+        }
+
+        $schema['eventStatus']        = 'https://schema.org/EventScheduled';
+        $schema['eventAttendanceMode'] = 'https://schema.org/OfflineEventAttendanceMode';
+
+        echo '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP ) . '</script>' . "\n";
+    }
+
     /**
      * Current site-local time as `Y-m-d H:i:s`.
      *
@@ -406,7 +472,7 @@ class CE_CPT {
                     'key'     => '_ce_end_date',
                     'value'   => self::now(),
                     'compare' => '>=',
-                    'type'    => 'DATETIME',
+                    'type'    => 'CHAR', // Y-m-d H:i:s compares correctly as text on MySQL and SQLite.
                 ],
                 // Without an end date an event is kept for its whole day.
                 [
@@ -415,7 +481,7 @@ class CE_CPT {
                         'key'     => '_ce_start_date',
                         'value'   => self::today() . ' 00:00:00',
                         'compare' => '>=',
-                        'type'    => 'DATETIME',
+                        'type'    => 'CHAR', // Y-m-d H:i:s compares correctly as text on MySQL and SQLite.
                     ],
                     [
                         'relation' => 'OR',
@@ -432,7 +498,7 @@ class CE_CPT {
                 'key'     => '_ce_start_date',
                 'value'   => $args['from'],
                 'compare' => '>=',
-                'type'    => 'DATETIME',
+                'type'    => 'CHAR', // Y-m-d H:i:s compares correctly as text on MySQL and SQLite.
             ];
             unset( $args['from'] );
         }
@@ -442,7 +508,7 @@ class CE_CPT {
                 'key'     => '_ce_start_date',
                 'value'   => $args['to'],
                 'compare' => '<=',
-                'type'    => 'DATETIME',
+                'type'    => 'CHAR', // Y-m-d H:i:s compares correctly as text on MySQL and SQLite.
             ];
             unset( $args['to'] );
         }

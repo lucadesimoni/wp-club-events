@@ -158,8 +158,8 @@ msgstr "Mehr Details"
 msgid "No events"
 msgstr "Keine Anlässe"
 
-msgid "%d events in %d"
-msgstr "%d Anlässe im Jahr %d"
+msgid "%1$d events in %2$d"
+msgstr "%1$d Anlässe im Jahr %2$d"
 
 msgid "Add to calendar"
 msgstr "Zum Kalender hinzufügen"

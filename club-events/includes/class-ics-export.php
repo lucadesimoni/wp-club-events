@@ -5,7 +5,9 @@ class CE_ICS_Export {
 
     public function __construct() {
         add_action( 'init', CE_Safe::action( 'init', [ $this, 'register_rewrite_rules' ] ) );
-        add_action( 'template_redirect', CE_Safe::action( 'template_redirect', [ $this, 'handle_feed' ] ) );
+        // Before redirect_canonical (priority 10), which would add a trailing
+        // slash to /events/123.ics and answer with a 301 first.
+        add_action( 'template_redirect', CE_Safe::action( 'template_redirect', [ $this, 'handle_feed' ] ), 5 );
         add_filter( 'query_vars', CE_Safe::filter( 'query_vars', [ $this, 'add_query_vars' ] ) );
     }
 
@@ -26,7 +28,7 @@ class CE_ICS_Export {
         }
 
         if ( get_query_var( 'ce_ics_feed' ) ) {
-            $category = isset( $_GET['category'] ) ? sanitize_text_field( wp_unslash( $_GET['category'] ) ) : '';
+            $category = isset( $_GET['category'] ) ? sanitize_text_field( wp_unslash( $_GET['category'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- public, read-only feed.
             $this->output_feed( $category );
             exit;
         }
@@ -159,7 +161,7 @@ class CE_ICS_Export {
     public static function get_feed_url( $category = '' ) {
         $url = home_url( '/events.ics' );
         if ( $category ) {
-            $url = add_query_arg( 'category', urlencode( $category ), $url );
+            $url = add_query_arg( 'category', rawurlencode( $category ), $url );
         }
         return $url;
     }

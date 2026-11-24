@@ -75,6 +75,12 @@ jobs:
       - name: Lint every PHP file
         run: find club-events addons -name '*.php' -print0 | xargs -0 -n1 php -l
 
+      - name: WordPress coding standards (security, SQL, i18n, PHP 7.4+)
+        run: |
+          composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+          composer global require --no-interaction wp-coding-standards/wpcs:^3 phpcompatibility/phpcompatibility-wp:"*" dealerdirect/phpcodesniffer-composer-installer
+          "$(composer global config bin-dir --absolute)/phpcs"
+
       - name: Run the test suites
         run: |
           php addons/club-events-stv-malters/tests/e2e-aktivriege.php

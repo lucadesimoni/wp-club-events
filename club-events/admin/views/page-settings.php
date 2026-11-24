@@ -5,7 +5,7 @@
         <?php esc_html_e( 'Settings', 'club-events' ); ?>
     </h1>
 
-    <?php if ( isset( $_GET['saved'] ) ) : ?>
+    <?php if ( isset( $_GET['saved'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view parameter, nothing is changed. ?>
     <div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Settings saved.', 'club-events' ); ?></p></div>
     <?php endif; ?>
 
@@ -23,7 +23,7 @@
                     'name'              => 'ce_events_page',
                     'id'                => 'ce_events_page',
                     'selected'          => (int) get_option( 'ce_events_page', 0 ),
-                    'show_option_none'  => __( '— Use built-in events archive —', 'club-events' ),
+                    'show_option_none'  => esc_html__( '— Use built-in events archive —', 'club-events' ),
                     'option_none_value' => 0,
                     'class'             => 'regular-text',
                 ] );
