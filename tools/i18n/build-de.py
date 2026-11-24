@@ -122,6 +122,27 @@ STRINGS = {
     "Something went wrong. Please try again.": "Etwas ist schiefgelaufen. Bitte versuche es erneut.",
     "Delete this event?": "Diesen Anlass löschen?",
     "My Events": "Meine Anlässe",
+    # Post type and taxonomy labels (breadcrumbs, archive titles, admin).
+    "Add Event": "Anlass hinzufügen",
+    "Add New Event": "Neuen Anlass hinzufügen",
+    "Edit Event": "Anlass bearbeiten",
+    "New Event": "Neuer Anlass",
+    "View Event": "Anlass ansehen",
+    "Search Events": "Anlässe durchsuchen",
+    "No events in trash.": "Keine Anlässe im Papierkorb.",
+    "Tag": "Schlagwort",
+    "Tags": "Schlagwörter",
+    "All Categories": "Alle Kategorien",
+    "All Types": "Alle Gruppen",
+    "Add New Category": "Neue Kategorie",
+    "Add New Type": "Neue Gruppe",
+    "Edit Category": "Kategorie bearbeiten",
+    "Edit Type": "Gruppe bearbeiten",
+    "Search Categories": "Kategorien durchsuchen",
+    "Search Types": "Gruppen durchsuchen",
+    "No categories found.": "Keine Kategorien gefunden.",
+    "No types found.": "Keine Gruppen gefunden.",
+    "No tags found.": "Keine Schlagwörter gefunden.",
 }
 
 

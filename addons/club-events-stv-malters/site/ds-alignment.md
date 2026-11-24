@@ -1,5 +1,11 @@
 # STV Malters – Abgleich mit dem Design-System
 
+> **Umgesetzt am 24.11.2026.** Das Zusatz-CSS der Seite ist durch
+> `stv-site.css` (in diesem Ordner) ersetzt worden; die vorherige Fassung liegt
+> als `custom-css-before-2026-11-24.css` hier und als Revision im Customizer.
+> Fusszeile (Datenschutz-Link, keine h4) und Hero-Bilder sind ebenfalls
+> angepasst. Die Abschnitte unten dokumentieren die Analyse.
+
 Quelle: digital.stvmalters.ch (Stand 24.11.2026). Ziel: mataxacu.myhostpoint.ch
 (Astra). Gilt für *Design → Customizer → Zusätzliches CSS*.
 

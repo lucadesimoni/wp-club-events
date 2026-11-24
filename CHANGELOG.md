@@ -45,6 +45,21 @@ Fixes found by checking the live STV Malters site (which still ran 1.2.1).
 - Phones (≤ 480px): listing action buttons share the row evenly and are at
   least 40px tall.
 
+### Design & mobile (from screenshots of the STV site)
+- Tiles without an image show a calm date block (day + month in the event
+  colour) instead of a large gradient with a calendar icon; the tile title
+  loses its coloured underline.
+- Phones: listing actions are one "Details" button plus 44px icon buttons
+  for calendar and share (labels stay for screen readers).
+- Titles hyphenate German compounds instead of breaking mid-word, and theme
+  heading decorations (`h2::after` bars) no longer leak into plugin titles.
+- Event page: one-day events read "27. November 2026" (not "27. November
+  2026 – 27. November 2026"); timed events over midnight show the end date;
+  the hero colour follows the event type / theme; the subscribe form in the
+  sidebar is no longer a card inside a card. New `CE_CPT::date_range()`.
+- German labels for the post type and taxonomies (the breadcrumb read
+  "Events"), 124 catalog entries.
+
 ### Site
 - `addons/club-events-stv-malters/site/ds-alignment.md`: design-system
   tokens from digital.stvmalters.ch and the exact CSS/footer changes that

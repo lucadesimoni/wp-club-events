@@ -334,15 +334,16 @@ class CE_Shortcodes {
                                     <a href="<?php echo esc_url( $event['url'] ); ?>" class="ce-btn ce-btn-primary">
                                         <?php esc_html_e( 'Details', 'club-events' ); ?>
                                     </a>
-                                    <a href="<?php echo esc_url( $event['ics'] ); ?>" class="ce-btn ce-btn-outline">
-                                        <svg viewBox="0 0 16 16" width="14" height="14"><rect x="2" y="3" width="12" height="12" rx="1.5" stroke="currentColor" fill="none"/><path d="M5 2v2M11 2v2M2 7h12" stroke="currentColor" stroke-linecap="round"/></svg>
-                                        <?php esc_html_e( 'Add to Calendar', 'club-events' ); ?>
+                                    <a href="<?php echo esc_url( $event['ics'] ); ?>" class="ce-btn ce-btn-outline ce-btn-icon" aria-label="<?php esc_attr_e( 'Add to Calendar', 'club-events' ); ?>">
+                                        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="2" y="3" width="12" height="12" rx="1.5" stroke="currentColor" fill="none"/><path d="M5 2v2M11 2v2M2 7h12" stroke="currentColor" stroke-linecap="round"/></svg>
+                                        <span class="ce-btn-label"><?php esc_html_e( 'Add to Calendar', 'club-events' ); ?></span>
                                     </a>
-                                    <button type="button" class="ce-btn ce-btn-outline ce-action-share"
+                                    <button type="button" class="ce-btn ce-btn-outline ce-btn-icon ce-action-share"
+                                            aria-label="<?php esc_attr_e( 'Share', 'club-events' ); ?>"
                                             data-share-url="<?php echo esc_attr( $event['url'] ); ?>"
                                             data-share-title="<?php echo esc_attr( $event['title'] ); ?>">
-                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><circle cx="18" cy="5" r="3" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/><circle cx="18" cy="19" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M8.6 10.6l6.8-4.2M8.6 13.4l6.8 4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                                        <?php esc_html_e( 'Share', 'club-events' ); ?>
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true"><circle cx="18" cy="5" r="3" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/><circle cx="18" cy="19" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M8.6 10.6l6.8-4.2M8.6 13.4l6.8 4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                                        <span class="ce-btn-label"><?php esc_html_e( 'Share', 'club-events' ); ?></span>
                                     </button>
                                 </div>
                             </div>
@@ -924,12 +925,11 @@ class CE_Shortcodes {
             </div>
             <?php elseif ( ! empty( $o['show_image'] ) ) : ?>
             <div class="ce-tile-card-img ce-tile-card-img--placeholder">
-                <div class="ce-tile-card-placeholder" style="background:linear-gradient(135deg,<?php echo esc_attr( $event['color'] ); ?> 0%,<?php echo esc_attr( $event['color'] ); ?>99 100%)">
-                    <svg viewBox="0 0 48 48" width="32" height="32" fill="none">
-                        <rect x="6" y="8" width="36" height="36" rx="4" stroke="rgba(255,255,255,.7)" stroke-width="2"/>
-                        <path d="M16 6v6M32 6v6M6 20h36" stroke="rgba(255,255,255,.7)" stroke-width="2" stroke-linecap="round"/>
-                        <rect x="14" y="26" width="8" height="8" rx="1" fill="rgba(255,255,255,.5)"/>
-                    </svg>
+                <div class="ce-tile-card-placeholder" aria-hidden="true">
+                    <?php if ( $start_ts ) : ?>
+                    <span class="ce-tile-ph-day"><?php echo esc_html( date_i18n( 'j', $start_ts ) ); ?></span>
+                    <span class="ce-tile-ph-month"><?php echo esc_html( date_i18n( 'M', $start_ts ) ); ?></span>
+                    <?php endif; ?>
                 </div>
             </div>
             <?php endif; ?>

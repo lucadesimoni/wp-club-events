@@ -38,7 +38,7 @@ if ( $is_astra ) {
     $location = get_post_meta( $post_id, '_ce_location', true );
     $loc_url  = get_post_meta( $post_id, '_ce_location_url', true );
     $ext_url  = get_post_meta( $post_id, '_ce_external_url', true );
-    $color    = get_post_meta( $post_id, '_ce_color', true ) ?: '#3b82f6';
+    $color    = CE_CPT::format_event( $post_id )['color'];
     $cats     = wp_get_post_terms( $post_id, 'event_category' );
     $ics_url  = CE_ICS_Export::get_single_url( $post_id );
 
@@ -75,14 +75,7 @@ if ( $is_astra ) {
                     <div class="ce-meta-pill">
                         <svg viewBox="0 0 20 20" width="16" height="16" fill="none"><rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 2v3M13 2v3M3 9h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                         <span>
-                            <?php if ( $all_day ) : ?>
-                                <?php echo esc_html( date_i18n( $date_fmt, $start_ts ) ); ?>
-                                <?php if ( $end_ts && $end_ts !== $start_ts ) echo ' – ' . esc_html( date_i18n( $date_fmt, $end_ts ) ); ?>
-                            <?php else : ?>
-                                <?php echo esc_html( date_i18n( $date_fmt, $start_ts ) ); ?>
-                                <?php echo esc_html( date_i18n( $time_fmt, $start_ts ) ); ?>
-                                <?php if ( $end_ts ) echo ' – ' . esc_html( date_i18n( $time_fmt, $end_ts ) ); ?>
-                            <?php endif; ?>
+                            <?php echo esc_html( CE_CPT::date_range( $start_ts, $end_ts, (bool) $all_day ) ); ?>
                         </span>
                     </div>
                     <?php endif; ?>
@@ -177,7 +170,7 @@ if ( $is_astra ) {
             </div>
 
             <?php if ( get_option( 'ce_subscription_enabled', '1' ) === '1' ) : ?>
-            <div class="ce-sidebar-card">
+            <div class="ce-sidebar-card ce-sidebar-card--subscribe">
                 <?php echo do_shortcode( '[club_events_subscribe]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer. ?>
             </div>
             <?php endif; ?>

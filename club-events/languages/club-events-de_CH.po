@@ -316,3 +316,63 @@ msgstr "Diesen Anlass löschen?"
 
 msgid "My Events"
 msgstr "Meine Anlässe"
+
+msgid "Add Event"
+msgstr "Anlass hinzufügen"
+
+msgid "Add New Event"
+msgstr "Neuen Anlass hinzufügen"
+
+msgid "Edit Event"
+msgstr "Anlass bearbeiten"
+
+msgid "New Event"
+msgstr "Neuer Anlass"
+
+msgid "View Event"
+msgstr "Anlass ansehen"
+
+msgid "Search Events"
+msgstr "Anlässe durchsuchen"
+
+msgid "No events in trash."
+msgstr "Keine Anlässe im Papierkorb."
+
+msgid "Tag"
+msgstr "Schlagwort"
+
+msgid "Tags"
+msgstr "Schlagwörter"
+
+msgid "All Categories"
+msgstr "Alle Kategorien"
+
+msgid "All Types"
+msgstr "Alle Gruppen"
+
+msgid "Add New Category"
+msgstr "Neue Kategorie"
+
+msgid "Add New Type"
+msgstr "Neue Gruppe"
+
+msgid "Edit Category"
+msgstr "Kategorie bearbeiten"
+
+msgid "Edit Type"
+msgstr "Gruppe bearbeiten"
+
+msgid "Search Categories"
+msgstr "Kategorien durchsuchen"
+
+msgid "Search Types"
+msgstr "Gruppen durchsuchen"
+
+msgid "No categories found."
+msgstr "Keine Kategorien gefunden."
+
+msgid "No types found."
+msgstr "Keine Gruppen gefunden."
+
+msgid "No tags found."
+msgstr "Keine Schlagwörter gefunden."

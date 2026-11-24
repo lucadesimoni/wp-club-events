@@ -357,6 +357,34 @@ class CE_CPT {
         return $date_only ? $dt->format( 'Y-m-d' ) : $dt->format( 'c' );
     }
 
+    /**
+     * Human date range for an event: "27. November 2026" (one day),
+     * "26. Juni 2026 – 28. Juni 2026" (several days) or
+     * "24. November 2026 19:30 – 21:00" (timed). A one-day all-day event no
+     * longer reads "27. November 2026 – 27. November 2026".
+     *
+     * Timestamps are "WordPress timestamps" (local time read as UTC), as
+     * produced by strtotime() on the stored values.
+     */
+    public static function date_range( $start_ts, $end_ts, $all_day ) {
+        if ( ! $start_ts ) {
+            return '';
+        }
+        $date_fmt = get_option( 'date_format' );
+        $time_fmt = get_option( 'time_format' );
+        $same_day = ! $end_ts || gmdate( 'Ymd', $start_ts ) === gmdate( 'Ymd', $end_ts );
+
+        if ( $all_day ) {
+            $out = date_i18n( $date_fmt, $start_ts );
+            return $same_day ? $out : $out . ' – ' . date_i18n( $date_fmt, $end_ts );
+        }
+        $out = date_i18n( $date_fmt, $start_ts ) . ' ' . date_i18n( $time_fmt, $start_ts );
+        if ( ! $end_ts || $end_ts === $start_ts ) {
+            return $out;
+        }
+        return $out . ' – ' . ( $same_day ? '' : date_i18n( $date_fmt, $end_ts ) . ' ' ) . date_i18n( $time_fmt, $end_ts );
+    }
+
     public static function get_events( $args = [] ) {
         $defaults = [
             'post_type'      => 'club_event',

@@ -39,7 +39,11 @@ function current_time( $type ) {
 }
 function wp_parse_args( $a, $d ) { return array_merge( $d, $a ); }
 function get_posts( $q ) { $GLOBALS['posts_query'] = $q; return []; }
-function get_option( $k, $d = false ) { return 'timezone_string' === $k ? 'Europe/Zurich' : $d; }
+function get_option( $k, $d = false ) {
+    $o = [ 'timezone_string' => 'Europe/Zurich', 'date_format' => 'j. F Y', 'time_format' => 'G:i' ];
+    return $o[ $k ] ?? $d;
+}
+function date_i18n( $f, $ts ) { return gmdate( $f, $ts ); }
 function get_post_meta( $id, $k, $single = false ) { return $GLOBALS['meta'][ $id ][ $k ] ?? ''; }
 function home_url() { return 'https://example.test'; }
 class CE_Safe {
@@ -86,6 +90,15 @@ echo "schema.org dates\n";
 check( 'winter time carries +01:00', '2026-11-24T19:30:00+01:00' === CE_CPT::to_iso8601( '2026-11-24 19:30:00' ) );
 check( 'summer time carries +02:00', '2026-06-26T09:00:00+02:00' === CE_CPT::to_iso8601( '2026-06-26 09:00:00' ) );
 check( 'all-day uses a plain date', '2026-06-26' === CE_CPT::to_iso8601( '2026-06-26 00:00:00', true ) );
+
+/* ── Date ranges on the event page ───────────────────────────────────────── */
+echo "Date ranges\n";
+$r = function ( $a, $b, $all ) { return CE_CPT::date_range( strtotime( $a ), $b ? strtotime( $b ) : null, $all ); };
+check( 'one-day all-day shows the date once', '27. November 2026' === $r( '2026-11-27 00:00:00', '2026-11-27 23:59:59', true ), $r( '2026-11-27 00:00:00', '2026-11-27 23:59:59', true ) );
+check( 'multi-day all-day shows both dates', '26. June 2026 – 28. June 2026' === $r( '2026-06-26 00:00:00', '2026-06-28 23:59:59', true ) );
+check( 'timed same-day shows date, start and end time', '24. November 2026 19:30 – 21:00' === $r( '2026-11-24 19:30:00', '2026-11-24 21:00:00', false ) );
+check( 'timed over midnight repeats the end date', '24. November 2026 22:00 – 25. November 2026 2:00' === $r( '2026-11-24 22:00:00', '2026-11-25 02:00:00', false ) );
+check( 'no end date', '24. November 2026 19:30' === $r( '2026-11-24 19:30:00', '', false ) );
 
 /* ── ICS export ──────────────────────────────────────────────────────────── */
 echo "ICS export\n";
