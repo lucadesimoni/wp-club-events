@@ -32,6 +32,7 @@ class CE_Shortcodes {
                 'show_past'   => [ 'type' => 'boolean', 'default' => false ],
                 'show_filter' => [ 'type' => 'boolean', 'default' => true ],
                 'layout'      => [ 'type' => 'string',  'default' => 'default' ],
+                'heading_level' => [ 'type' => 'number', 'default' => 3 ],
             ],
         ] ) );
 
@@ -221,7 +222,10 @@ class CE_Shortcodes {
             'show_past'   => false,
             'show_filter' => true,
             'layout'      => 'default',
+            'heading_level' => 3,
         ], $atts, 'club_events_timeline' );
+        $h_month = self::heading_tag( $atts['heading_level'] );
+        $h_title = self::heading_tag( (int) $atts['heading_level'] + 1 );
 
         $is_center = 'center' === $atts['layout'];
 
@@ -278,7 +282,7 @@ class CE_Shortcodes {
                             $current_month = $month;
                     ?>
                     <div class="ce-month-group" data-month="<?php echo esc_attr( $month ); ?>">
-                        <h3 class="ce-month-label"><?php echo esc_html( $month ); ?></h3>
+                        <<?php echo $h_month; ?> class="ce-month-label"><?php echo esc_html( $month ); ?></<?php echo $h_month; ?>><?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tag from heading_tag() whitelist. ?>
                     <?php endif; ?>
 
                     <?php
@@ -297,9 +301,9 @@ class CE_Shortcodes {
                                 <?php endif; ?>
                             </div>
                             <div class="ce-timeline-body">
-                                <h4 class="ce-event-title">
+                                <<?php echo $h_title; ?> class="ce-event-title">
                                     <a href="<?php echo esc_url( $event['url'] ); ?>"><?php echo esc_html( $event['title'] ); ?></a>
-                                </h4>
+                                </<?php echo $h_title; ?>>
                                 <div class="ce-event-meta">
                                     <?php if ( $event['start'] && ! $event['allDay'] ) : ?>
                                     <span class="ce-meta-item ce-meta-time">
@@ -1079,6 +1083,7 @@ class CE_Shortcodes {
             'show_subscribe'  => true,
             'show_past'       => false,
             'columns'         => 3,
+            'heading_level'   => 3,
         ], $atts, 'club_events' );
 
         $allowed = [ 'tiles', 'list', 'timeline', 'calendar' ];
@@ -1187,7 +1192,7 @@ class CE_Shortcodes {
                     } elseif ( 'list' === $v ) {
                         echo self::render_hub_list( $events ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
                     } elseif ( 'timeline' === $v ) {
-                        echo self::render_timeline( $events, [ 'layout' => 'center', 'filter_by' => $atts['filter_by'] ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
+                        echo self::render_timeline( $events, [ 'layout' => 'center', 'filter_by' => $atts['filter_by'], 'heading_level' => $atts['heading_level'] ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
                     } elseif ( 'calendar' === $v ) {
                         echo do_shortcode( '[club_events_overview show_filter="false"]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer.
                     }
@@ -1247,8 +1252,19 @@ class CE_Shortcodes {
      * a central line with cards alternating left/right. Used by the hub and by
      * [club_events_timeline].
      */
+    /**
+     * A heading tag for a level, clamped to h2–h6. Lets a page place the
+     * timeline under its own heading structure (e.g. heading_level="2"
+     * directly below the page title) without skipping levels.
+     */
+    public static function heading_tag( $level ) {
+        return 'h' . max( 2, min( 6, (int) $level ) );
+    }
+
     public static function render_timeline( $events, $o = [] ) {
-        $o = wp_parse_args( $o, [ 'layout' => 'default', 'filter_by' => 'category' ] );
+        $o = wp_parse_args( $o, [ 'layout' => 'default', 'filter_by' => 'category', 'heading_level' => 3 ] );
+        $h_month = self::heading_tag( $o['heading_level'] );
+        $h_title = self::heading_tag( (int) $o['heading_level'] + 1 );
         if ( empty( $events ) ) {
             return '<p class="ce-empty">' . esc_html__( 'No upcoming events.', 'club-events' ) . '</p>';
         }
@@ -1265,7 +1281,7 @@ class CE_Shortcodes {
                 }
                 $current_month = $month;
                 echo '<div class="ce-month-group" data-month="' . esc_attr( $month ) . '">';
-                echo '<h3 class="ce-month-label">' . esc_html( $month ) . '</h3>';
+                echo '<' . $h_month . ' class="ce-month-label">' . esc_html( $month ) . '</' . $h_month . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tag from heading_tag() whitelist.
             }
 
             $filter_slugs = ( 'event_type' === $o['filter_by'] )
@@ -1286,7 +1302,7 @@ class CE_Shortcodes {
                         <?php endif; ?>
                     </div>
                     <div class="ce-timeline-body">
-                        <h4 class="ce-event-title"><a href="<?php echo esc_url( $event['url'] ); ?>"><?php echo esc_html( $event['title'] ); ?></a></h4>
+                        <<?php echo $h_title; ?> class="ce-event-title"><a href="<?php echo esc_url( $event['url'] ); ?>"><?php echo esc_html( $event['title'] ); ?></a></<?php echo $h_title; ?>><?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tag from heading_tag() whitelist. ?>
                         <div class="ce-event-meta">
                             <?php if ( $time ) : ?>
                             <span class="ce-meta-item ce-meta-time">

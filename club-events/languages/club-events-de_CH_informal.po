@@ -376,3 +376,9 @@ msgstr "Keine Gruppen gefunden."
 
 msgid "No tags found."
 msgstr "Keine Schlagwörter gefunden."
+
+msgid "Month heading level"
+msgstr "Überschriftenebene der Monate"
+
+msgid "Pick the level below the heading above the timeline (event titles use the next level)."
+msgstr "Eine Ebene unter der Überschrift über dem Zeitstrahl wählen (Anlass-Titel nutzen die nächste Ebene)."

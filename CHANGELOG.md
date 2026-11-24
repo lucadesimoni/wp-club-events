@@ -60,6 +60,12 @@ Fixes found by checking the live STV Malters site (which still ran 1.2.1).
 - German labels for the post type and taxonomies (the breadcrumb read
   "Events"), 124 catalog entries.
 
+### Headings
+- `[club_events_timeline]` and `[club_events]` take `heading_level`
+  (default 3: month = h3, event titles = h4). Set `2` when the timeline sits
+  directly below the page title, so no heading level is skipped. The
+  Timeline block has a "Month heading level" select for it.
+
 ### Site
 - `addons/club-events-stv-malters/site/ds-alignment.md`: design-system
   tokens from digital.stvmalters.ch and the exact CSS/footer changes that

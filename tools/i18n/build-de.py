@@ -143,6 +143,8 @@ STRINGS = {
     "No categories found.": "Keine Kategorien gefunden.",
     "No types found.": "Keine Gruppen gefunden.",
     "No tags found.": "Keine Schlagwörter gefunden.",
+    "Month heading level": "Überschriftenebene der Monate",
+    "Pick the level below the heading above the timeline (event titles use the next level).": "Eine Ebene unter der Überschrift über dem Zeitstrahl wählen (Anlass-Titel nutzen die nächste Ebene).",
 }
 
 
