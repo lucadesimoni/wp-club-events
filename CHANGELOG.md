@@ -5,19 +5,18 @@ This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [1.7.0] — 2026-11-24
 
-Fixes found by checking the live STV Malters site (which still ran 1.2.1).
+Fixes found by checking a live club site (which still ran 1.2.1).
 
 ### Fixed
 - **Events vanished on their own day.** "Upcoming" compared the start date
   with the current **UTC** time, while dates are stored in site-local time.
   All-day events (stored at 00:00) disappeared from the timeline, tiles,
-  cards, list, hub and the admin dashboard on the day they took place — on
-  the live site the Frauenriege GV was missing on its own date — and
+  cards, list, hub and the admin dashboard on the day they took place, and
   multi-day events vanished as soon as they had started. `CE_CPT::get_events()`
   gains `upcoming => true`: an event is listed until its end date passes in
   local time (events without an end stay listed for their day).
 - **ICS all-day end dates.** `DTEND;VALUE=DATE` is exclusive (RFC 5545), but
-  the last day was exported, so Turnfest Kerzers (26.–28.6.) appeared in
+  the last day was exported, so a 26.–28.6. event appeared in
   calendars as 26.–27.6. and one-day events had zero length. The feed range
   now also uses local time.
 - **Google Calendar sync timezone.** Timed events were stored as UTC and
@@ -45,7 +44,7 @@ Fixes found by checking the live STV Malters site (which still ran 1.2.1).
 - Phones (≤ 480px): listing action buttons share the row evenly and are at
   least 40px tall.
 
-### Design & mobile (from screenshots of the STV site)
+### Design & mobile (from screenshots of a live club site)
 - Tiles without an image show a calm date block (day + month in the event
   colour) instead of a large gradient with a calendar icon; the tile title
   loses its coloured underline.
@@ -99,14 +98,8 @@ WordPress globals (`$post`, `$term`, `$cat`, `$post_id`, `$id`).
   directly below the page title, so no heading level is skipped. The
   Timeline block has a "Month heading level" select for it.
 
-### Site
-- `addons/club-events-stv-malters/site/ds-alignment.md`: design-system
-  tokens from digital.stvmalters.ch and the exact CSS/footer changes that
-  align the STV site with them (not shipped in the add-on zip).
-
 ### Tests
-- `club-events/tests/dates.php` (23 checks, run in CI). The add-on e2e test
-  now expects the RFC-correct exclusive `DTEND`.
+- `club-events/tests/dates.php` (28 checks, run in CI).
 
 ## [1.6.0] — 2026-09-26
 
@@ -152,9 +145,7 @@ German-language site see no difference.
   `club-events/languages/` (de_DE, de_DE_formal, de_CH, de_CH_informal, de_AT;
   built by `tools/i18n/build-de.py`), and the tile button default is the
   translatable "Read more" instead of a hard-coded "Weiterlesen".
-- **Club-specific import moved out.** The Aktivriege 2026 import (and its e2e
-  test) is now the separate add-on `addons/club-events-stv-malters`, released
-  as `club-events-stv-malters.zip` next to the plugin.
+- **Club-specific import moved out** of the plugin.
 - **No inline scripts.** The subscribe form, event submission, "My events"
   delete and the archive view switcher were printed as inline `<script>`
   tags; they now live in the enqueued `club-events-public.js` as delegated
@@ -287,8 +278,7 @@ existing pages render exactly as before.
   single rail on mobile). Also available as the hub's timeline view.
 - **Taxonomy management in the backend** — Categories, Event Types, and Tags
   now have their own submenus under *Club Events*, so terms can be added,
-  renamed, and deleted freely (e.g. use Categories as Riegen: Jugend,
-  Aktivriege, Männerriege, Frauenriege, Gesamtverein, Extern). Events can be
+  renamed, and deleted freely (e.g. use Categories for teams or sections). Events can be
   assigned to multiple categories and multiple event types.
 - **Configurable Events page** (Settings → Events Page & Display): pick an
   existing page (e.g. an "Anlässe" page that already lists all events) as the

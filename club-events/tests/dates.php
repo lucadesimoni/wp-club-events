@@ -74,7 +74,7 @@ check( 'events without an end stay listed for their whole day',
 $matches = function ( $start, $end ) use ( $mq ) {
     return ( $end && $end >= $mq[0]['value'] ) || ( ! $end && $start >= $mq[1][0]['value'] );
 };
-check( 'all-day event today (GV Frauenriege) is listed', $matches( '2026-11-24 00:00:00', '2026-11-24 23:59:59' ) );
+check( 'all-day event today is listed', $matches( '2026-11-24 00:00:00', '2026-11-24 23:59:59' ) );
 check( 'multi-day event in progress is listed', $matches( '2026-11-23 00:00:00', '2026-11-25 23:59:59' ) );
 check( 'event that ended this morning is hidden', ! $matches( '2026-11-24 08:00:00', '2026-11-24 10:00:00' ) );
 check( 'event without end, today, is listed', $matches( '2026-11-24 08:00:00', '' ) );

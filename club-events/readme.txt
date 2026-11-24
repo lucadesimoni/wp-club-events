@@ -141,8 +141,7 @@ only the event's title and URL.
 * German now comes from bundled translation files (de_DE, de_CH, de_AT and
   their formal/informal variants) instead of being forced on every site; the
   default tile button label is the translatable "Read more".
-* The Aktivriege 2026 import moved to the separate "Club Events – STV Malters"
-  add-on.
+* Club-specific import tools are no longer part of the plugin.
 * Front-end scripts for the subscribe form, event submission, "My events" and
   the archive view switcher moved from inline <script> tags into the enqueued
   script.
@@ -225,4 +224,4 @@ only the event's title and URL.
 Today's and running events stay listed, ICS all-day events end on the right day, lists work on SQLite, and the plugin fits cleanly into Astra and Spectra.
 
 = 1.5.0 =
-The Aktivriege 2026 import tool is now a separate add-on. Install "Club Events – STV Malters" if you still need it.
+Club-specific import tools are no longer part of the plugin.

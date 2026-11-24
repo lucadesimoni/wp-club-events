@@ -5,8 +5,6 @@ as tiles, timelines, cards, or a monthly calendar, export ICS feeds, let members
 subscribe by email, and drop a full events hub on any page. Built to adapt
 automatically to the **Astra** theme (including Astra Pro).
 
-> Originally built for [STV Malters](https://mataxacu.myhostpoint.ch) (Aktivriege,
-> Jugend, Männerriege, Frauenriege), but works for any club.
 
 ---
 
@@ -99,7 +97,6 @@ club-events/
 Run the test suites (no WordPress required):
 
 ```bash
-php club-events/tests/e2e-aktivriege.php   # end-to-end: import, ICS, REST
 php club-events/tests/widgets-parity.php   # shortcode / block / Elementor parity
 ```
 

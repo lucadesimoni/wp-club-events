@@ -50,8 +50,6 @@ check( 'no gettext filter forcing a language', ! $gettext, implode( ', ', $gette
 $raw = $hits( '/(sanitize_\w+|absint|esc_url_raw)\(\s*\$_(POST|GET|REQUEST)\[/' );
 check( 'request data is unslashed before sanitising', ! $raw, implode( ', ', $raw ) );
 check( 'no site-specific tools shipped', ! is_dir( $root . '/tools' ) );
-$site = $hits( '/Aktivriege|STV Malters/i' );
-check( 'no club-specific references in the plugin', ! $site, implode( ', ', $site ) );
 $ine = $hits( '/CREATE TABLE IF NOT EXISTS/' );
 check( 'dbDelta-compatible CREATE TABLE', ! $ine, implode( ', ', $ine ) );
 check( 'German ships as translation files', is_file( $root . '/languages/club-events-de_DE.mo' ) && is_file( $root . '/languages/club-events-de_CH.mo' ) );
