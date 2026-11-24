@@ -5,7 +5,9 @@ class CE_ICS_Export {
 
     public function __construct() {
         add_action( 'init', CE_Safe::action( 'init', [ $this, 'register_rewrite_rules' ] ) );
-        add_action( 'template_redirect', CE_Safe::action( 'template_redirect', [ $this, 'handle_feed' ] ) );
+        // Before redirect_canonical (priority 10), which would add a trailing
+        // slash to /events/123.ics and answer with a 301 first.
+        add_action( 'template_redirect', CE_Safe::action( 'template_redirect', [ $this, 'handle_feed' ] ), 5 );
         add_filter( 'query_vars', CE_Safe::filter( 'query_vars', [ $this, 'add_query_vars' ] ) );
     }
 
@@ -26,7 +28,7 @@ class CE_ICS_Export {
         }
 
         if ( get_query_var( 'ce_ics_feed' ) ) {
-            $category = isset( $_GET['category'] ) ? sanitize_text_field( wp_unslash( $_GET['category'] ) ) : '';
+            $category = isset( $_GET['category'] ) ? sanitize_text_field( wp_unslash( $_GET['category'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- public, read-only feed.
             $this->output_feed( $category );
             exit;
         }
@@ -40,8 +42,8 @@ class CE_ICS_Export {
 
     private function output_feed( $category = '' ) {
         $args = [
-            'from' => gmdate( 'Y-m-d H:i:s', strtotime( '-1 month' ) ),
-            'to'   => gmdate( 'Y-m-d H:i:s', strtotime( '+12 months' ) ),
+            'from' => gmdate( 'Y-m-d H:i:s', strtotime( '-1 month', current_time( 'timestamp' ) ) ), // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested -- stored dates are site-local.
+            'to'   => gmdate( 'Y-m-d H:i:s', strtotime( '+12 months', current_time( 'timestamp' ) ) ), // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
         ];
 
         if ( $category ) {
@@ -100,9 +102,10 @@ class CE_ICS_Export {
 
             if ( $event['allDay'] ) {
                 $lines[] = 'DTSTART;VALUE=DATE:' . gmdate( 'Ymd', strtotime( $event['start'] ) );
-                if ( $event['end'] ) {
-                    $lines[] = 'DTEND;VALUE=DATE:' . gmdate( 'Ymd', strtotime( $event['end'] ) );
-                }
+                // RFC 5545: an all-day DTEND is exclusive, so it is the day
+                // after the last day. A one-day event ends the next day.
+                $last_day = $event['end'] ? strtotime( gmdate( 'Y-m-d', strtotime( $event['end'] ) ) ) : strtotime( gmdate( 'Y-m-d', strtotime( $event['start'] ) ) );
+                $lines[]  = 'DTEND;VALUE=DATE:' . gmdate( 'Ymd', $last_day + DAY_IN_SECONDS );
             } else {
                 $tz = get_option( 'timezone_string', 'UTC' );
                 $lines[] = 'DTSTART;TZID=' . $tz . ':' . gmdate( 'Ymd\THis', strtotime( $event['start'] ) );
@@ -158,7 +161,7 @@ class CE_ICS_Export {
     public static function get_feed_url( $category = '' ) {
         $url = home_url( '/events.ics' );
         if ( $category ) {
-            $url = add_query_arg( 'category', urlencode( $category ), $url );
+            $url = add_query_arg( 'category', rawurlencode( $category ), $url );
         }
         return $url;
     }

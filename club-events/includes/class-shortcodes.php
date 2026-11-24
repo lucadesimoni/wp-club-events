@@ -32,6 +32,7 @@ class CE_Shortcodes {
                 'show_past'   => [ 'type' => 'boolean', 'default' => false ],
                 'show_filter' => [ 'type' => 'boolean', 'default' => true ],
                 'layout'      => [ 'type' => 'string',  'default' => 'default' ],
+                'heading_level' => [ 'type' => 'number', 'default' => 3 ],
             ],
         ] ) );
 
@@ -221,7 +222,10 @@ class CE_Shortcodes {
             'show_past'   => false,
             'show_filter' => true,
             'layout'      => 'default',
+            'heading_level' => 3,
         ], $atts, 'club_events_timeline' );
+        $h_month = self::heading_tag( $atts['heading_level'] );
+        $h_title = self::heading_tag( (int) $atts['heading_level'] + 1 );
 
         $is_center = 'center' === $atts['layout'];
 
@@ -230,7 +234,7 @@ class CE_Shortcodes {
         ];
 
         if ( ! $atts['show_past'] ) {
-            $query_args['from'] = gmdate( 'Y-m-d H:i:s' );
+            $query_args['upcoming'] = true;
         }
 
         if ( $atts['category'] ) {
@@ -278,7 +282,7 @@ class CE_Shortcodes {
                             $current_month = $month;
                     ?>
                     <div class="ce-month-group" data-month="<?php echo esc_attr( $month ); ?>">
-                        <h3 class="ce-month-label"><?php echo esc_html( $month ); ?></h3>
+                        <<?php echo $h_month; ?> class="ce-month-label"><?php echo esc_html( $month ); ?></<?php echo $h_month; ?>><?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tag from heading_tag() whitelist. ?>
                     <?php endif; ?>
 
                     <?php
@@ -297,9 +301,9 @@ class CE_Shortcodes {
                                 <?php endif; ?>
                             </div>
                             <div class="ce-timeline-body">
-                                <h4 class="ce-event-title">
+                                <<?php echo $h_title; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tag from heading_tag() whitelist. ?> class="ce-event-title">
                                     <a href="<?php echo esc_url( $event['url'] ); ?>"><?php echo esc_html( $event['title'] ); ?></a>
-                                </h4>
+                                </<?php echo $h_title; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tag from heading_tag() whitelist. ?>>
                                 <div class="ce-event-meta">
                                     <?php if ( $event['start'] && ! $event['allDay'] ) : ?>
                                     <span class="ce-meta-item ce-meta-time">
@@ -334,15 +338,16 @@ class CE_Shortcodes {
                                     <a href="<?php echo esc_url( $event['url'] ); ?>" class="ce-btn ce-btn-primary">
                                         <?php esc_html_e( 'Details', 'club-events' ); ?>
                                     </a>
-                                    <a href="<?php echo esc_url( $event['ics'] ); ?>" class="ce-btn ce-btn-outline">
-                                        <svg viewBox="0 0 16 16" width="14" height="14"><rect x="2" y="3" width="12" height="12" rx="1.5" stroke="currentColor" fill="none"/><path d="M5 2v2M11 2v2M2 7h12" stroke="currentColor" stroke-linecap="round"/></svg>
-                                        <?php esc_html_e( 'Add to Calendar', 'club-events' ); ?>
+                                    <a href="<?php echo esc_url( $event['ics'] ); ?>" class="ce-btn ce-btn-outline ce-btn-icon" aria-label="<?php esc_attr_e( 'Add to Calendar', 'club-events' ); ?>">
+                                        <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="2" y="3" width="12" height="12" rx="1.5" stroke="currentColor" fill="none"/><path d="M5 2v2M11 2v2M2 7h12" stroke="currentColor" stroke-linecap="round"/></svg>
+                                        <span class="ce-btn-label"><?php esc_html_e( 'Add to Calendar', 'club-events' ); ?></span>
                                     </a>
-                                    <button type="button" class="ce-btn ce-btn-outline ce-action-share"
+                                    <button type="button" class="ce-btn ce-btn-outline ce-btn-icon ce-action-share"
+                                            aria-label="<?php esc_attr_e( 'Share', 'club-events' ); ?>"
                                             data-share-url="<?php echo esc_attr( $event['url'] ); ?>"
                                             data-share-title="<?php echo esc_attr( $event['title'] ); ?>">
-                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none"><circle cx="18" cy="5" r="3" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/><circle cx="18" cy="19" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M8.6 10.6l6.8-4.2M8.6 13.4l6.8 4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-                                        <?php esc_html_e( 'Share', 'club-events' ); ?>
+                                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden="true"><circle cx="18" cy="5" r="3" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/><circle cx="18" cy="19" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M8.6 10.6l6.8-4.2M8.6 13.4l6.8 4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                                        <span class="ce-btn-label"><?php esc_html_e( 'Share', 'club-events' ); ?></span>
                                     </button>
                                 </div>
                             </div>
@@ -366,8 +371,8 @@ class CE_Shortcodes {
             'show_filter' => true,
         ], $atts, 'club_events_overview' );
 
-        $year  = isset( $_GET['ce_year'] )  ? (int) $_GET['ce_year']  : (int) gmdate( 'Y' );
-        $month = isset( $_GET['ce_month'] ) ? (int) $_GET['ce_month'] : (int) gmdate( 'n' );
+        $year  = isset( $_GET['ce_year'] )  ? (int) $_GET['ce_year']  : (int) current_time( 'Y' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view parameter, nothing is changed.
+        $month = isset( $_GET['ce_month'] ) ? (int) $_GET['ce_month'] : (int) current_time( 'n' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view parameter, nothing is changed.
 
         $month = max( 1, min( 12, $month ) );
 
@@ -444,9 +449,9 @@ class CE_Shortcodes {
                     echo '<div class="ce-cal-day ce-cal-empty"></div>';
                 }
 
-                $today = (int) gmdate( 'j' );
-                $today_month = (int) gmdate( 'n' );
-                $today_year  = (int) gmdate( 'Y' );
+                $today       = (int) current_time( 'j' );
+                $today_month = (int) current_time( 'n' );
+                $today_year  = (int) current_time( 'Y' );
 
                 for ( $day = 1; $day <= $days_in_mon; $day++ ) {
                     $is_today = ( $day === $today && $month === $today_month && $year === $today_year );
@@ -526,7 +531,7 @@ class CE_Shortcodes {
 
         $query_args = [ 'posts_per_page' => (int) $atts['limit'] ];
         if ( ! $atts['show_past'] ) {
-            $query_args['from'] = gmdate( 'Y-m-d H:i:s' );
+            $query_args['upcoming'] = true;
         }
         if ( $atts['category'] ) {
             $query_args['tax_query'] = [ [ 'taxonomy' => 'event_category', 'field' => 'slug', 'terms' => sanitize_text_field( $atts['category'] ) ] ];
@@ -575,7 +580,7 @@ class CE_Shortcodes {
 
         $query_args = [ 'posts_per_page' => (int) $atts['limit'] ];
         if ( ! $atts['show_past'] ) {
-            $query_args['from'] = gmdate( 'Y-m-d H:i:s' );
+            $query_args['upcoming'] = true;
         }
         if ( $atts['category'] ) {
             $query_args['tax_query'] = [ [
@@ -734,7 +739,7 @@ class CE_Shortcodes {
 
         $year = (int) $atts['year'];
         if ( ! $year ) {
-            $year = isset( $_GET['ce_year'] ) ? (int) $_GET['ce_year'] : (int) gmdate( 'Y' );
+            $year = isset( $_GET['ce_year'] ) ? (int) $_GET['ce_year'] : (int) current_time( 'Y' ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view parameter, nothing is changed.
         }
 
         $from = "$year-01-01 00:00:00";
@@ -779,7 +784,7 @@ class CE_Shortcodes {
                 $month_names[ $i ] = date_i18n( 'F', mktime( 0, 0, 0, $i, 1 ) );
             }
 
-            $today_str = gmdate( 'Y-m-d' );
+            $today_str = CE_CPT::today();
 
             foreach ( $month_names as $m => $name ) :
                 $events = $events_by_month[ $m ] ?? [];
@@ -796,7 +801,8 @@ class CE_Shortcodes {
                         $day       = date_i18n( 'j', $start_ts );
                         $weekday   = date_i18n( 'D', $start_ts );
                         $time      = ( ! $ev['allDay'] ) ? date_i18n( get_option( 'time_format' ), $start_ts ) : '';
-                        $is_past   = gmdate( 'Y-m-d', $start_ts ) < $today_str;
+                        $end_ts    = $ev['end'] ? strtotime( $ev['end'] ) : $start_ts;
+                        $is_past   = gmdate( 'Y-m-d', $end_ts ) < $today_str;
                         $row_class = 'ce-yearly-event' . ( $is_past ? ' ce-yearly-event--past' : '' );
                     ?>
                     <a href="<?php echo esc_url( $ev['url'] ); ?>" class="<?php echo esc_attr( $row_class ); ?>"
@@ -820,7 +826,10 @@ class CE_Shortcodes {
             <?php endforeach; ?>
 
             <div class="ce-yearly-total">
-                <?php printf( esc_html__( '%d events in %d', 'club-events' ), count( $posts ), $year ); ?>
+                <?php
+                /* translators: 1: number of events, 2: year. */
+                printf( esc_html__( '%1$d events in %2$d', 'club-events' ), (int) count( $posts ), (int) $year );
+                ?>
             </div>
         </div>
         <?php
@@ -853,7 +862,7 @@ class CE_Shortcodes {
 
         $query_args = [
             'posts_per_page' => (int) $atts['limit'],
-            'from'           => gmdate( 'Y-m-d H:i:s' ),
+            'upcoming'       => true,
         ];
         if ( $atts['event_type'] ) {
             $slugs = array_map( 'trim', explode( ',', sanitize_text_field( $atts['event_type'] ) ) );
@@ -923,12 +932,11 @@ class CE_Shortcodes {
             </div>
             <?php elseif ( ! empty( $o['show_image'] ) ) : ?>
             <div class="ce-tile-card-img ce-tile-card-img--placeholder">
-                <div class="ce-tile-card-placeholder" style="background:linear-gradient(135deg,<?php echo esc_attr( $event['color'] ); ?> 0%,<?php echo esc_attr( $event['color'] ); ?>99 100%)">
-                    <svg viewBox="0 0 48 48" width="32" height="32" fill="none">
-                        <rect x="6" y="8" width="36" height="36" rx="4" stroke="rgba(255,255,255,.7)" stroke-width="2"/>
-                        <path d="M16 6v6M32 6v6M6 20h36" stroke="rgba(255,255,255,.7)" stroke-width="2" stroke-linecap="round"/>
-                        <rect x="14" y="26" width="8" height="8" rx="1" fill="rgba(255,255,255,.5)"/>
-                    </svg>
+                <div class="ce-tile-card-placeholder" aria-hidden="true">
+                    <?php if ( $start_ts ) : ?>
+                    <span class="ce-tile-ph-day"><?php echo esc_html( date_i18n( 'j', $start_ts ) ); ?></span>
+                    <span class="ce-tile-ph-month"><?php echo esc_html( date_i18n( 'M', $start_ts ) ); ?></span>
+                    <?php endif; ?>
                 </div>
             </div>
             <?php endif; ?>
@@ -969,12 +977,14 @@ class CE_Shortcodes {
                     <a href="<?php echo esc_url( $event['url'] ); ?>" class="ce-tile-card-cta"><?php echo esc_html( $o['cta'] ); ?> →</a>
                     <?php endif; ?>
                     <?php if ( $show_actions ) {
+                        // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
                         echo self::event_actions( $event['url'], $event['title'], $event['ics'], [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
                             'ics'    => ! empty( $o['show_ics'] ),
                             'share'  => ! empty( $o['show_share'] ),
                             'labels' => false,
                             'class'  => 'ce-actions--compact',
                         ] );
+                        // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
                     } ?>
                 </div>
                 <?php endif; ?>
@@ -1078,6 +1088,7 @@ class CE_Shortcodes {
             'show_subscribe'  => true,
             'show_past'       => false,
             'columns'         => 3,
+            'heading_level'   => 3,
         ], $atts, 'club_events' );
 
         $allowed = [ 'tiles', 'list', 'timeline', 'calendar' ];
@@ -1094,7 +1105,7 @@ class CE_Shortcodes {
         // Query the events that feed the tiles / list / timeline views.
         $query_args = [ 'posts_per_page' => (int) $atts['limit'] ];
         if ( ! $atts['show_past'] ) {
-            $query_args['from'] = gmdate( 'Y-m-d H:i:s' );
+            $query_args['upcoming'] = true;
         }
         if ( $atts['event_type'] ) {
             $query_args['event_type'] = array_map( 'trim', explode( ',', sanitize_text_field( $atts['event_type'] ) ) );
@@ -1186,7 +1197,7 @@ class CE_Shortcodes {
                     } elseif ( 'list' === $v ) {
                         echo self::render_hub_list( $events ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
                     } elseif ( 'timeline' === $v ) {
-                        echo self::render_timeline( $events, [ 'layout' => 'center', 'filter_by' => $atts['filter_by'] ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
+                        echo self::render_timeline( $events, [ 'layout' => 'center', 'filter_by' => $atts['filter_by'], 'heading_level' => $atts['heading_level'] ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
                     } elseif ( 'calendar' === $v ) {
                         echo do_shortcode( '[club_events_overview show_filter="false"]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer.
                     }
@@ -1232,7 +1243,7 @@ class CE_Shortcodes {
                     </span>
                 </span>
                 <span class="ce-hub-list-actions">
-                    <?php echo self::event_actions( $ev['url'], $ev['title'], $ev['ics'], [ 'labels' => false, 'class' => 'ce-actions--compact' ] ); ?> // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer.
+                    <?php echo self::event_actions( $ev['url'], $ev['title'], $ev['ics'], [ 'labels' => false, 'class' => 'ce-actions--compact' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- markup built by an escaping renderer. ?>
                 </span>
             </li>
             <?php
@@ -1246,8 +1257,19 @@ class CE_Shortcodes {
      * a central line with cards alternating left/right. Used by the hub and by
      * [club_events_timeline].
      */
+    /**
+     * A heading tag for a level, clamped to h2–h6. Lets a page place the
+     * timeline under its own heading structure (e.g. heading_level="2"
+     * directly below the page title) without skipping levels.
+     */
+    public static function heading_tag( $level ) {
+        return 'h' . max( 2, min( 6, (int) $level ) );
+    }
+
     public static function render_timeline( $events, $o = [] ) {
-        $o = wp_parse_args( $o, [ 'layout' => 'default', 'filter_by' => 'category' ] );
+        $o = wp_parse_args( $o, [ 'layout' => 'default', 'filter_by' => 'category', 'heading_level' => 3 ] );
+        $h_month = self::heading_tag( $o['heading_level'] );
+        $h_title = self::heading_tag( (int) $o['heading_level'] + 1 );
         if ( empty( $events ) ) {
             return '<p class="ce-empty">' . esc_html__( 'No upcoming events.', 'club-events' ) . '</p>';
         }
@@ -1264,7 +1286,7 @@ class CE_Shortcodes {
                 }
                 $current_month = $month;
                 echo '<div class="ce-month-group" data-month="' . esc_attr( $month ) . '">';
-                echo '<h3 class="ce-month-label">' . esc_html( $month ) . '</h3>';
+                echo '<' . $h_month . ' class="ce-month-label">' . esc_html( $month ) . '</' . $h_month . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tag from heading_tag() whitelist.
             }
 
             $filter_slugs = ( 'event_type' === $o['filter_by'] )
@@ -1285,7 +1307,7 @@ class CE_Shortcodes {
                         <?php endif; ?>
                     </div>
                     <div class="ce-timeline-body">
-                        <h4 class="ce-event-title"><a href="<?php echo esc_url( $event['url'] ); ?>"><?php echo esc_html( $event['title'] ); ?></a></h4>
+                        <<?php echo $h_title; ?> class="ce-event-title"><a href="<?php echo esc_url( $event['url'] ); ?>"><?php echo esc_html( $event['title'] ); ?></a></<?php echo $h_title; ?>><?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- tag from heading_tag() whitelist. ?>
                         <div class="ce-event-meta">
                             <?php if ( $time ) : ?>
                             <span class="ce-meta-item ce-meta-time">
@@ -1323,10 +1345,10 @@ class CE_Shortcodes {
             return '';
         }
 
-        if ( isset( $_GET['ce_subscribed'] ) ) {
+        if ( isset( $_GET['ce_subscribed'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view parameter, nothing is changed.
             return '<div class="ce-subscribe-success"><p>' . esc_html__( 'You are now subscribed to event updates!', 'club-events' ) . '</p></div>';
         }
-        if ( isset( $_GET['ce_unsubscribed'] ) ) {
+        if ( isset( $_GET['ce_unsubscribed'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view parameter, nothing is changed.
             return '<div class="ce-subscribe-success"><p>' . esc_html__( 'You have been unsubscribed.', 'club-events' ) . '</p></div>';
         }
 
@@ -1347,7 +1369,7 @@ class CE_Shortcodes {
 
                 <div class="ce-form-row">
                     <label for="ce-sub-email"><?php esc_html_e( 'Email Address', 'club-events' ); ?> <span class="required">*</span></label>
-                    <input type="email" id="ce-sub-email" name="email" required autocomplete="email" placeholder="you@example.com">
+                    <input type="email" id="ce-sub-email" name="email" required autocomplete="email" placeholder="<?php esc_attr_e( 'you@example.com', 'club-events' ); ?>">
                 </div>
 
                 <?php if ( ! is_wp_error( $categories ) && count( $categories ) > 1 ) : ?>

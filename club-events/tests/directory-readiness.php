@@ -81,6 +81,19 @@ foreach ( [ 'Description', 'Installation', 'Frequently Asked Questions', 'Extern
     check( "readme section: $sec", false !== strpos( $readme, "== $sec ==" ) );
 }
 
+echo "\n=== Version consistency ===\n";
+$main_src   = file_get_contents( $root . '/club-events.php' );
+$readme_src = file_get_contents( $root . '/readme.txt' );
+$changelog  = (string) @file_get_contents( dirname( $root ) . '/CHANGELOG.md' );
+preg_match( '/^\s*\*\s*Version:\s*(\S+)/m', $main_src, $m1 );
+preg_match( "/define\(\s*'CE_VERSION',\s*'([^']+)'/", $main_src, $m2 );
+preg_match( '/^Stable tag:\s*(\S+)/m', $readme_src, $m3 );
+$v = $m1[1] ?? '';
+check( "Plugin header version ($v) matches CE_VERSION", '' !== $v && $v === ( $m2[1] ?? null ) );
+check( 'readme Stable tag matches the plugin version', $v === ( $m3[1] ?? null ) );
+check( 'readme changelog has an entry for this version', false !== strpos( $readme_src, "= $v =" ) );
+check( 'CHANGELOG.md has an entry for this version', '' === $changelog || false !== strpos( $changelog, "## [$v]" ) );
+
 echo "\n=== Summary ===\n";
 echo "  $passed / " . ( $passed + $failed ) . " passed\n";
 exit( $failed ? 1 : 0 );

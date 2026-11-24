@@ -30,7 +30,8 @@ class CE_Subscription {
         $table = $wpdb->prefix . 'ce_subscribers';
 
         $existing = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM $table WHERE email = %s",
+            "SELECT * FROM %i WHERE email = %s",
+            $table,
             $email
         ) );
 
@@ -66,8 +67,10 @@ class CE_Subscription {
         $from_name  = get_option( 'ce_subscription_from_name', get_bloginfo( 'name' ) );
         $from_email = get_option( 'ce_subscription_from_email', get_option( 'admin_email' ) );
 
+        /* translators: %s: subscriber name. */
         $greeting = $name ? sprintf( __( 'Hi %s,', 'club-events' ), $name ) : __( 'Hi there,', 'club-events' );
 
+        /* translators: %s: site name. */
         $subject = sprintf( __( 'Confirm your event subscription — %s', 'club-events' ), get_bloginfo( 'name' ) );
         $message = $greeting . "\n\n"
             . __( 'Please click the link below to confirm your subscription to event updates:', 'club-events' ) . "\n\n"
@@ -84,11 +87,11 @@ class CE_Subscription {
     }
 
     public function handle_confirm() {
-        if ( empty( $_GET['ce_confirm'] ) ) {
+        if ( empty( $_GET['ce_confirm'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the 64-hex token in the e-mailed link is the secret.
             return;
         }
 
-        $token = sanitize_text_field( rawurldecode( $_GET['ce_confirm'] ) );
+        $token = sanitize_text_field( wp_unslash( $_GET['ce_confirm'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the 64-hex token in the e-mailed link is the secret.
         if ( strlen( $token ) !== 64 || ! ctype_xdigit( $token ) ) {
             return;
         }
@@ -96,7 +99,7 @@ class CE_Subscription {
         global $wpdb;
         $table = $wpdb->prefix . 'ce_subscribers';
 
-        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $table WHERE token = %s", $token ) );
+        $row = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM %i WHERE token = %s", $table, $token ) );
 
         if ( ! $row ) {
             wp_die( esc_html__( 'Invalid or expired confirmation link.', 'club-events' ) );
@@ -104,16 +107,16 @@ class CE_Subscription {
 
         $wpdb->update( $table, [ 'confirmed' => 1 ], [ 'id' => $row->id ], [ '%d' ], [ '%d' ] );
 
-        wp_redirect( add_query_arg( 'ce_subscribed', '1', home_url() ) );
+        wp_safe_redirect( add_query_arg( 'ce_subscribed', '1', home_url() ) );
         exit;
     }
 
     public function handle_unsubscribe() {
-        if ( empty( $_GET['ce_unsubscribe'] ) ) {
+        if ( empty( $_GET['ce_unsubscribe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the 64-hex token in the e-mailed link is the secret.
             return;
         }
 
-        $token = sanitize_text_field( rawurldecode( $_GET['ce_unsubscribe'] ) );
+        $token = sanitize_text_field( wp_unslash( $_GET['ce_unsubscribe'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- the 64-hex token in the e-mailed link is the secret.
         if ( strlen( $token ) !== 64 || ! ctype_xdigit( $token ) ) {
             return;
         }
@@ -121,7 +124,7 @@ class CE_Subscription {
         global $wpdb;
         $wpdb->delete( $wpdb->prefix . 'ce_subscribers', [ 'token' => $token ], [ '%s' ] );
 
-        wp_redirect( add_query_arg( 'ce_unsubscribed', '1', home_url() ) );
+        wp_safe_redirect( add_query_arg( 'ce_unsubscribed', '1', home_url() ) );
         exit;
     }
 
@@ -160,17 +163,23 @@ class CE_Subscription {
                 'ce_unsubscribe' => rawurlencode( $sub->token ),
             ], home_url() );
 
+            /* translators: %s: subscriber name. */
             $greeting = $sub->name ? sprintf( __( 'Hi %s,', 'club-events' ), $sub->name ) : __( 'Hi there,', 'club-events' );
 
             $message = $greeting . "\n\n"
+                /* translators: %s: event title. */
                 . sprintf( __( 'A new event has been posted: %s', 'club-events' ), $event['title'] ) . "\n\n"
+                /* translators: %s: event date. */
                 . ( $start_formatted ? sprintf( __( 'Date: %s', 'club-events' ), $start_formatted ) . "\n" : '' )
+                /* translators: %s: event location. */
                 . ( $event['location'] ? sprintf( __( 'Location: %s', 'club-events' ), $event['location'] ) . "\n" : '' )
                 . "\n"
                 . __( 'More information:', 'club-events' ) . ' ' . $event['url'] . "\n\n"
                 . '—' . "\n"
+                /* translators: %s: unsubscribe URL. */
                 . sprintf( __( 'Unsubscribe: %s', 'club-events' ), $unsub_url );
 
+            /* translators: %s: event title. */
             $subject = sprintf( __( 'New Event: %s', 'club-events' ), $event['title'] );
             wp_mail( $sub->email, $subject, $message, $headers );
         }
@@ -183,8 +192,8 @@ class CE_Subscription {
         $offset = ( $page - 1 ) * $per_page;
         $table  = $wpdb->prefix . 'ce_subscribers';
         return [
-            'rows'  => $wpdb->get_results( $wpdb->prepare( "SELECT * FROM $table ORDER BY created_at DESC LIMIT %d OFFSET %d", $per_page, $offset ) ),
-            'total' => (int) $wpdb->get_var( "SELECT COUNT(*) FROM $table" ),
+            'rows'  => $wpdb->get_results( $wpdb->prepare( "SELECT * FROM %i ORDER BY created_at DESC LIMIT %d OFFSET %d", $table, $per_page, $offset ) ),
+            'total' => (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i", $table ) ),
         ];
     }
 

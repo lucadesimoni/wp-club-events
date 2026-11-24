@@ -560,7 +560,8 @@
   box-shadow: var(--ce-shadow);
   margin-bottom: 20px;
 }
-.ce-sidebar-card h3 {
+.ce-sidebar-card h3,
+.ce-sidebar-card .ce-sidebar-title {
   font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
@@ -913,10 +914,29 @@
 .ce-tile-card-img--placeholder { }
 .ce-tile-card-placeholder {
   width: 100%;
-  aspect-ratio: 16/9;
+  aspect-ratio: 16/7;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 2px;
+  padding: 20px 28px;
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--ce-color, var(--ce-primary)) 8%, var(--ce-white));
+  color: var(--ce-color, var(--ce-primary));
+}
+.ce-tile-ph-day {
+  font-family: var(--ce-heading-font-family, inherit);
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.03em;
+}
+.ce-tile-ph-month {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
 }
 
 /* Body */
@@ -946,10 +966,6 @@
   color: var(--ce-text);
   line-height: 1.35;
   margin: 0 0 12px;
-  padding-bottom: 14px;
-  border-bottom: 3px solid var(--ce-color, var(--ce-primary));
-  display: inline;
-  align-self: flex-start;
 }
 .ce-tile-card:hover .ce-tile-card-title { color: var(--ce-primary); }
 
@@ -1237,6 +1253,70 @@
 .ce-timeline--center .ce-timeline-item:nth-child(odd) .ce-event-meta { justify-content: flex-end; }
 
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
+/* Links inside running text must not rely on colour alone (WCAG 1.4.1). */
+.ce-event-content a:not(.ce-btn),
+.ce-tile-card-excerpt a,
+.ce-subscribe-desc a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ─── Theme-proofing ──────────────────────────────────────────────────────
+   Themes style every <button>, <input> and content link (Astra adds button
+   padding, input padding and underlines links in content). The plugin's own
+   controls keep their size and look; colours/fonts still come from the
+   theme via the --ce-* bridge. Selectors use two classes (0,2,0) so they
+   outrank element/attribute rules such as button / input[type=search]. */
+.ce-view-switch .ce-view-switch-btn {
+  padding: 0;
+  margin: 0;
+  min-width: 38px;
+  min-height: 34px;
+  line-height: 1;
+  font-size: 0;
+  background: transparent;
+  color: var(--ce-text-muted);
+  box-shadow: none;
+  border: 0;
+}
+.ce-view-switch .ce-view-switch-btn.active {
+  background: var(--ce-white);
+  color: var(--ce-primary);
+  box-shadow: var(--ce-shadow);
+}
+.ce-view-switch .ce-view-switch-btn svg { width: 18px; height: 18px; flex: none; }
+.ce-hub-search .ce-hub-search-input { padding: 11px 14px 11px 40px; margin: 0; }
+.ce-hub-search .ce-hub-search-input::-webkit-search-decoration { -webkit-appearance: none; }
+/* Plugin controls and component titles are not running text: no underline. */
+a.ce-btn, .ce-hub-subscribe, .ce-ics-link, .ce-view-btn, .ce-tile-card-cta,
+.ce-event-title a, .ce-tile-card-title a, .ce-card-title a, .ce-card-link,
+.ce-list-title, .ce-upcoming-title, .ce-yearly-event-title, .ce-hub-list a,
+.ce-cal-event, .ce-back-link, .ce-category-badge, .ce-action-btn {
+  text-decoration: none !important;
+}
+.ce-event-title a:hover, .ce-tile-card-title a:hover, .ce-card-title a:hover,
+.ce-list-title:hover { text-decoration: underline !important; text-underline-offset: 3px; }
+
+/* Component titles: German compounds hyphenate instead of breaking
+   mid-word, and theme heading decorations (e.g. an h2/h3 ::after
+   underline bar) do not leak into plugin components. */
+.ce-event-title, .ce-tile-card-title, .ce-card-title, .ce-list-title,
+.ce-yearly-event-title, .ce-subscribe-title, .ce-sidebar-title, .ce-month-label {
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  overflow-wrap: break-word;
+}
+.ce-event-title::after, .ce-tile-card-title::after, .ce-card-title::after,
+.ce-list-title::after, .ce-subscribe-title::after, .ce-sidebar-title::after,
+.ce-month-label::after, .ce-cal-title::after, .ce-yearly-month-title::after,
+.ce-overview-list-title::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Subscribe form inside the event sidebar: no card inside a card. */
+.ce-sidebar-card--subscribe { padding: 0; border: 0; box-shadow: none; background: none; }
+
 @media (max-width: 1024px) {
   .ce-cards-grid { grid-template-columns: repeat(min(var(--ce-cols,3), 2), 1fr); }
   .ce-tiles { grid-template-columns: repeat(min(var(--ce-tile-cols, 3), 2), 1fr); }
@@ -1259,7 +1339,8 @@
 
   /* Hub toolbar stacks; search takes the full first row */
   .ce-hub-search { flex-basis: 100%; }
-  .ce-hub-tools { margin-left: 0; }
+  .ce-hub-tools { margin-left: 0; width: 100%; flex-wrap: wrap; }
+  .ce-hub-tools .ce-hub-subscribe { flex: 1 1 auto; justify-content: center; white-space: normal; text-align: center; }
 
   /* Center timeline collapses to a single left-aligned rail */
   .ce-timeline--center .ce-month-label { text-align: left; }
@@ -1293,7 +1374,19 @@
   .ce-tile-card-title { font-size: 17px; }
   .ce-tile-card-excerpt { -webkit-line-clamp: 2; }
 
-  /* Action buttons: comfortable tap targets */
+  /* Action row: one "Details" button plus square icon buttons for
+     calendar and share (labels stay available to screen readers). */
+  .ce-event-actions { flex-wrap: nowrap; }
+  .ce-event-actions .ce-btn { min-height: 44px; justify-content: center; }
+  .ce-event-actions .ce-btn-primary { flex: 1 1 auto; }
+  .ce-event-actions .ce-btn-icon { flex: 0 0 44px; width: 44px; padding: 0 !important; }
+  .ce-event-actions .ce-btn-icon svg { width: 18px; height: 18px; }
+  .ce-btn-icon .ce-btn-label {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .ce-timeline .ce-event-title { font-size: 1.15rem; line-height: 1.3; }
+  .ce-tile-card-placeholder { aspect-ratio: auto; padding: 18px 20px; }
   .ce-actions--compact .ce-action-btn { width: 40px; height: 40px; }
   .ce-share-pop { min-width: 180px; }
   .ce-share-pop-item { padding: 12px 14px; }

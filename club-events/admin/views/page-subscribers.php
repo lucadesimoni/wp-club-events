@@ -10,7 +10,10 @@
         <div class="ce-card-header">
             <h2><?php esc_html_e( 'Email Subscribers', 'club-events' ); ?></h2>
             <span class="ce-hint">
-                <?php printf( esc_html__( '%d confirmed subscribers', 'club-events' ), esc_html( $result['total'] ) ); ?>
+                <?php
+                /* translators: %d: number of confirmed subscribers. */
+                printf( esc_html__( '%d confirmed subscribers', 'club-events' ), (int) $result['total'] );
+                ?>
             </span>
         </div>
 
@@ -69,7 +72,7 @@
                     '<a href="%s" class="button%s">%d</a> ',
                     esc_url( $url ),
                     $page === $i ? ' button-primary' : '',
-                    $i
+                    (int) $i
                 );
             }
             ?>

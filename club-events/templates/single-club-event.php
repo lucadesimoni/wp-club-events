@@ -31,16 +31,16 @@ if ( $is_astra ) {
 
 <?php while ( have_posts() ) : the_post(); ?>
 <?php
-    $post_id  = get_the_ID();
-    $start    = get_post_meta( $post_id, '_ce_start_date', true );
-    $end      = get_post_meta( $post_id, '_ce_end_date', true );
-    $all_day  = get_post_meta( $post_id, '_ce_all_day', true );
-    $location = get_post_meta( $post_id, '_ce_location', true );
-    $loc_url  = get_post_meta( $post_id, '_ce_location_url', true );
-    $ext_url  = get_post_meta( $post_id, '_ce_external_url', true );
-    $color    = get_post_meta( $post_id, '_ce_color', true ) ?: '#3b82f6';
-    $cats     = wp_get_post_terms( $post_id, 'event_category' );
-    $ics_url  = CE_ICS_Export::get_single_url( $post_id );
+    $ce_post_id  = get_the_ID();
+    $start    = get_post_meta( $ce_post_id, '_ce_start_date', true );
+    $end      = get_post_meta( $ce_post_id, '_ce_end_date', true );
+    $all_day  = get_post_meta( $ce_post_id, '_ce_all_day', true );
+    $location = get_post_meta( $ce_post_id, '_ce_location', true );
+    $loc_url  = get_post_meta( $ce_post_id, '_ce_location_url', true );
+    $ext_url  = get_post_meta( $ce_post_id, '_ce_external_url', true );
+    $color    = CE_CPT::format_event( $ce_post_id )['color'];
+    $cats     = wp_get_post_terms( $ce_post_id, 'event_category' );
+    $ics_url  = CE_ICS_Export::get_single_url( $ce_post_id );
 
     $date_fmt = get_option( 'date_format' );
     $time_fmt = get_option( 'time_format' );
@@ -60,9 +60,9 @@ if ( $is_astra ) {
 
                 <?php if ( ! is_wp_error( $cats ) && $cats ) : ?>
                 <div class="ce-event-cats">
-                    <?php foreach ( $cats as $cat ) : ?>
-                    <a href="<?php echo esc_url( get_term_link( $cat ) ); ?>" class="ce-category-badge">
-                        <?php echo esc_html( $cat->name ); ?>
+                    <?php foreach ( $cats as $ce_cat ) : ?>
+                    <a href="<?php echo esc_url( get_term_link( $ce_cat ) ); ?>" class="ce-category-badge">
+                        <?php echo esc_html( $ce_cat->name ); ?>
                     </a>
                     <?php endforeach; ?>
                 </div>
@@ -75,14 +75,7 @@ if ( $is_astra ) {
                     <div class="ce-meta-pill">
                         <svg viewBox="0 0 20 20" width="16" height="16" fill="none"><rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M7 2v3M13 2v3M3 9h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
                         <span>
-                            <?php if ( $all_day ) : ?>
-                                <?php echo esc_html( date_i18n( $date_fmt, $start_ts ) ); ?>
-                                <?php if ( $end_ts && $end_ts !== $start_ts ) echo ' – ' . esc_html( date_i18n( $date_fmt, $end_ts ) ); ?>
-                            <?php else : ?>
-                                <?php echo esc_html( date_i18n( $date_fmt, $start_ts ) ); ?>
-                                <?php echo esc_html( date_i18n( $time_fmt, $start_ts ) ); ?>
-                                <?php if ( $end_ts ) echo ' – ' . esc_html( date_i18n( $time_fmt, $end_ts ) ); ?>
-                            <?php endif; ?>
+                            <?php echo esc_html( CE_CPT::date_range( $start_ts, $end_ts, (bool) $all_day ) ); ?>
                         </span>
                     </div>
                     <?php endif; ?>
@@ -111,13 +104,15 @@ if ( $is_astra ) {
     <?php /* ── Two-column body ── */ ?>
     <div class="ce-event-body-wrap">
 
+        <?php if ( '' !== trim( (string) get_the_content() ) ) : ?>
         <div class="ce-event-content">
             <?php the_content(); ?>
         </div>
+        <?php endif; ?>
 
         <aside class="ce-event-sidebar">
             <div class="ce-sidebar-card">
-                <h3><?php esc_html_e( 'Event Details', 'club-events' ); ?></h3>
+                <h2 class="ce-sidebar-title"><?php esc_html_e( 'Event Details', 'club-events' ); ?></h2>
 
                 <?php if ( $start_ts ) : ?>
                 <div class="ce-detail-row">
@@ -163,8 +158,8 @@ if ( $is_astra ) {
                         <?php esc_html_e( 'Add to Calendar (.ics)', 'club-events' ); ?>
                     </a>
                     <button type="button" class="ce-btn ce-btn-outline ce-btn-full ce-action-share"
-                            data-share-url="<?php echo esc_attr( get_permalink( $post_id ) ); ?>"
-                            data-share-title="<?php echo esc_attr( get_the_title( $post_id ) ); ?>">
+                            data-share-url="<?php echo esc_attr( get_permalink( $ce_post_id ) ); ?>"
+                            data-share-title="<?php echo esc_attr( get_the_title( $ce_post_id ) ); ?>">
                         <svg viewBox="0 0 24 24" width="16" height="16" fill="none"><circle cx="18" cy="5" r="3" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/><circle cx="18" cy="19" r="3" stroke="currentColor" stroke-width="1.6"/><path d="M8.6 10.6l6.8-4.2M8.6 13.4l6.8 4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
                         <?php esc_html_e( 'Share', 'club-events' ); ?>
                     </button>
@@ -177,7 +172,7 @@ if ( $is_astra ) {
             </div>
 
             <?php if ( get_option( 'ce_subscription_enabled', '1' ) === '1' ) : ?>
-            <div class="ce-sidebar-card">
+            <div class="ce-sidebar-card ce-sidebar-card--subscribe">
                 <?php echo do_shortcode( '[club_events_subscribe]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode output, escaped by its renderer. ?>
             </div>
             <?php endif; ?>

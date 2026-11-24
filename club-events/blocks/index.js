@@ -178,6 +178,7 @@
       show_past:   { type: 'boolean', default: false },
       show_filter: { type: 'boolean', default: true },
       layout:      { type: 'string',  default: 'default' },
+      heading_level: { type: 'number', default: 3 },
     }),
     edit: function (props) {
       var attrs = props.attributes;
@@ -201,6 +202,17 @@
                 { label: __('Centred (alternating)', 'club-events'), value: 'center' },
               ],
               onChange: function (v) { props.setAttributes({ layout: v }); },
+            }),
+            el(SelectControl, {
+              label: __('Month heading level', 'club-events'),
+              help:  __('Pick the level below the heading above the timeline (event titles use the next level).', 'club-events'),
+              value: String(attrs.heading_level || 3),
+              options: [
+                { label: 'H2', value: '2' },
+                { label: 'H3', value: '3' },
+                { label: 'H4', value: '4' },
+              ],
+              onChange: function (v) { props.setAttributes({ heading_level: parseInt(v, 10) }); },
             }),
             toggle(props, 'show_filter', __('Show filter bar', 'club-events'))
           )

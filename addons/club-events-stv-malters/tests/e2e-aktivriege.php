@@ -409,7 +409,7 @@ t('ICS export for Turnfest Kerzers uses DATE (all-day) format', function() {
 
     $ics = $ref->invoke($export, $events, 'STV Malters Aktivriege');
     expect_contains($ics, 'DTSTART;VALUE=DATE:20260626', 'Turnfest start as DATE');
-    expect_contains($ics, 'DTEND;VALUE=DATE:20260628',   'Turnfest end as DATE');
+    expect_contains($ics, 'DTEND;VALUE=DATE:20260629',   'Turnfest end as DATE (exclusive, RFC 5545)');
     expect_contains($ics, 'SUMMARY:Turnfest Kerzers',    'Turnfest summary');
     expect_contains($ics, 'LOCATION:Kerzers',            'Turnfest location');
     expect_not_contains($ics, 'DTSTART;TZID',            'No TZID on all-day event');

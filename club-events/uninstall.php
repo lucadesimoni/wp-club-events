@@ -35,8 +35,8 @@ $post_ids = get_posts( [
     'numberposts'    => -1,
     'fields'         => 'ids',
 ] );
-foreach ( $post_ids as $id ) {
-    wp_delete_post( (int) $id, true );
+foreach ( $post_ids as $ce_post_id ) {
+    wp_delete_post( (int) $ce_post_id, true );
 }
 
 flush_rewrite_rules();

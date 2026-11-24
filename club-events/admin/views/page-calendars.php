@@ -5,7 +5,7 @@
         <?php esc_html_e( 'Google Calendars', 'club-events' ); ?>
     </h1>
 
-    <?php if ( isset( $_GET['saved'] ) ) : ?>
+    <?php if ( isset( $_GET['saved'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view parameter, nothing is changed. ?>
     <div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Settings saved.', 'club-events' ); ?></p></div>
     <?php endif; ?>
 
@@ -189,9 +189,9 @@
                         if ( ! empty( $cal->event_types ) ) {
                             $type_slugs = array_filter( array_map( 'trim', explode( ',', $cal->event_types ) ) );
                             foreach ( $type_slugs as $slug ) {
-                                $term  = get_term_by( 'slug', $slug, 'event_type' );
-                                $label = $term ? $term->name : $slug;
-                                $color = $term ? ( get_term_meta( $term->term_id, '_ce_color', true ) ?: '#3b82f6' ) : '#3b82f6';
+                                $type_term  = get_term_by( 'slug', $slug, 'event_type' );
+                                $label = $type_term ? $type_term->name : $slug;
+                                $color = $type_term ? ( get_term_meta( $type_term->term_id, '_ce_color', true ) ?: '#3b82f6' ) : '#3b82f6';
                                 echo '<span class="ce-badge ce-badge--type" style="--badge-color:' . esc_attr( $color ) . '">' . esc_html( $label ) . '</span> ';
                             }
                         } else {
@@ -297,7 +297,7 @@
                 <div class="ce-form-row">
                     <p class="ce-next-sync">
                         <span class="dashicons dashicons-clock"></span>
-                        <?php printf( esc_html__( 'Next sync: %s', 'club-events' ), esc_html( date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $next ) ) ); ?>
+                        <?php /* translators: %s: date and time of the next sync. */ printf( esc_html__( 'Next sync: %s', 'club-events' ), esc_html( date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $next ) ) ); ?>
                     </p>
                 </div>
                 <?php endif; ?>

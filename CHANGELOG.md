@@ -3,6 +3,111 @@
 All notable changes to **Club Events Manager** are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.7.0] — 2026-11-24
+
+Fixes found by checking the live STV Malters site (which still ran 1.2.1).
+
+### Fixed
+- **Events vanished on their own day.** "Upcoming" compared the start date
+  with the current **UTC** time, while dates are stored in site-local time.
+  All-day events (stored at 00:00) disappeared from the timeline, tiles,
+  cards, list, hub and the admin dashboard on the day they took place — on
+  the live site the Frauenriege GV was missing on its own date — and
+  multi-day events vanished as soon as they had started. `CE_CPT::get_events()`
+  gains `upcoming => true`: an event is listed until its end date passes in
+  local time (events without an end stay listed for their day).
+- **ICS all-day end dates.** `DTEND;VALUE=DATE` is exclusive (RFC 5545), but
+  the last day was exported, so Turnfest Kerzers (26.–28.6.) appeared in
+  calendars as 26.–27.6. and one-day events had zero length. The feed range
+  now also uses local time.
+- **Google Calendar sync timezone.** Timed events were stored as UTC and
+  shown one/two hours early; Google's exclusive all-day end date added a
+  day. Both are converted to the stored site-local format.
+- **schema.org dates** carry the real UTC offset (`+01:00`/`+02:00`) instead
+  of labelling local time as UTC; all-day events use a plain date.
+- "Today" in the monthly calendar and yearly agenda, and the default
+  month/year, use the site's timezone; a multi-day event is only greyed out
+  in the yearly agenda once it has ended.
+- The subscribe form's e-mail placeholder is translatable.
+
+### German
+- The catalogs grew from 19 to 104 strings and now cover every
+  visitor-facing text (subscribe form and its messages, confirmation and
+  notification e-mails, event page, search/views, submission form). The live
+  site had these in a hand-edited gettext map in 1.2.1, so updating to
+  1.5/1.6.0 would have turned them back to English.
+
+### Accessibility & mobile
+- Single event page: the "Event details" box title is an `h2` (it jumped
+  from the page `h1` to `h3`, flagged by Lighthouse `heading-order`).
+- Links in event descriptions, tile excerpts and the subscribe text are
+  underlined, so they do not rely on colour alone (`link-in-text-block`).
+- Phones (≤ 480px): listing action buttons share the row evenly and are at
+  least 40px tall.
+
+### Design & mobile (from screenshots of the STV site)
+- Tiles without an image show a calm date block (day + month in the event
+  colour) instead of a large gradient with a calendar icon; the tile title
+  loses its coloured underline.
+- Phones: listing actions are one "Details" button plus 44px icon buttons
+  for calendar and share (labels stay for screen readers).
+- Titles hyphenate German compounds instead of breaking mid-word, and theme
+  heading decorations (`h2::after` bars) no longer leak into plugin titles.
+- Event page: one-day events read "27. November 2026" (not "27. November
+  2026 – 27. November 2026"); timed events over midnight show the end date;
+  the hero colour follows the event type / theme; the subscribe form in the
+  sidebar is no longer a card inside a card. New `CE_CPT::date_range()`.
+- German labels for the post type and taxonomies (the breadcrumb read
+  "Events"), 124 catalog entries.
+
+### Tested on a real WordPress install
+Installed on WordPress 6.9 (SQLite) with a German locale and realistic
+events, then checked every shortcode, block, single page, ICS, REST, the
+admin screens and the block editor. Findings fixed:
+- **Date queries returned nothing on SQLite** (`type => DATETIME` casts).
+  Stored values are `Y-m-d H:i:s`, so they are now compared as text: correct
+  on MySQL/MariaDB and SQLite (WordPress Playground, SQLite integration).
+- **`/events/123.ics` answered 301** to `/events/123.ics/` (canonical
+  redirect ran first); the feed handler now runs before it.
+- **schema.org Event data only appeared with Astra**; it is now output on
+  every theme, and `JSON_HEX_TAG` keeps a `</script>` in a title from
+  breaking out of the JSON-LD tag.
+- **A code comment was printed on the page** in the hub's list view
+  (`// phpcs:ignore …` outside the PHP tag).
+- Google sync: the stale-event window compared UTC with local times.
+
+### Fits into Astra + Spectra (tested with Astra 4.14 and Spectra)
+- Theme-proof controls: themes pad every `<button>` (Astra: 12×24px, which
+  left the hub's view-switch icons 0px wide), restyle `input[type=search]`
+  (the search icon covered the text) and underline content links (titles,
+  "Details" and "Subscribe" were underlined). The plugin's own controls now
+  keep their size and look; colours, fonts and radius still come from Astra.
+- Hub toolbar wraps on phones (the Subscribe button ran off-screen).
+- Event page: no empty content area (and gap) when an event has no text.
+
+### WordPress coding standards
+`phpcs.xml.dist` (WordPress.Security, prepared SQL, i18n, globals, PHP 7.4+)
+passes and runs in CI. Request data is unslashed and sanitised everywhere,
+redirects use `wp_safe_redirect()`, the subscriber table is passed with the
+`%i` identifier placeholder, translatable strings carry translator comments
+and ordered placeholders, and admin views/templates no longer overwrite
+WordPress globals (`$post`, `$term`, `$cat`, `$post_id`, `$id`).
+
+### Headings
+- `[club_events_timeline]` and `[club_events]` take `heading_level`
+  (default 3: month = h3, event titles = h4). Set `2` when the timeline sits
+  directly below the page title, so no heading level is skipped. The
+  Timeline block has a "Month heading level" select for it.
+
+### Site
+- `addons/club-events-stv-malters/site/ds-alignment.md`: design-system
+  tokens from digital.stvmalters.ch and the exact CSS/footer changes that
+  align the STV site with them (not shipped in the add-on zip).
+
+### Tests
+- `club-events/tests/dates.php` (23 checks, run in CI). The add-on e2e test
+  now expects the RFC-correct exclusive `DTEND`.
+
 ## [1.6.0] — 2026-09-26
 
 Makes sure the plugin cannot break a website.

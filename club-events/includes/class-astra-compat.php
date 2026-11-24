@@ -33,7 +33,6 @@ class CE_Astra_Compat {
         add_action( 'wp_enqueue_scripts',   CE_Safe::action( 'wp_enqueue_scripts', [ $this, 'attach_bridge' ] ), 5 );
         add_action( 'enqueue_block_assets', CE_Safe::action( 'enqueue_block_assets', [ $this, 'attach_bridge' ] ), 5 );
 
-        add_action( 'wp_head',            CE_Safe::action( 'wp_head', [ $this, 'output_event_schema' ] ),      20 );
         add_filter( 'body_class',         CE_Safe::filter( 'body_class', [ $this, 'body_classes' ] )                );
         add_filter( 'astra_page_layout',  CE_Safe::filter( 'astra_page_layout', [ $this, 'single_event_layout' ] )         );
         add_filter( 'astra_content_width',CE_Safe::filter( 'astra_content_width', [ $this, 'archive_content_width' ] )       );
@@ -341,66 +340,6 @@ body.single-club_event.ast-header-below-grid-enabled #content { position: relati
 CSS;
 
         return str_replace( '%OVERRIDES%', $overrides, $css );
-    }
-
-    // ─── JSON-LD Event Schema ─────────────────────────────────────────────
-
-    public function output_event_schema(): void {
-        if ( ! is_singular( 'club_event' ) ) {
-            return;
-        }
-
-        $post_id  = get_the_ID();
-        $start    = get_post_meta( $post_id, '_ce_start_date', true );
-        $end      = get_post_meta( $post_id, '_ce_end_date', true );
-        $location = get_post_meta( $post_id, '_ce_location', true );
-        $loc_url  = get_post_meta( $post_id, '_ce_location_url', true );
-        $ext_url  = get_post_meta( $post_id, '_ce_external_url', true );
-
-        if ( ! $start ) {
-            return;
-        }
-
-        $schema = [
-            '@context'    => 'https://schema.org',
-            '@type'       => 'Event',
-            'name'        => get_the_title( $post_id ),
-            'description' => wp_strip_all_tags( get_post_field( 'post_excerpt', $post_id ) ?: get_post_field( 'post_content', $post_id ) ),
-            'startDate'   => gmdate( 'c', strtotime( $start ) ),
-            'url'         => get_permalink( $post_id ),
-            'organizer'   => [
-                '@type' => 'Organization',
-                'name'  => get_bloginfo( 'name' ),
-                'url'   => home_url(),
-            ],
-        ];
-
-        if ( $end ) {
-            $schema['endDate'] = gmdate( 'c', strtotime( $end ) );
-        }
-
-        if ( $location ) {
-            $schema['location'] = [
-                '@type' => 'Place',
-                'name'  => $location,
-            ];
-            if ( $loc_url ) {
-                $schema['location']['url'] = $loc_url;
-            }
-        }
-
-        if ( $ext_url ) {
-            $schema['url'] = $ext_url;
-        }
-
-        if ( has_post_thumbnail( $post_id ) ) {
-            $schema['image'] = get_the_post_thumbnail_url( $post_id, 'large' );
-        }
-
-        $schema['eventStatus']        = 'https://schema.org/EventScheduled';
-        $schema['eventAttendanceMode'] = 'https://schema.org/OfflineEventAttendanceMode';
-
-        echo '<script type="application/ld+json">' . wp_json_encode( $schema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . '</script>' . "\n";
     }
 
     // ─── Body Classes ─────────────────────────────────────────────────────

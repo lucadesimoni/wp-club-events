@@ -27,6 +27,7 @@ class CE_Frontend_Submit {
         if ( ! is_user_logged_in() ) {
             return '<div class="ce-submit-notice">'
                 . '<p>' . sprintf(
+                    /* translators: %s: "log in" link. */
                     esc_html__( 'Please %s to submit events.', 'club-events' ),
                     '<a href="' . esc_url( wp_login_url( get_permalink() ) ) . '">' . esc_html__( 'log in', 'club-events' ) . '</a>'
                 ) . '</p></div>';
@@ -134,6 +135,7 @@ class CE_Frontend_Submit {
         if ( ! is_user_logged_in() ) {
             return '<div class="ce-submit-notice"><p>'
                 . sprintf(
+                    /* translators: %s: "log in" link. */
                     esc_html__( 'Please %s to view your events.', 'club-events' ),
                     '<a href="' . esc_url( wp_login_url( get_permalink() ) ) . '">' . esc_html__( 'log in', 'club-events' ) . '</a>'
                 ) . '</p></div>';
@@ -296,7 +298,7 @@ class CE_Frontend_Submit {
             wp_send_json_error( __( 'Not authorized.', 'club-events' ) );
         }
 
-        $post_id = (int) ( $_POST['id'] ?? 0 );
+        $post_id = absint( wp_unslash( $_POST['id'] ?? 0 ) );
         $post    = get_post( $post_id );
 
         if ( ! $post || 'club_event' !== $post->post_type ) {
@@ -324,9 +326,13 @@ class CE_Frontend_Submit {
         $user        = wp_get_current_user();
         $review_url  = admin_url( 'post.php?post=' . $post_id . '&action=edit' );
 
-        $subject = sprintf( __( '[%s] New event submission: %s', 'club-events' ), get_bloginfo( 'name' ), $title );
+        /* translators: 1: site name, 2: event title. */
+        $subject = sprintf( __( '[%1$s] New event submission: %2$s', 'club-events' ), get_bloginfo( 'name' ), $title );
+        /* translators: %s: name of the member who submitted the event. */
         $message = sprintf( __( '%s submitted a new event for review.', 'club-events' ), $user->display_name ) . "\n\n"
+            /* translators: %s: event title. */
             . sprintf( __( 'Event: %s', 'club-events' ), $title ) . "\n"
+            /* translators: %s: admin URL to review the event. */
             . sprintf( __( 'Review: %s', 'club-events' ), $review_url ) . "\n";
 
         wp_mail( $admin_email, $subject, $message );

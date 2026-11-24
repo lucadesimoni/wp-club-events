@@ -96,9 +96,13 @@ class CE_Google_Calendar {
 
     private function notify_admin_sync_failure( $calendar_name, $error_message ) {
         $admin_email = get_option( 'admin_email' );
-        $subject     = sprintf( __( '[%s] Google Calendar sync failed: %s', 'club-events' ), get_bloginfo( 'name' ), $calendar_name );
+        /* translators: 1: site name, 2: calendar name. */
+        $subject     = sprintf( __( '[%1$s] Google Calendar sync failed: %2$s', 'club-events' ), get_bloginfo( 'name' ), $calendar_name );
+        /* translators: %s: calendar name. */
         $message     = sprintf( __( 'The Google Calendar sync for "%s" has failed after 3 attempts.', 'club-events' ), $calendar_name ) . "\n\n"
+            /* translators: %s: error message from Google. */
             . sprintf( __( 'Error: %s', 'club-events' ), $error_message ) . "\n\n"
+            /* translators: %s: URL of the calendar settings screen. */
             . sprintf( __( 'Check settings: %s', 'club-events' ), admin_url( 'admin.php?page=ce-calendars' ) ) . "\n";
         wp_mail( $admin_email, $subject, $message );
     }
@@ -155,7 +159,7 @@ class CE_Google_Calendar {
             $synced_ids[] = $google_id;
 
             $start   = $this->parse_date( $item['start'] ?? [] );
-            $end     = $this->parse_date( $item['end'] ?? [] );
+            $end     = $this->parse_date( $item['end'] ?? [], true );
             $all_day = isset( $item['start']['date'] ) && ! isset( $item['start']['dateTime'] );
 
             $existing = $this->find_by_google_id( $google_id );
@@ -208,12 +212,30 @@ class CE_Google_Calendar {
         ];
     }
 
-    private function parse_date( $date_field ) {
-        if ( isset( $date_field['dateTime'] ) ) {
-            return gmdate( 'Y-m-d H:i:s', strtotime( $date_field['dateTime'] ) );
-        }
-        if ( isset( $date_field['date'] ) ) {
-            return gmdate( 'Y-m-d', strtotime( $date_field['date'] ) ) . ' 00:00:00';
+    /**
+     * Convert a Google start/end field to the stored site-local format.
+     *
+     * Timed values carry their own offset (`2026-11-24T19:30:00+01:00`) and
+     * are converted to the site timezone; storing them as UTC showed every
+     * synced event one or two hours early. Google's all-day end date is
+     * exclusive, so it is moved back to 23:59:59 of the last day, matching
+     * events entered in WordPress.
+     */
+    private function parse_date( $date_field, $is_end = false ) {
+        try {
+            if ( isset( $date_field['dateTime'] ) ) {
+                $dt = new DateTimeImmutable( $date_field['dateTime'] );
+                return $dt->setTimezone( wp_timezone() )->format( 'Y-m-d H:i:s' );
+            }
+            if ( isset( $date_field['date'] ) ) {
+                $dt = new DateTimeImmutable( $date_field['date'], wp_timezone() );
+                if ( $is_end ) {
+                    return $dt->modify( '-1 day' )->format( 'Y-m-d' ) . ' 23:59:59';
+                }
+                return $dt->format( 'Y-m-d' ) . ' 00:00:00';
+            }
+        } catch ( Exception $e ) {
+            return '';
         }
         return '';
     }
@@ -234,6 +256,9 @@ class CE_Google_Calendar {
         $placeholders = implode( ',', array_fill( 0, count( $synced_ids ), '%s' ) );
         global $wpdb;
 
+        // One %s placeholder per synced ID is built above and the values are
+        // passed as an array, which PHPCS cannot count statically.
+        // phpcs:disable WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $stale_ids = $wpdb->get_col( $wpdb->prepare(
             "SELECT p.ID FROM {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm_cal ON p.ID = pm_cal.post_id
@@ -246,10 +271,11 @@ class CE_Google_Calendar {
                  AND pm_start.meta_value BETWEEN %s AND %s
              WHERE p.post_type = 'club_event' AND p.post_status = 'publish'",
             array_merge( [ $cal_db_id ], $synced_ids, [
-                gmdate( 'Y-m-d H:i:s', strtotime( $time_min ) ),
-                gmdate( 'Y-m-d H:i:s', strtotime( $time_max ) ),
+                ( new DateTimeImmutable( $time_min ) )->setTimezone( wp_timezone() )->format( 'Y-m-d H:i:s' ),
+                ( new DateTimeImmutable( $time_max ) )->setTimezone( wp_timezone() )->format( 'Y-m-d H:i:s' ),
             ] )
         ) );
+        // phpcs:enable WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
         foreach ( $stale_ids as $id ) {
             wp_trash_post( (int) $id );

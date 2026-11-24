@@ -76,14 +76,14 @@
         <!-- ── TILES VIEW ──────────────────────────────────────── -->
         <div class="ce-dash-view ce-dash-tiles" data-view="tiles">
             <div class="ce-tiles-grid">
-                <?php foreach ( $upcoming as $post ) :
-                    $start    = get_post_meta( $post->ID, '_ce_start_date', true );
-                    $end      = get_post_meta( $post->ID, '_ce_end_date', true );
-                    $color    = get_post_meta( $post->ID, '_ce_color', true ) ?: '#3b82f6';
-                    $location = get_post_meta( $post->ID, '_ce_location', true );
-                    $all_day  = get_post_meta( $post->ID, '_ce_all_day', true );
-                    $source   = get_post_meta( $post->ID, '_ce_source', true ) ?: 'manual';
-                    $types    = wp_get_post_terms( $post->ID, 'event_type', [ 'fields' => 'names' ] );
+                <?php foreach ( $upcoming as $ev_post ) :
+                    $start    = get_post_meta( $ev_post->ID, '_ce_start_date', true );
+                    $end      = get_post_meta( $ev_post->ID, '_ce_end_date', true );
+                    $color    = get_post_meta( $ev_post->ID, '_ce_color', true ) ?: '#3b82f6';
+                    $location = get_post_meta( $ev_post->ID, '_ce_location', true );
+                    $all_day  = get_post_meta( $ev_post->ID, '_ce_all_day', true );
+                    $source   = get_post_meta( $ev_post->ID, '_ce_source', true ) ?: 'manual';
+                    $types    = wp_get_post_terms( $ev_post->ID, 'event_type', [ 'fields' => 'names' ] );
                     if ( is_wp_error( $types ) ) $types = [];
                 ?>
                 <div class="ce-tile" style="--tile-color:<?php echo esc_attr( $color ); ?>">
@@ -94,8 +94,8 @@
                         <?php endif; ?>
                     </div>
                     <div class="ce-tile-body">
-                        <a href="<?php echo esc_url( get_edit_post_link( $post->ID ) ); ?>" class="ce-tile-title">
-                            <?php echo esc_html( $post->post_title ); ?>
+                        <a href="<?php echo esc_url( get_edit_post_link( $ev_post->ID ) ); ?>" class="ce-tile-title">
+                            <?php echo esc_html( $ev_post->post_title ); ?>
                         </a>
                         <?php if ( $start ) : ?>
                         <span class="ce-tile-meta">
@@ -153,14 +153,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ( $upcoming as $post ) :
-                        $start    = get_post_meta( $post->ID, '_ce_start_date', true );
-                        $end      = get_post_meta( $post->ID, '_ce_end_date', true );
-                        $color    = get_post_meta( $post->ID, '_ce_color', true ) ?: '#3b82f6';
-                        $location = get_post_meta( $post->ID, '_ce_location', true );
-                        $all_day  = get_post_meta( $post->ID, '_ce_all_day', true );
-                        $source   = get_post_meta( $post->ID, '_ce_source', true ) ?: 'manual';
-                        $types    = wp_get_post_terms( $post->ID, 'event_type', [ 'fields' => 'names' ] );
+                    <?php foreach ( $upcoming as $ev_post ) :
+                        $start    = get_post_meta( $ev_post->ID, '_ce_start_date', true );
+                        $end      = get_post_meta( $ev_post->ID, '_ce_end_date', true );
+                        $color    = get_post_meta( $ev_post->ID, '_ce_color', true ) ?: '#3b82f6';
+                        $location = get_post_meta( $ev_post->ID, '_ce_location', true );
+                        $all_day  = get_post_meta( $ev_post->ID, '_ce_all_day', true );
+                        $source   = get_post_meta( $ev_post->ID, '_ce_source', true ) ?: 'manual';
+                        $types    = wp_get_post_terms( $ev_post->ID, 'event_type', [ 'fields' => 'names' ] );
                         if ( is_wp_error( $types ) ) $types = [];
                     ?>
                     <tr>
@@ -170,8 +170,8 @@
                         </td>
                         <td>
                             <strong>
-                                <a href="<?php echo esc_url( get_edit_post_link( $post->ID ) ); ?>">
-                                    <?php echo esc_html( $post->post_title ); ?>
+                                <a href="<?php echo esc_url( get_edit_post_link( $ev_post->ID ) ); ?>">
+                                    <?php echo esc_html( $ev_post->post_title ); ?>
                                 </a>
                             </strong>
                         </td>
@@ -207,10 +207,10 @@
                             <?php endif; ?>
                         </td>
                         <td class="ce-row-actions">
-                            <a href="<?php echo esc_url( get_edit_post_link( $post->ID ) ); ?>" class="button button-small">
+                            <a href="<?php echo esc_url( get_edit_post_link( $ev_post->ID ) ); ?>" class="button button-small">
                                 <?php esc_html_e( 'Edit', 'club-events' ); ?>
                             </a>
-                            <a href="<?php echo esc_url( get_permalink( $post->ID ) ); ?>" target="_blank" class="button button-small">
+                            <a href="<?php echo esc_url( get_permalink( $ev_post->ID ) ); ?>" target="_blank" class="button button-small">
                                 <?php esc_html_e( 'View', 'club-events' ); ?>
                             </a>
                         </td>
@@ -223,10 +223,10 @@
         <!-- ── TIMELINE VIEW ───────────────────────────────────── -->
         <div class="ce-dash-view ce-dash-timeline" data-view="timeline" hidden>
             <ul class="ce-upcoming-list">
-                <?php foreach ( $upcoming as $post ) :
-                    $start    = get_post_meta( $post->ID, '_ce_start_date', true );
-                    $color    = get_post_meta( $post->ID, '_ce_color', true ) ?: '#3b82f6';
-                    $location = get_post_meta( $post->ID, '_ce_location', true );
+                <?php foreach ( $upcoming as $ev_post ) :
+                    $start    = get_post_meta( $ev_post->ID, '_ce_start_date', true );
+                    $color    = get_post_meta( $ev_post->ID, '_ce_color', true ) ?: '#3b82f6';
+                    $location = get_post_meta( $ev_post->ID, '_ce_location', true );
                 ?>
                 <li class="ce-upcoming-item" style="--ce-color:<?php echo esc_attr( $color ); ?>">
                     <div class="ce-upcoming-date">
@@ -236,15 +236,15 @@
                         <?php endif; ?>
                     </div>
                     <div class="ce-upcoming-info">
-                        <a href="<?php echo esc_url( get_edit_post_link( $post->ID ) ); ?>" class="ce-upcoming-title">
-                            <?php echo esc_html( $post->post_title ); ?>
+                        <a href="<?php echo esc_url( get_edit_post_link( $ev_post->ID ) ); ?>" class="ce-upcoming-title">
+                            <?php echo esc_html( $ev_post->post_title ); ?>
                         </a>
                         <?php if ( $location ) : ?>
                         <span class="ce-upcoming-loc"><?php echo esc_html( $location ); ?></span>
                         <?php endif; ?>
                     </div>
                     <div class="ce-upcoming-actions">
-                        <a href="<?php echo esc_url( get_permalink( $post->ID ) ); ?>" target="_blank" class="button button-small">
+                        <a href="<?php echo esc_url( get_permalink( $ev_post->ID ) ); ?>" target="_blank" class="button button-small">
                             <?php esc_html_e( 'View', 'club-events' ); ?>
                         </a>
                     </div>
