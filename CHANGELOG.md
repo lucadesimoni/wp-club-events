@@ -3,7 +3,7 @@
 All notable changes to **Club Events Manager** are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
-## [1.6.1] — 2026-11-24
+## [1.7.0] — 2026-11-24
 
 Fixes found by checking the live STV Malters site (which still ran 1.2.1).
 

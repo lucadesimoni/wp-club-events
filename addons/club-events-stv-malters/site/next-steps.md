@@ -29,11 +29,11 @@ Startseite (ID 915): `font-size:14px`/`"fontSize":"14px"` (Abteilungs-Karten),
 ## 3. Überschriften-Reihenfolge
 - Vorstandsseiten (1391, 1598, 1606, 1608, 1610): Namen h4 → h3.
 - Riegen-Agenden (1599, 1607, 1609, 1611) und Gesamtverein-Agenda (1394):
-  `heading_level="2"` am Zeitstrahl, sobald Plugin 1.6.1 installiert ist
+  `heading_level="2"` am Zeitstrahl, sobald Plugin 1.7.0 installiert ist
   (1.2.1 ignoriert das Attribut gefahrlos).
 
 ## 4. Plugin
-- Club Events 1.6.1 installieren (Zip vom 24.11.). Danach im Zusatz-CSS die
+- Club Events 1.7.0 installieren (Zip vom 24.11.). Danach im Zusatz-CSS die
   Übergangsregeln „Plugin 1.2.x“ entfernen.
 
 ## 5. Kontrolle

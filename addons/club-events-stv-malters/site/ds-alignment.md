@@ -58,7 +58,7 @@ Space Grotesk). Abweichungen entstehen ausschliesslich im Zusätzlichen CSS.
 7. `.stv-footer`, `.stv-fname`, `.stv-fsub`, `.stv-social` (inkl. `STV icons v1`
    für Instagram/Facebook) werden von der aktuellen Fusszeile nicht mehr
    verwendet und können weg, sofern die Social-Links nicht zurückkommen.
-8. Nach Update auf Club Events 1.6.1 die Blöcke `STV-UI-CONSISTENCY` und
+8. Nach Update auf Club Events 1.7.0 die Blöcke `STV-UI-CONSISTENCY` und
    `STV button harmony` (alle `.ce-*`-Regeln) löschen: Das Plugin übernimmt
    Schrift, Farbe und Radius jetzt selbst aus Astra. Die `!important`-Regeln
    würden sonst die Design-System-Werte wieder überschreiben.

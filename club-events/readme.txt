@@ -4,7 +4,7 @@ Tags: events, calendar, google calendar, ics, gutenberg
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.6.1
+Stable tag: 1.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -91,21 +91,29 @@ only the event's title and URL.
 
 == Changelog ==
 
-= 1.6.1 =
-* Fix: events disappeared from every "upcoming" list at midnight UTC on
-  their own day, and multi-day events vanished while still running. An event
-  now stays listed until it ends, in the site's timezone.
-* Fix: "Add to calendar" / ICS feeds ended all-day events one day early
-  (DTEND is exclusive in RFC 5545); a one-day event had zero length.
-* Fix: Google Calendar sync stored timed events in UTC, so they showed one or
-  two hours early; all-day events gained an extra day.
-* Fix: schema.org Event dates now carry the site's UTC offset (all-day
-  events use a plain date), and "today" in the calendar and yearly agenda
-  uses the site's timezone.
-* Accessibility: the event page's details box uses an h2 (correct heading
-  order); links in event text are underlined; bigger tap targets on phones.
-* German: the catalogs now cover every visitor-facing string (subscribe
-  form, confirmation emails, event pages, submission form) — 104 entries.
+= 1.7.0 =
+* Fix: events disappeared from "upcoming" lists on their own day and while
+  still running; an event now stays listed until it ends (site timezone).
+* Fix: ICS all-day events ended a day early; `/events/123.ics` no longer
+  answers with a redirect first.
+* Fix: Google Calendar sync stored timed events in UTC (1–2 h early) and
+  added a day to all-day events.
+* Fix: date lists were empty on SQLite databases (WordPress Playground,
+  SQLite integration); dates now compare correctly on MySQL and SQLite.
+* Fix: schema.org Event data is output with every theme (was Astra-only),
+  with the correct UTC offset.
+* Fix: a code comment was printed in the hub's list view.
+* New: `heading_level` for the timeline and hub (block setting "Month
+  heading level") so pages keep a valid heading order.
+* Design: image-less tiles show a calm date block; phone listings use one
+  "Details" button plus icon buttons; German compounds hyphenate; one-day
+  events show a single date.
+* Themes: the plugin's buttons, search field and titles keep their look
+  under theme button/input/link styles (tested with Astra and Spectra);
+  colours, fonts and radius still follow the theme.
+* Security & standards: passes WordPress coding-standard checks for
+  security, SQL, i18n and PHP 7.4+; safe redirects; JSON-LD hardened.
+* German: catalogs cover every visitor-facing string (126 entries).
 
 = 1.6.0 =
 * Robustness: nothing the plugin renders or hooks into can take a page down.
@@ -213,8 +221,8 @@ only the event's title and URL.
 
 == Upgrade Notice ==
 
-= 1.6.1 =
-Today's and running events no longer disappear from listings; ICS exports of all-day events end on the right day.
+= 1.7.0 =
+Today's and running events stay listed, ICS all-day events end on the right day, lists work on SQLite, and the plugin fits cleanly into Astra and Spectra.
 
 = 1.5.0 =
 The Aktivriege 2026 import tool is now a separate add-on. Install "Club Events – STV Malters" if you still need it.
