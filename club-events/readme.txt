@@ -4,7 +4,7 @@ Tags: events, calendar, google calendar, ics, gutenberg
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.6.0
+Stable tag: 1.6.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -90,6 +90,20 @@ only the event's title and URL.
 * `[club_events_my_events]` — user event dashboard.
 
 == Changelog ==
+
+= 1.6.1 =
+* Fix: events disappeared from every "upcoming" list at midnight UTC on
+  their own day, and multi-day events vanished while still running. An event
+  now stays listed until it ends, in the site's timezone.
+* Fix: "Add to calendar" / ICS feeds ended all-day events one day early
+  (DTEND is exclusive in RFC 5545); a one-day event had zero length.
+* Fix: Google Calendar sync stored timed events in UTC, so they showed one or
+  two hours early; all-day events gained an extra day.
+* Fix: schema.org Event dates now carry the site's UTC offset (all-day
+  events use a plain date), and "today" in the calendar and yearly agenda
+  uses the site's timezone.
+* German: the catalogs now cover every visitor-facing string (subscribe
+  form, confirmation emails, event pages, submission form) — 104 entries.
 
 = 1.6.0 =
 * Robustness: nothing the plugin renders or hooks into can take a page down.
@@ -196,6 +210,9 @@ only the event's title and URL.
   embeds, ICS export, and email subscriptions.
 
 == Upgrade Notice ==
+
+= 1.6.1 =
+Today's and running events no longer disappear from listings; ICS exports of all-day events end on the right day.
 
 = 1.5.0 =
 The Aktivriege 2026 import tool is now a separate add-on. Install "Club Events – STV Malters" if you still need it.

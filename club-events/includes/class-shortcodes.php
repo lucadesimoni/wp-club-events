@@ -230,7 +230,7 @@ class CE_Shortcodes {
         ];
 
         if ( ! $atts['show_past'] ) {
-            $query_args['from'] = gmdate( 'Y-m-d H:i:s' );
+            $query_args['upcoming'] = true;
         }
 
         if ( $atts['category'] ) {
@@ -366,8 +366,8 @@ class CE_Shortcodes {
             'show_filter' => true,
         ], $atts, 'club_events_overview' );
 
-        $year  = isset( $_GET['ce_year'] )  ? (int) $_GET['ce_year']  : (int) gmdate( 'Y' );
-        $month = isset( $_GET['ce_month'] ) ? (int) $_GET['ce_month'] : (int) gmdate( 'n' );
+        $year  = isset( $_GET['ce_year'] )  ? (int) $_GET['ce_year']  : (int) current_time( 'Y' );
+        $month = isset( $_GET['ce_month'] ) ? (int) $_GET['ce_month'] : (int) current_time( 'n' );
 
         $month = max( 1, min( 12, $month ) );
 
@@ -444,9 +444,9 @@ class CE_Shortcodes {
                     echo '<div class="ce-cal-day ce-cal-empty"></div>';
                 }
 
-                $today = (int) gmdate( 'j' );
-                $today_month = (int) gmdate( 'n' );
-                $today_year  = (int) gmdate( 'Y' );
+                $today       = (int) current_time( 'j' );
+                $today_month = (int) current_time( 'n' );
+                $today_year  = (int) current_time( 'Y' );
 
                 for ( $day = 1; $day <= $days_in_mon; $day++ ) {
                     $is_today = ( $day === $today && $month === $today_month && $year === $today_year );
@@ -526,7 +526,7 @@ class CE_Shortcodes {
 
         $query_args = [ 'posts_per_page' => (int) $atts['limit'] ];
         if ( ! $atts['show_past'] ) {
-            $query_args['from'] = gmdate( 'Y-m-d H:i:s' );
+            $query_args['upcoming'] = true;
         }
         if ( $atts['category'] ) {
             $query_args['tax_query'] = [ [ 'taxonomy' => 'event_category', 'field' => 'slug', 'terms' => sanitize_text_field( $atts['category'] ) ] ];
@@ -575,7 +575,7 @@ class CE_Shortcodes {
 
         $query_args = [ 'posts_per_page' => (int) $atts['limit'] ];
         if ( ! $atts['show_past'] ) {
-            $query_args['from'] = gmdate( 'Y-m-d H:i:s' );
+            $query_args['upcoming'] = true;
         }
         if ( $atts['category'] ) {
             $query_args['tax_query'] = [ [
@@ -734,7 +734,7 @@ class CE_Shortcodes {
 
         $year = (int) $atts['year'];
         if ( ! $year ) {
-            $year = isset( $_GET['ce_year'] ) ? (int) $_GET['ce_year'] : (int) gmdate( 'Y' );
+            $year = isset( $_GET['ce_year'] ) ? (int) $_GET['ce_year'] : (int) current_time( 'Y' );
         }
 
         $from = "$year-01-01 00:00:00";
@@ -779,7 +779,7 @@ class CE_Shortcodes {
                 $month_names[ $i ] = date_i18n( 'F', mktime( 0, 0, 0, $i, 1 ) );
             }
 
-            $today_str = gmdate( 'Y-m-d' );
+            $today_str = CE_CPT::today();
 
             foreach ( $month_names as $m => $name ) :
                 $events = $events_by_month[ $m ] ?? [];
@@ -796,7 +796,8 @@ class CE_Shortcodes {
                         $day       = date_i18n( 'j', $start_ts );
                         $weekday   = date_i18n( 'D', $start_ts );
                         $time      = ( ! $ev['allDay'] ) ? date_i18n( get_option( 'time_format' ), $start_ts ) : '';
-                        $is_past   = gmdate( 'Y-m-d', $start_ts ) < $today_str;
+                        $end_ts    = $ev['end'] ? strtotime( $ev['end'] ) : $start_ts;
+                        $is_past   = gmdate( 'Y-m-d', $end_ts ) < $today_str;
                         $row_class = 'ce-yearly-event' . ( $is_past ? ' ce-yearly-event--past' : '' );
                     ?>
                     <a href="<?php echo esc_url( $ev['url'] ); ?>" class="<?php echo esc_attr( $row_class ); ?>"
@@ -853,7 +854,7 @@ class CE_Shortcodes {
 
         $query_args = [
             'posts_per_page' => (int) $atts['limit'],
-            'from'           => gmdate( 'Y-m-d H:i:s' ),
+            'upcoming'       => true,
         ];
         if ( $atts['event_type'] ) {
             $slugs = array_map( 'trim', explode( ',', sanitize_text_field( $atts['event_type'] ) ) );
@@ -1094,7 +1095,7 @@ class CE_Shortcodes {
         // Query the events that feed the tiles / list / timeline views.
         $query_args = [ 'posts_per_page' => (int) $atts['limit'] ];
         if ( ! $atts['show_past'] ) {
-            $query_args['from'] = gmdate( 'Y-m-d H:i:s' );
+            $query_args['upcoming'] = true;
         }
         if ( $atts['event_type'] ) {
             $query_args['event_type'] = array_map( 'trim', explode( ',', sanitize_text_field( $atts['event_type'] ) ) );
@@ -1347,7 +1348,7 @@ class CE_Shortcodes {
 
                 <div class="ce-form-row">
                     <label for="ce-sub-email"><?php esc_html_e( 'Email Address', 'club-events' ); ?> <span class="required">*</span></label>
-                    <input type="email" id="ce-sub-email" name="email" required autocomplete="email" placeholder="you@example.com">
+                    <input type="email" id="ce-sub-email" name="email" required autocomplete="email" placeholder="<?php esc_attr_e( 'you@example.com', 'club-events' ); ?>">
                 </div>
 
                 <?php if ( ! is_wp_error( $categories ) && count( $categories ) > 1 ) : ?>

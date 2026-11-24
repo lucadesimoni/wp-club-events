@@ -353,6 +353,7 @@ CSS;
         $post_id  = get_the_ID();
         $start    = get_post_meta( $post_id, '_ce_start_date', true );
         $end      = get_post_meta( $post_id, '_ce_end_date', true );
+        $all_day  = (bool) get_post_meta( $post_id, '_ce_all_day', true );
         $location = get_post_meta( $post_id, '_ce_location', true );
         $loc_url  = get_post_meta( $post_id, '_ce_location_url', true );
         $ext_url  = get_post_meta( $post_id, '_ce_external_url', true );
@@ -366,7 +367,7 @@ CSS;
             '@type'       => 'Event',
             'name'        => get_the_title( $post_id ),
             'description' => wp_strip_all_tags( get_post_field( 'post_excerpt', $post_id ) ?: get_post_field( 'post_content', $post_id ) ),
-            'startDate'   => gmdate( 'c', strtotime( $start ) ),
+            'startDate'   => CE_CPT::to_iso8601( $start, $all_day ),
             'url'         => get_permalink( $post_id ),
             'organizer'   => [
                 '@type' => 'Organization',
@@ -376,7 +377,7 @@ CSS;
         ];
 
         if ( $end ) {
-            $schema['endDate'] = gmdate( 'c', strtotime( $end ) );
+            $schema['endDate'] = CE_CPT::to_iso8601( $end, $all_day );
         }
 
         if ( $location ) {

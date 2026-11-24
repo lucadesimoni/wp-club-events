@@ -155,7 +155,7 @@ class CE_Google_Calendar {
             $synced_ids[] = $google_id;
 
             $start   = $this->parse_date( $item['start'] ?? [] );
-            $end     = $this->parse_date( $item['end'] ?? [] );
+            $end     = $this->parse_date( $item['end'] ?? [], true );
             $all_day = isset( $item['start']['date'] ) && ! isset( $item['start']['dateTime'] );
 
             $existing = $this->find_by_google_id( $google_id );
@@ -208,12 +208,30 @@ class CE_Google_Calendar {
         ];
     }
 
-    private function parse_date( $date_field ) {
-        if ( isset( $date_field['dateTime'] ) ) {
-            return gmdate( 'Y-m-d H:i:s', strtotime( $date_field['dateTime'] ) );
-        }
-        if ( isset( $date_field['date'] ) ) {
-            return gmdate( 'Y-m-d', strtotime( $date_field['date'] ) ) . ' 00:00:00';
+    /**
+     * Convert a Google start/end field to the stored site-local format.
+     *
+     * Timed values carry their own offset (`2026-11-24T19:30:00+01:00`) and
+     * are converted to the site timezone; storing them as UTC showed every
+     * synced event one or two hours early. Google's all-day end date is
+     * exclusive, so it is moved back to 23:59:59 of the last day, matching
+     * events entered in WordPress.
+     */
+    private function parse_date( $date_field, $is_end = false ) {
+        try {
+            if ( isset( $date_field['dateTime'] ) ) {
+                $dt = new DateTimeImmutable( $date_field['dateTime'] );
+                return $dt->setTimezone( wp_timezone() )->format( 'Y-m-d H:i:s' );
+            }
+            if ( isset( $date_field['date'] ) ) {
+                $dt = new DateTimeImmutable( $date_field['date'], wp_timezone() );
+                if ( $is_end ) {
+                    return $dt->modify( '-1 day' )->format( 'Y-m-d' ) . ' 23:59:59';
+                }
+                return $dt->format( 'Y-m-d' ) . ' 00:00:00';
+            }
+        } catch ( Exception $e ) {
+            return '';
         }
         return '';
     }

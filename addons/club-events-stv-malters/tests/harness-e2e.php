@@ -12,6 +12,7 @@ define( 'ABSPATH', '/tmp/ce-e2e/' );
 // Define WP_CLI so the import file takes the CLI path (skips add_action/return)
 // and auto-calls ce_import_aktivriege_2026() on include.
 define( 'WP_CLI', true );
+defined( 'DAY_IN_SECONDS' ) || define( 'DAY_IN_SECONDS', 86400 );
 
 // ── WP_CLI stub ───────────────────────────────────────────────────────────────
 class WP_CLI {

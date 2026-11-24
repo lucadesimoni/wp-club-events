@@ -3,6 +3,44 @@
 All notable changes to **Club Events Manager** are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.6.1] — 2026-11-24
+
+Fixes found by checking the live STV Malters site (which still ran 1.2.1).
+
+### Fixed
+- **Events vanished on their own day.** "Upcoming" compared the start date
+  with the current **UTC** time, while dates are stored in site-local time.
+  All-day events (stored at 00:00) disappeared from the timeline, tiles,
+  cards, list, hub and the admin dashboard on the day they took place — on
+  the live site the Frauenriege GV was missing on its own date — and
+  multi-day events vanished as soon as they had started. `CE_CPT::get_events()`
+  gains `upcoming => true`: an event is listed until its end date passes in
+  local time (events without an end stay listed for their day).
+- **ICS all-day end dates.** `DTEND;VALUE=DATE` is exclusive (RFC 5545), but
+  the last day was exported, so Turnfest Kerzers (26.–28.6.) appeared in
+  calendars as 26.–27.6. and one-day events had zero length. The feed range
+  now also uses local time.
+- **Google Calendar sync timezone.** Timed events were stored as UTC and
+  shown one/two hours early; Google's exclusive all-day end date added a
+  day. Both are converted to the stored site-local format.
+- **schema.org dates** carry the real UTC offset (`+01:00`/`+02:00`) instead
+  of labelling local time as UTC; all-day events use a plain date.
+- "Today" in the monthly calendar and yearly agenda, and the default
+  month/year, use the site's timezone; a multi-day event is only greyed out
+  in the yearly agenda once it has ended.
+- The subscribe form's e-mail placeholder is translatable.
+
+### German
+- The catalogs grew from 19 to 104 strings and now cover every
+  visitor-facing text (subscribe form and its messages, confirmation and
+  notification e-mails, event page, search/views, submission form). The live
+  site had these in a hand-edited gettext map in 1.2.1, so updating to
+  1.5/1.6.0 would have turned them back to English.
+
+### Tests
+- `club-events/tests/dates.php` (23 checks, run in CI). The add-on e2e test
+  now expects the RFC-correct exclusive `DTEND`.
+
 ## [1.6.0] — 2026-09-26
 
 Makes sure the plugin cannot break a website.

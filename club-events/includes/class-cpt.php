@@ -329,6 +329,34 @@ class CE_CPT {
         return $template;
     }
 
+    /**
+     * Current site-local time as `Y-m-d H:i:s`.
+     *
+     * Event dates are stored in the site's timezone (Settings → General), so
+     * comparisons must use local time, not UTC.
+     */
+    public static function now() {
+        return current_time( 'mysql' );
+    }
+
+    /** Current site-local date as `Y-m-d`. */
+    public static function today() {
+        return current_time( 'Y-m-d' );
+    }
+
+    /**
+     * Convert a stored site-local `Y-m-d H:i:s` value to ISO 8601 with the
+     * site's UTC offset (e.g. `2026-11-24T19:30:00+01:00`).
+     */
+    public static function to_iso8601( $local, $date_only = false ) {
+        try {
+            $dt = new DateTimeImmutable( $local, wp_timezone() );
+        } catch ( Exception $e ) {
+            return '';
+        }
+        return $date_only ? $dt->format( 'Y-m-d' ) : $dt->format( 'c' );
+    }
+
     public static function get_events( $args = [] ) {
         $defaults = [
             'post_type'      => 'club_event',
@@ -339,6 +367,37 @@ class CE_CPT {
             'order'          => 'ASC',
             'meta_query'     => [],
         ];
+
+        // "Upcoming" means "not over yet": an event stays listed until it
+        // ends, so today's events and multi-day events in progress are kept.
+        // Dates are stored in site-local time, so compare with local "now".
+        if ( ! empty( $args['upcoming'] ) ) {
+            $defaults['meta_query'][] = [
+                'relation' => 'OR',
+                [
+                    'key'     => '_ce_end_date',
+                    'value'   => self::now(),
+                    'compare' => '>=',
+                    'type'    => 'DATETIME',
+                ],
+                // Without an end date an event is kept for its whole day.
+                [
+                    'relation' => 'AND',
+                    [
+                        'key'     => '_ce_start_date',
+                        'value'   => self::today() . ' 00:00:00',
+                        'compare' => '>=',
+                        'type'    => 'DATETIME',
+                    ],
+                    [
+                        'relation' => 'OR',
+                        [ 'key' => '_ce_end_date', 'compare' => 'NOT EXISTS' ],
+                        [ 'key' => '_ce_end_date', 'value' => '', 'compare' => '=' ],
+                    ],
+                ],
+            ];
+        }
+        unset( $args['upcoming'] );
 
         if ( ! empty( $args['from'] ) ) {
             $defaults['meta_query'][] = [

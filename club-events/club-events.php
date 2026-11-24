@@ -3,7 +3,7 @@
  * Plugin Name:       WP Club Events Simple
  * Plugin URI:        https://github.com/lucadesimoni/wp-club-events
  * Description:       Event calendar for clubs and associations: Google Calendar sync, timeline, calendar and tile views, ICS export, sharing and email subscriptions.
- * Version:           1.6.0
+ * Version:           1.6.1
  * Requires at least: 6.5
  * Tested up to:      7.1
  * Requires PHP:      7.4
@@ -71,7 +71,7 @@ if ( '' !== $ce_load_problem ) {
     return;
 }
 
-define( 'CE_VERSION',     '1.6.0' );
+define( 'CE_VERSION',     '1.6.1' );
 define( 'CE_PLUGIN_FILE', __FILE__ );
 define( 'CE_PLUGIN_DIR',  plugin_dir_path( __FILE__ ) );
 define( 'CE_PLUGIN_URL',  plugin_dir_url( __FILE__ ) );

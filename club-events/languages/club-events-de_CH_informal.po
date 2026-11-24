@@ -64,3 +64,255 @@ msgstr "Link kopieren"
 
 msgid "Link copied!"
 msgstr "Link kopiert!"
+
+msgid "Stay Updated"
+msgstr "Bleib auf dem Laufenden"
+
+msgid "Subscribe to receive email notifications when new events are posted."
+msgstr "Abonniere und erhalte eine E-Mail, sobald ein neuer Anlass veröffentlicht wird."
+
+msgid "Your Name"
+msgstr "Dein Name"
+
+msgid "Optional"
+msgstr "Optional"
+
+msgid "Email Address"
+msgstr "E-Mail-Adresse"
+
+msgid "you@example.com"
+msgstr "name@beispiel.ch"
+
+msgid "Categories (optional)"
+msgstr "Kategorien (optional)"
+
+msgid "You are now subscribed to event updates!"
+msgstr "Du erhältst ab jetzt Benachrichtigungen zu neuen Anlässen!"
+
+msgid "You have been unsubscribed."
+msgstr "Du wurdest abgemeldet."
+
+msgid "Subscriptions are disabled."
+msgstr "Anmeldungen sind zurzeit deaktiviert."
+
+msgid "Please enter a valid email address."
+msgstr "Bitte gib eine gültige E-Mail-Adresse ein."
+
+msgid "You are already subscribed."
+msgstr "Du bist bereits angemeldet."
+
+msgid "Please check your email to confirm your subscription."
+msgstr "Bitte prüfe deine E-Mails, um deine Anmeldung zu bestätigen."
+
+msgid "Invalid or expired confirmation link."
+msgstr "Ungültiger oder abgelaufener Bestätigungslink."
+
+msgid "Hi %s,"
+msgstr "Hallo %s,"
+
+msgid "Hi there,"
+msgstr "Hallo,"
+
+msgid "Confirm your event subscription — %s"
+msgstr "Bestätige dein Anlass-Abonnement — %s"
+
+msgid "Please click the link below to confirm your subscription to event updates:"
+msgstr "Bitte klicke auf den folgenden Link, um dein Abonnement für Anlass-Benachrichtigungen zu bestätigen:"
+
+msgid "If you did not request this, please ignore this email."
+msgstr "Falls du dich nicht angemeldet hast, kannst du diese E-Mail ignorieren."
+
+msgid "A new event has been posted: %s"
+msgstr "Ein neuer Anlass wurde veröffentlicht: %s"
+
+msgid "Date: %s"
+msgstr "Datum: %s"
+
+msgid "Location: %s"
+msgstr "Ort: %s"
+
+msgid "More information:"
+msgstr "Weitere Informationen:"
+
+msgid "Unsubscribe: %s"
+msgstr "Abmelden: %s"
+
+msgid "New Event: %s"
+msgstr "Neuer Anlass: %s"
+
+msgid "Event Details"
+msgstr "Anlass-Details"
+
+msgid "More Information"
+msgstr "Weitere Informationen"
+
+msgid "All Events"
+msgstr "Alle Anlässe"
+
+msgid "All events"
+msgstr "Alle Anlässe"
+
+msgid "More details"
+msgstr "Mehr Details"
+
+msgid "No events"
+msgstr "Keine Anlässe"
+
+msgid "%d events in %d"
+msgstr "%d Anlässe im Jahr %d"
+
+msgid "Add to calendar"
+msgstr "Zum Kalender hinzufügen"
+
+msgid "Search events…"
+msgstr "Anlässe durchsuchen…"
+
+msgid "Search events"
+msgstr "Anlässe durchsuchen"
+
+msgid "View"
+msgstr "Ansicht"
+
+msgid "Tiles"
+msgstr "Kacheln"
+
+msgid "List"
+msgstr "Liste"
+
+msgid "Timeline"
+msgstr "Zeitstrahl"
+
+msgid "Calendar"
+msgstr "Kalender"
+
+msgid "Cards"
+msgstr "Karten"
+
+msgid "Subscribe (ICS)"
+msgstr "Abonnieren (ICS)"
+
+msgid "Subscribe — add all events to your calendar"
+msgstr "Abonnieren — alle Anlässe in deinen Kalender"
+
+msgid "No events match your search."
+msgstr "Keine Anlässe passen zu deiner Suche."
+
+msgid "Upcoming events"
+msgstr "Nächste Anlässe"
+
+msgid "Events"
+msgstr "Anlässe"
+
+msgid "Home"
+msgstr "Startseite"
+
+msgid "Event not found."
+msgstr "Anlass nicht gefunden."
+
+msgid "Categories"
+msgstr "Kategorien"
+
+msgid "Category"
+msgstr "Kategorie"
+
+msgid "Event Types"
+msgstr "Gruppen"
+
+msgid "Event Type"
+msgstr "Gruppe"
+
+msgid "Please %s to submit events."
+msgstr "Bitte %s, um Anlässe einzureichen."
+
+msgid "Please %s to view your events."
+msgstr "Bitte %s, um deine Anlässe zu sehen."
+
+msgid "log in"
+msgstr "melde dich an"
+
+msgid "You do not have permission to submit events."
+msgstr "Du darfst keine Anlässe einreichen."
+
+msgid "Event Title"
+msgstr "Titel des Anlasses"
+
+msgid "Start"
+msgstr "Beginn"
+
+msgid "End"
+msgstr "Ende"
+
+msgid "Description"
+msgstr "Beschreibung"
+
+msgid "— Select —"
+msgstr "— Auswählen —"
+
+msgid "Color"
+msgstr "Farbe"
+
+msgid "Submit Event"
+msgstr "Anlass einreichen"
+
+msgid "You have not submitted any events yet."
+msgstr "Du hast noch keine Anlässe eingereicht."
+
+msgid "Event"
+msgstr "Anlass"
+
+msgid "Date"
+msgstr "Datum"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "Published"
+msgstr "Veröffentlicht"
+
+msgid "Pending"
+msgstr "Ausstehend"
+
+msgid "Draft"
+msgstr "Entwurf"
+
+msgid "Delete"
+msgstr "Löschen"
+
+msgid "You must be logged in."
+msgstr "Du musst angemeldet sein."
+
+msgid "Event submissions are not enabled."
+msgstr "Das Einreichen von Anlässen ist nicht aktiviert."
+
+msgid "Please enter an event title."
+msgstr "Bitte gib einen Titel ein."
+
+msgid "Please enter a start date."
+msgstr "Bitte gib ein Startdatum ein."
+
+msgid "Event published successfully!"
+msgstr "Anlass erfolgreich veröffentlicht!"
+
+msgid "Event submitted for review. An admin will approve it shortly."
+msgstr "Anlass zur Prüfung eingereicht. Ein Admin gibt ihn in Kürze frei."
+
+msgid "Not authorized."
+msgstr "Nicht berechtigt."
+
+msgid "You can only delete your own events."
+msgstr "Du kannst nur eigene Anlässe löschen."
+
+msgid "Published events can only be deleted by an admin."
+msgstr "Veröffentlichte Anlässe kann nur ein Admin löschen."
+
+msgid "Submitting…"
+msgstr "Wird gesendet…"
+
+msgid "Something went wrong. Please try again."
+msgstr "Etwas ist schiefgelaufen. Bitte versuche es erneut."
+
+msgid "Delete this event?"
+msgstr "Diesen Anlass löschen?"
+
+msgid "My Events"
+msgstr "Meine Anlässe"
