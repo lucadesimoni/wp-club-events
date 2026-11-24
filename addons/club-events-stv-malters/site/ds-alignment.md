@@ -1,5 +1,13 @@
 # STV Malters – Abgleich mit dem Design-System
 
+> **Stand 24.11.2026 (2. Runde):** Gestaltung läuft über Astra-Einstellungen:
+> Palette (0 STV-Blau `#25319D`, 1 Navy `#1B2566`, 2 Titel = Navy),
+> Überschriftenfarbe → Palette 2, Schriftgrössen Text 17 px und H1/H2/H3
+> 56/40/26 (Desktop) bis 40/30/22 (Handy), Button-Radius 8 px und Schrift
+> Space Grotesk, Logo 200/190/180 px (auch transparenter Header), Footer-
+> Hintergrund = Palette 0, Footer-Builder 3 Spalten + Copyright, Suche im
+> Handy-Ausklappmenü. `stv-site.css` enthält nur noch, was Astra nicht kann.
+>
 > **Umgesetzt am 24.11.2026.** Das Zusatz-CSS der Seite ist durch
 > `stv-site.css` (in diesem Ordner) ersetzt worden; die vorherige Fassung liegt
 > als `custom-css-before-2026-11-24.css` hier und als Revision im Customizer.
