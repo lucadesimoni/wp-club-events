@@ -117,7 +117,7 @@ if ( $is_astra ) {
 
         <aside class="ce-event-sidebar">
             <div class="ce-sidebar-card">
-                <h3><?php esc_html_e( 'Event Details', 'club-events' ); ?></h3>
+                <h2 class="ce-sidebar-title"><?php esc_html_e( 'Event Details', 'club-events' ); ?></h2>
 
                 <?php if ( $start_ts ) : ?>
                 <div class="ce-detail-row">

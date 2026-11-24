@@ -560,7 +560,8 @@
   box-shadow: var(--ce-shadow);
   margin-bottom: 20px;
 }
-.ce-sidebar-card h3 {
+.ce-sidebar-card h3,
+.ce-sidebar-card .ce-sidebar-title {
   font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
@@ -1237,6 +1238,14 @@
 .ce-timeline--center .ce-timeline-item:nth-child(odd) .ce-event-meta { justify-content: flex-end; }
 
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
+/* Links inside running text must not rely on colour alone (WCAG 1.4.1). */
+.ce-event-content a:not(.ce-btn),
+.ce-tile-card-excerpt a,
+.ce-subscribe-desc a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 @media (max-width: 1024px) {
   .ce-cards-grid { grid-template-columns: repeat(min(var(--ce-cols,3), 2), 1fr); }
   .ce-tiles { grid-template-columns: repeat(min(var(--ce-tile-cols, 3), 2), 1fr); }
@@ -1293,7 +1302,8 @@
   .ce-tile-card-title { font-size: 17px; }
   .ce-tile-card-excerpt { -webkit-line-clamp: 2; }
 
-  /* Action buttons: comfortable tap targets */
+  /* Action buttons: comfortable tap targets, evenly sized rows */
+  .ce-event-actions .ce-btn { min-height: 40px; flex: 1 1 auto; justify-content: center; }
   .ce-actions--compact .ce-action-btn { width: 40px; height: 40px; }
   .ce-share-pop { min-width: 180px; }
   .ce-share-pop-item { padding: 12px 14px; }

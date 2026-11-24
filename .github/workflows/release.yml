@@ -91,7 +91,7 @@ jobs:
             -x '*/.DS_Store'
           unzip -l club-events.zip | tail -1
           # Site-specific add-on (not part of the directory plugin).
-          (cd addons && zip -r ../club-events-stv-malters.zip club-events-stv-malters -x 'club-events-stv-malters/tests/*')
+          (cd addons && zip -r ../club-events-stv-malters.zip club-events-stv-malters -x 'club-events-stv-malters/tests/*' -x 'club-events-stv-malters/site/*')
           unzip -l club-events-stv-malters.zip | tail -1
 
       - name: Extract the release notes for this version

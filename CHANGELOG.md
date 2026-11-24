@@ -37,6 +37,19 @@ Fixes found by checking the live STV Malters site (which still ran 1.2.1).
   site had these in a hand-edited gettext map in 1.2.1, so updating to
   1.5/1.6.0 would have turned them back to English.
 
+### Accessibility & mobile
+- Single event page: the "Event details" box title is an `h2` (it jumped
+  from the page `h1` to `h3`, flagged by Lighthouse `heading-order`).
+- Links in event descriptions, tile excerpts and the subscribe text are
+  underlined, so they do not rely on colour alone (`link-in-text-block`).
+- Phones (≤ 480px): listing action buttons share the row evenly and are at
+  least 40px tall.
+
+### Site
+- `addons/club-events-stv-malters/site/ds-alignment.md`: design-system
+  tokens from digital.stvmalters.ch and the exact CSS/footer changes that
+  align the STV site with them (not shipped in the add-on zip).
+
 ### Tests
 - `club-events/tests/dates.php` (23 checks, run in CI). The add-on e2e test
   now expects the RFC-correct exclusive `DTEND`.

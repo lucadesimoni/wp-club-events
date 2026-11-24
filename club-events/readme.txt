@@ -102,6 +102,8 @@ only the event's title and URL.
 * Fix: schema.org Event dates now carry the site's UTC offset (all-day
   events use a plain date), and "today" in the calendar and yearly agenda
   uses the site's timezone.
+* Accessibility: the event page's details box uses an h2 (correct heading
+  order); links in event text are underlined; bigger tap targets on phones.
 * German: the catalogs now cover every visitor-facing string (subscribe
   form, confirmation emails, event pages, submission form) — 104 entries.
 
