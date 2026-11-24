@@ -104,9 +104,11 @@ if ( $is_astra ) {
     <?php /* ── Two-column body ── */ ?>
     <div class="ce-event-body-wrap">
 
+        <?php if ( '' !== trim( (string) get_the_content() ) ) : ?>
         <div class="ce-event-content">
             <?php the_content(); ?>
         </div>
+        <?php endif; ?>
 
         <aside class="ce-event-sidebar">
             <div class="ce-sidebar-card">

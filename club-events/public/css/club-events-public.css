@@ -1261,6 +1261,42 @@
   text-underline-offset: 2px;
 }
 
+/* ─── Theme-proofing ──────────────────────────────────────────────────────
+   Themes style every <button>, <input> and content link (Astra adds button
+   padding, input padding and underlines links in content). The plugin's own
+   controls keep their size and look; colours/fonts still come from the
+   theme via the --ce-* bridge. Selectors use two classes (0,2,0) so they
+   outrank element/attribute rules such as button / input[type=search]. */
+.ce-view-switch .ce-view-switch-btn {
+  padding: 0;
+  margin: 0;
+  min-width: 38px;
+  min-height: 34px;
+  line-height: 1;
+  font-size: 0;
+  background: transparent;
+  color: var(--ce-text-muted);
+  box-shadow: none;
+  border: 0;
+}
+.ce-view-switch .ce-view-switch-btn.active {
+  background: var(--ce-white);
+  color: var(--ce-primary);
+  box-shadow: var(--ce-shadow);
+}
+.ce-view-switch .ce-view-switch-btn svg { width: 18px; height: 18px; flex: none; }
+.ce-hub-search .ce-hub-search-input { padding: 11px 14px 11px 40px; margin: 0; }
+.ce-hub-search .ce-hub-search-input::-webkit-search-decoration { -webkit-appearance: none; }
+/* Plugin controls and component titles are not running text: no underline. */
+a.ce-btn, .ce-hub-subscribe, .ce-ics-link, .ce-view-btn, .ce-tile-card-cta,
+.ce-event-title a, .ce-tile-card-title a, .ce-card-title a, .ce-card-link,
+.ce-list-title, .ce-upcoming-title, .ce-yearly-event-title, .ce-hub-list a,
+.ce-cal-event, .ce-back-link, .ce-category-badge, .ce-action-btn {
+  text-decoration: none !important;
+}
+.ce-event-title a:hover, .ce-tile-card-title a:hover, .ce-card-title a:hover,
+.ce-list-title:hover { text-decoration: underline !important; text-underline-offset: 3px; }
+
 /* Component titles: German compounds hyphenate instead of breaking
    mid-word, and theme heading decorations (e.g. an h2/h3 ::after
    underline bar) do not leak into plugin components. */
@@ -1303,7 +1339,8 @@
 
   /* Hub toolbar stacks; search takes the full first row */
   .ce-hub-search { flex-basis: 100%; }
-  .ce-hub-tools { margin-left: 0; }
+  .ce-hub-tools { margin-left: 0; width: 100%; flex-wrap: wrap; }
+  .ce-hub-tools .ce-hub-subscribe { flex: 1 1 auto; justify-content: center; white-space: normal; text-align: center; }
 
   /* Center timeline collapses to a single left-aligned rail */
   .ce-timeline--center .ce-month-label { text-align: left; }

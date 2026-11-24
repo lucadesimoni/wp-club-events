@@ -76,6 +76,15 @@ admin screens and the block editor. Findings fixed:
   (`// phpcs:ignore …` outside the PHP tag).
 - Google sync: the stale-event window compared UTC with local times.
 
+### Fits into Astra + Spectra (tested with Astra 4.14 and Spectra)
+- Theme-proof controls: themes pad every `<button>` (Astra: 12×24px, which
+  left the hub's view-switch icons 0px wide), restyle `input[type=search]`
+  (the search icon covered the text) and underline content links (titles,
+  "Details" and "Subscribe" were underlined). The plugin's own controls now
+  keep their size and look; colours, fonts and radius still come from Astra.
+- Hub toolbar wraps on phones (the Subscribe button ran off-screen).
+- Event page: no empty content area (and gap) when an event has no text.
+
 ### WordPress coding standards
 `phpcs.xml.dist` (WordPress.Security, prepared SQL, i18n, globals, PHP 7.4+)
 passes and runs in CI. Request data is unslashed and sanitised everywhere,
