@@ -253,7 +253,7 @@ class CE_CPT {
             $value = call_user_func( $config['sanitize_callback'], $raw );
 
             if ( '_ce_start_date' === $meta_key || '_ce_end_date' === $meta_key ) {
-                $value = $value ? gmdate( 'Y-m-d H:i:s', strtotime( str_replace( 'T', ' ', $value ) ) ) : '';
+                $value = self::normalize_date( $value, '_ce_end_date' === $meta_key );
             }
 
             update_post_meta( $post_id, $meta_key, $value );
@@ -408,6 +408,32 @@ class CE_CPT {
     /** Current site-local date as `Y-m-d`. */
     public static function today() {
         return current_time( 'Y-m-d' );
+    }
+
+    /**
+     * Normalise a date from any input (admin form, REST, abilities, imports)
+     * to the stored site-local `Y-m-d H:i:s` format.
+     *
+     * - `2026-06-26` → start of day, or 23:59:59 for an end date
+     * - `2026-06-26 09:00` / `2026-06-26T09:00` → read as site-local time
+     * - `2026-06-26T07:00:00Z` / `…+02:00` → converted to site-local time
+     *
+     * Returns '' for empty or unparseable input.
+     */
+    public static function normalize_date( $value, $is_end = false ) {
+        $value = trim( (string) $value );
+        if ( '' === $value ) {
+            return '';
+        }
+        if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $value ) ) {
+            $value .= $is_end ? ' 23:59:59' : ' 00:00:00';
+        }
+        try {
+            $dt = new DateTimeImmutable( $value, wp_timezone() );
+        } catch ( Exception $e ) {
+            return '';
+        }
+        return $dt->setTimezone( wp_timezone() )->format( 'Y-m-d H:i:s' );
     }
 
     /**
