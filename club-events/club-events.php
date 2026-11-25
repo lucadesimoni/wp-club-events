@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
 $ce_load_problem = '';
 $ce_classes      = [
     'CE_Plugin', 'CE_Safe', 'CE_Style', 'CE_CPT', 'CE_Google_Calendar', 'CE_ICS_Export',
-    'CE_Subscription', 'CE_Shortcodes', 'CE_REST_API', 'CE_Frontend_Submit', 'CE_Astra_Compat',
+    'CE_Subscription', 'CE_Shortcodes', 'CE_REST_API', 'CE_Data_API', 'CE_Frontend_Submit', 'CE_Astra_Compat',
     'CE_Patterns', 'CE_Admin', 'CE_Elementor', 'CE_Elementor_Hub', 'CE_Elementor_Tiles',
     'CE_Elementor_Timeline', 'CE_Elementor_Overview', 'CE_Elementor_Cards', 'CE_Elementor_List',
     'CE_Elementor_Yearly', 'CE_Elementor_Share', 'CE_Elementor_Subscribe', 'CE_Elementor_Submit',
