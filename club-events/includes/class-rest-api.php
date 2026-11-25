@@ -51,10 +51,10 @@ class CE_REST_API {
         $to   = $request->get_param( 'to' );
 
         if ( $from ) {
-            $args['from'] = gmdate( 'Y-m-d H:i:s', strtotime( $from ) );
+            $args['from'] = CE_CPT::normalize_date( $from );
         }
         if ( $to ) {
-            $args['to'] = gmdate( 'Y-m-d H:i:s', strtotime( $to ) );
+            $args['to'] = CE_CPT::normalize_date( $to, true );
         }
 
         $category = $request->get_param( 'category' );

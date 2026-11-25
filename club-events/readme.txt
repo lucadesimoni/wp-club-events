@@ -4,7 +4,7 @@ Tags: events, calendar, google calendar, ics, gutenberg
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.7.1
+Stable tag: 1.8.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -49,6 +49,17 @@ without it.
 Any theme. With Astra the plugin also picks up the global colour palette,
 button style and heading font from the Customizer.
 
+= Can other tools, apps or AI assistants edit events? =
+
+Yes. All event fields (start, end, all-day, location, links, colour) are
+registered post meta and readable and writable through the WordPress REST API
+(`/wp/v2/club_event`, under `meta`) with the same permissions as the edit
+screen. On WordPress 6.9+ the plugin also registers abilities
+(`club-events/list-events`, `get-event`, `create-event`, `update-event`,
+`delete-event`, `list-terms`), so MCP adapters and AI tools can find and use
+them. Dates may be sent as `2026-06-26`, `2026-06-26 19:30` (site time) or ISO
+8601 with an offset; they are stored in site time.
+
 = Is the plugin translated? =
 
 It is translation-ready and ships German (Germany, Switzerland, Austria).
@@ -90,6 +101,15 @@ only the event's title and URL.
 * `[club_events_my_events]` — user event dashboard.
 
 == Changelog ==
+
+= 1.8.0 =
+* New: event fields are available in the WordPress REST API (`meta` of
+  `/wp/v2/club_event`), readable and writable with edit permissions, so
+  apps, site-management and AI tools can change dates, locations and links.
+* New: WordPress abilities (6.9+) to list, get, create, update and delete
+  events and list categories/types, for MCP adapters and AI assistants.
+* Dates from every source (edit screen, REST, abilities, frontend form)
+  are normalised the same way; ISO 8601 with offset is converted to site time.
 
 = 1.7.1 =
 * Fix: event titles in timelines and lists were shown huge and extra bold;
@@ -227,6 +247,9 @@ only the event's title and URL.
   embeds, ICS export, and email subscriptions.
 
 == Upgrade Notice ==
+
+= 1.8.0 =
+Event data can now be read and changed through the REST API and WordPress abilities (apps, MCP, AI tools).
 
 = 1.7.1 =
 Event titles in lists are no longer oversized, and buttons and headings follow Astra's mobile and tablet sizes.

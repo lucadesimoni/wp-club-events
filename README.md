@@ -58,6 +58,25 @@ Then, under **Club Events → Settings → Events Page & Display**, select that 
 as the Events Page and (optionally) tick *Hide the built-in events archive* so
 there is a single events index.
 
+## Data access for other tools
+
+Events can be read and changed without plugin-specific code:
+
+- **REST API.** All event fields are registered meta of `club_event`:
+
+  ```http
+  POST /wp-json/wp/v2/club_event/123
+  { "meta": { "_ce_start_date": "2026-06-26 19:30", "_ce_location": "Turnhalle" } }
+  ```
+
+- **Abilities (WordPress 6.9+).** `club-events/list-events`, `get-event`,
+  `create-event`, `update-event`, `delete-event` and `list-terms`. They are
+  listed under `/wp-json/wp-abilities/v1/abilities` and work with the
+  WordPress MCP adapter.
+
+Dates are accepted as `2026-06-26`, `2026-06-26 19:30` (site time) or ISO
+8601 with an offset, and are stored in site time.
+
 ## Shortcodes
 
 | Shortcode | What it renders |

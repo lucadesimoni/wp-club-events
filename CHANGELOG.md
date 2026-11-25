@@ -3,6 +3,31 @@
 All notable changes to **Club Events Manager** are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.8.0] — 2026-11-25
+
+### Added
+- **Event data for other tools.** New `CE_Data_API`:
+  - The event fields `_ce_start_date`, `_ce_end_date`, `_ce_all_day`,
+    `_ce_location`, `_ce_location_url`, `_ce_external_url` and `_ce_color`
+    are registered post meta with schemas, sanitising and an
+    `edit_post` auth callback. They are read and written through
+    `/wp/v2/club_event` (`meta`), which makes them usable from the block
+    editor, the WordPress apps, WP-CLI and site-management tools. The
+    `event_type` colour (`_ce_color`) is registered term meta.
+  - WordPress Abilities API (6.9+): category `club-events` with
+    `club-events/list-events`, `get-event`, `create-event`,
+    `update-event`, `delete-event` (trash by default) and `list-terms`,
+    with input/output schemas, permission checks and MCP annotations
+    (`readonly`, `destructive`, `idempotent`, `mcp.public`).
+  - One write path (`CE_Data_API::save_event()`) for all tools; terms can
+    be given as IDs, slugs or names.
+- `CE_CPT::normalize_date()`: one date normaliser for the edit screen,
+  REST, abilities and the `/club-events/v1/events` range filter. Plain dates
+  become start/end of day, ISO 8601 with offset is converted to site time.
+- Tests: date normalisation cases in `tests/dates.php`, and
+  `tests/data-api-wp.php` (26 checks, run with `wp eval-file` on a real
+  WordPress 6.9 site).
+
 ## [1.7.1] — 2026-11-25
 
 ### Fixed

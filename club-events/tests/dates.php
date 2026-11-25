@@ -85,6 +85,14 @@ $GLOBALS['now_local'] = '2026-11-25 00:30:00';
 check( 'today() uses site-local date', '2026-11-25' === CE_CPT::today() );
 $GLOBALS['now_local'] = '2026-11-24 14:30:00';
 
+/* ── Date normalisation (all write paths) ──────────────────────────────── */
+echo "Date normalisation\n";
+check( 'plain start date is start of day', '2026-06-26 00:00:00' === CE_CPT::normalize_date( '2026-06-26' ) );
+check( 'plain end date is end of day', '2026-06-28 23:59:59' === CE_CPT::normalize_date( '2026-06-28', true ) );
+check( 'datetime-local is site time', '2026-11-24 19:30:00' === CE_CPT::normalize_date( '2026-11-24T19:30' ) );
+check( 'UTC is converted to site time', '2026-06-26 09:00:00' === CE_CPT::normalize_date( '2026-06-26T07:00:00Z' ), CE_CPT::normalize_date( '2026-06-26T07:00:00Z' ) );
+check( 'garbage gives empty', '' === CE_CPT::normalize_date( 'soon' ) && '' === CE_CPT::normalize_date( '' ) );
+
 /* ── schema.org dates ────────────────────────────────────────────────────── */
 echo "schema.org dates\n";
 check( 'winter time carries +01:00', '2026-11-24T19:30:00+01:00' === CE_CPT::to_iso8601( '2026-11-24 19:30:00' ) );

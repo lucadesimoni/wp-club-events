@@ -27,6 +27,7 @@ class CE_Plugin {
         require_once CE_PLUGIN_DIR . 'includes/class-subscription.php';
         require_once CE_PLUGIN_DIR . 'includes/class-shortcodes.php';
         require_once CE_PLUGIN_DIR . 'includes/class-rest-api.php';
+        require_once CE_PLUGIN_DIR . 'includes/class-data-api.php';
         require_once CE_PLUGIN_DIR . 'includes/class-frontend-submit.php';
         require_once CE_PLUGIN_DIR . 'includes/class-astra-compat.php';
         require_once CE_PLUGIN_DIR . 'includes/class-patterns.php';
@@ -52,6 +53,7 @@ class CE_Plugin {
         new CE_Subscription();
         new CE_Shortcodes();
         new CE_REST_API();
+        new CE_Data_API();
         new CE_Frontend_Submit();
         new CE_Astra_Compat();
         new CE_Patterns();
