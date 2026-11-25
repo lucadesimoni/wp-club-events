@@ -78,12 +78,15 @@ class CE_Astra_Compat {
         return ( 0 + $size ) . $unit;
     }
 
-    /** Desktop value of an Astra responsive setting (a size or a slider). */
-    private static function responsive_length( $value ): string {
+    /**
+     * One device's value of an Astra responsive setting (a size or a slider).
+     * Plain (non-responsive) values only count for the desktop.
+     */
+    private static function responsive_length( $value, string $device = 'desktop' ): string {
         if ( is_array( $value ) ) {
-            return self::length( $value['desktop'] ?? '', $value['desktop-unit'] ?? 'px' );
+            return self::length( $value[ $device ] ?? '', $value[ $device . '-unit' ] ?? 'px' );
         }
-        return self::length( $value );
+        return 'desktop' === $device ? self::length( $value ) : '';
     }
 
     /** A font-family stack from Astra, or '' when it inherits the body font. */
@@ -118,6 +121,50 @@ class CE_Astra_Compat {
     }
 
     /**
+     * Tokens Astra sets per device: heading sizes, button font size and
+     * button padding. Tablet and mobile values are only present when Astra
+     * sets them, so they fall back to the larger device like Astra does.
+     */
+    private static function responsive_tokens( string $device ): array {
+        $t = [];
+        foreach ( [ 1, 2, 3, 4 ] as $level ) {
+            $t[ '--ce-h' . $level . '-size' ] = self::responsive_length( self::opt( 'font-size-h' . $level ), $device );
+        }
+        $t['--ce-btn-font-size'] = self::responsive_length( self::opt( 'font-size-button' ), $device );
+
+        $padding = self::opt( 'theme-button-padding' );
+        if ( is_array( $padding ) && isset( $padding[ $device ] ) && is_array( $padding[ $device ] ) ) {
+            $unit = $padding[ $device . '-unit' ] ?? 'px';
+            $t['--ce-btn-padding-v'] = self::length( $padding[ $device ]['top'] ?? '', $unit );
+            $t['--ce-btn-padding-h'] = self::length( $padding[ $device ]['right'] ?? '', $unit );
+        }
+        return $t;
+    }
+
+    /**
+     * Tablet and mobile overrides as media queries, at Astra's breakpoints.
+     */
+    private static function responsive_css(): string {
+        $css = '';
+        $breakpoints = [
+            'tablet' => function_exists( 'astra_get_tablet_breakpoint' ) ? (int) astra_get_tablet_breakpoint() : 921,
+            'mobile' => function_exists( 'astra_get_mobile_breakpoint' ) ? (int) astra_get_mobile_breakpoint() : 544,
+        ];
+        foreach ( $breakpoints as $device => $max ) {
+            /** This filter is documented in tokens(). */
+            $tokens = array_filter( (array) apply_filters( 'ce_astra_tokens', self::responsive_tokens( $device ), $device ), 'strlen' );
+            $decl   = '';
+            foreach ( $tokens as $prop => $value ) {
+                $decl .= $prop . ':' . $value . ';';
+            }
+            if ( $decl && $max > 0 ) {
+                $css .= '@media (max-width:' . $max . 'px){:root{' . $decl . '}}';
+            }
+        }
+        return $css;
+    }
+
+    /**
      * Design tokens read from the Astra customizer. Anything Astra leaves
      * unset is omitted so the palette-based defaults in bridge_css() apply.
      */
@@ -126,9 +173,7 @@ class CE_Astra_Compat {
 
         $t['--ce-heading-font-family'] = self::font_family( self::opt( 'headings-font-family' ) );
         $t['--ce-heading-font-weight'] = self::font_weight( self::opt( 'headings-font-weight' ) );
-        foreach ( [ 1, 2, 3, 4 ] as $level ) {
-            $t[ '--ce-h' . $level . '-size' ] = self::responsive_length( self::opt( 'font-size-h' . $level ) );
-        }
+        $t += self::responsive_tokens( 'desktop' );
 
         $t['--ce-btn-bg']          = CE_Style::sanitize_color( self::opt( 'button-bg-color' ) );
         $t['--ce-btn-bg-hover']    = CE_Style::sanitize_color( self::opt( 'button-bg-h-color' ) );
@@ -136,7 +181,6 @@ class CE_Astra_Compat {
         $t['--ce-btn-color-hover'] = CE_Style::sanitize_color( self::opt( 'button-h-color' ) );
         $t['--ce-btn-radius']      = self::button_radius();
         $t['--ce-btn-font-family'] = self::font_family( self::opt( 'font-family-button' ) );
-        $t['--ce-btn-font-size']   = self::responsive_length( self::opt( 'font-size-button' ) );
         $t['--ce-btn-font-weight'] = self::font_weight( self::opt( 'font-weight-button' ) );
 
         $extras    = self::opt( 'font-extras-button' );
@@ -146,19 +190,13 @@ class CE_Astra_Compat {
             $t['--ce-btn-letter-spacing'] = self::length( $extras['letter-spacing'] ?? '', $extras['letter-spacing-unit'] ?? 'px' );
         }
 
-        $padding = self::opt( 'theme-button-padding' );
-        if ( is_array( $padding ) && isset( $padding['desktop'] ) && is_array( $padding['desktop'] ) ) {
-            $unit = $padding['desktop-unit'] ?? 'px';
-            $t['--ce-btn-padding-v'] = self::length( $padding['desktop']['top'] ?? '', $unit );
-            $t['--ce-btn-padding-h'] = self::length( $padding['desktop']['right'] ?? '', $unit );
-        }
-
         /**
          * Filter the design tokens the Astra bridge derives from the customizer.
          *
-         * @param array $tokens Custom property => CSS value ('' = use the default).
+         * @param array  $tokens Custom property => CSS value ('' = use the default).
+         * @param string $device 'desktop', or 'tablet'/'mobile' for the per-device overrides.
          */
-        return array_filter( (array) apply_filters( 'ce_astra_tokens', $t ), 'strlen' );
+        return array_filter( (array) apply_filters( 'ce_astra_tokens', $t, 'desktop' ), 'strlen' );
     }
 
     public static function bridge_css(): string {
@@ -221,7 +259,7 @@ class CE_Astra_Compat {
     font-weight: var(--ce-heading-font-weight);
     color: var(--ce-heading-color);
 }
-.ce-event-hero .ce-event-title { font-size: var(--ce-h1-size); color: #fff !important; }
+.ce-event-hero .ce-event-title { font-size: var(--ce-h1-size); font-weight: var(--ce-heading-font-weight); color: #fff !important; }
 .ce-archive-title              { font-size: var(--ce-h1-size); }
 .ce-subscribe-title            { font-size: var(--ce-h3-size); }
 .ce-overview-list-title        { font-size: var(--ce-h4-size); }
@@ -242,7 +280,9 @@ class CE_Astra_Compat {
 }
 .ce-btn:not(.ce-btn-sm) {
     font-size: var(--ce-btn-font-size);
-    padding: var(--ce-btn-padding-v) var(--ce-btn-padding-h);
+    line-height: 1;
+    /* Same outer height as Astra's borderless buttons despite the 1.5px border. */
+    padding: calc(var(--ce-btn-padding-v) - 1.5px) calc(var(--ce-btn-padding-h) - 1.5px);
 }
 .ce-btn-primary {
     background: var(--ce-btn-bg);
@@ -339,7 +379,7 @@ body.single-club_event.ast-header-below-grid-enabled #content { position: relati
 .ce-breadcrumb-wrap .astra-breadcrumbs { padding: 0; background: none; }
 CSS;
 
-        return str_replace( '%OVERRIDES%', $overrides, $css );
+        return str_replace( '%OVERRIDES%', $overrides, $css ) . self::responsive_css();
     }
 
     // ─── Body Classes ─────────────────────────────────────────────────────
