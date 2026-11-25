@@ -193,10 +193,12 @@
 .ce-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 8px 18px;
+  min-height: 44px;
+  padding: 10px 20px;
   border-radius: var(--ce-radius-sm);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
@@ -515,10 +517,10 @@
   color: #fff;
   border: 1px solid rgba(255,255,255,.3);
 }
-.ce-event-title {
+.ce-event-hero .ce-event-title {
   color: #fff !important;
   font-size: 2rem;
-  font-weight: 800;
+  font-weight: 700;
   margin: 0 0 20px;
   line-height: 1.2;
 }
@@ -1326,7 +1328,7 @@ a.ce-btn, .ce-hub-subscribe, .ce-ics-link, .ce-view-btn, .ce-tile-card-cta,
   .ce-event-body-wrap { grid-template-columns: 1fr; }
   .ce-event-hero { min-height: 180px; }
   .ce-event-hero-content { padding: 28px 20px 20px; }
-  .ce-event-title { font-size: 1.5rem; }
+  .ce-event-hero .ce-event-title { font-size: 1.5rem; }
   .ce-cal-event-title { display: none; }
   .ce-cal-day { min-height: 56px; }
   .ce-archive-header { flex-direction: column; align-items: flex-start; }
@@ -1377,9 +1379,9 @@ a.ce-btn, .ce-hub-subscribe, .ce-ics-link, .ce-view-btn, .ce-tile-card-cta,
   /* Action row: one "Details" button plus square icon buttons for
      calendar and share (labels stay available to screen readers). */
   .ce-event-actions { flex-wrap: nowrap; }
-  .ce-event-actions .ce-btn { min-height: 44px; justify-content: center; }
+  .ce-event-actions .ce-btn { min-height: 48px; justify-content: center; }
   .ce-event-actions .ce-btn-primary { flex: 1 1 auto; }
-  .ce-event-actions .ce-btn-icon { flex: 0 0 44px; width: 44px; padding: 0 !important; }
+  .ce-event-actions .ce-btn-icon { flex: 0 0 48px; width: 48px; padding: 0 !important; }
   .ce-event-actions .ce-btn-icon svg { width: 18px; height: 18px; }
   .ce-btn-icon .ce-btn-label {
     position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;

@@ -3,6 +3,26 @@
 All notable changes to **Club Events Manager** are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.7.1] — 2026-11-25
+
+### Fixed
+- **Oversized event titles in lists.** The single-event hero rule
+  (`.ce-event-title { font-size: 2rem; font-weight: 800; color: #fff }`)
+  was not scoped, so timeline, list and card titles rendered at hero size
+  and weight. It now only applies inside `.ce-event-hero`.
+
+### Changed
+- **Astra bridge is responsive.** Heading sizes (`font-size-h1`–`h4`),
+  button font size and button padding are read for tablet and mobile as
+  well and emitted at Astra's breakpoints. Previously only desktop values
+  were used, so e.g. the event title stayed 56 px on phones.
+  `ce_astra_tokens` receives the device as a second argument.
+- Plugin buttons subtract their 1.5 px border from Astra's padding, so they
+  have the same outer height as Astra's buttons; the event title uses
+  Astra's heading weight.
+- Default buttons (without Astra) are at least 44 px high and use 15 px
+  text; event action buttons on phones are 48 px.
+
 ## [1.7.0] — 2026-11-24
 
 Fixes found by checking a live club site (which still ran 1.2.1).

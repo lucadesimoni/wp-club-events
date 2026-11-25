@@ -4,7 +4,7 @@ Tags: events, calendar, google calendar, ics, gutenberg
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.7.0
+Stable tag: 1.7.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -90,6 +90,14 @@ only the event's title and URL.
 * `[club_events_my_events]` — user event dashboard.
 
 == Changelog ==
+
+= 1.7.1 =
+* Fix: event titles in timelines and lists were shown huge and extra bold;
+  the event page title style no longer leaks into them.
+* Astra: heading sizes and button size/padding follow Astra's tablet and
+  mobile settings too, not only desktop. Plugin buttons have the same outer
+  height as Astra buttons.
+* Buttons are at least 44 px high (touch target), 48 px in event actions.
 
 = 1.7.0 =
 * Fix: events disappeared from "upcoming" lists on their own day and while
@@ -219,6 +227,9 @@ only the event's title and URL.
   embeds, ICS export, and email subscriptions.
 
 == Upgrade Notice ==
+
+= 1.7.1 =
+Event titles in lists are no longer oversized, and buttons and headings follow Astra's mobile and tablet sizes.
 
 = 1.7.0 =
 Today's and running events stay listed, ICS all-day events end on the right day, lists work on SQLite, and the plugin fits cleanly into Astra and Spectra.
