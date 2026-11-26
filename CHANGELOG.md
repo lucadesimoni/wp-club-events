@@ -3,6 +3,49 @@
 All notable changes to **Club Events Manager** are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.9.0] — 2026-11-26
+
+### Added
+- **Branded e-mails** (`CE_Mailer`). One template for the subscription
+  confirmation, new-event notices and admin notifications: site logo (or
+  name), brand and heading colours from Astra's global palette (hex, as
+  e-mail clients ignore CSS variables), a bulletproof button, a details
+  table and a footer with the reason for the e-mail. Messages are multipart
+  (HTML with inline styles plus a plain-text `AltBody`). Filters:
+  `ce_email_args`, `ce_email_colors`, `ce_email_logo_url`, `ce_email_html`.
+- **Calendar in event notices.** An `.ics` file is attached
+  (`CE_ICS_Export::event_ics()`), plus links to the event's `.ics` and to
+  Google Calendar (`CE_ICS_Export::google_calendar_url()`). Date range,
+  location (linked to the map URL) and categories/types are listed.
+- **List-Unsubscribe** (RFC 2369) and **List-Unsubscribe-Post** one-click
+  (RFC 8058) headers.
+- Subscribe form/block attributes `show_heading`, `title`, `description`.
+- `tests/mail-wp.php` (19 checks, `wp eval-file` on a real site; mails are
+  captured, not sent). German strings for all new texts.
+
+### Changed
+- Unsubscribe links show a confirmation button (GET) and unsubscribe on
+  POST, so link scanners and mail prefetchers cannot unsubscribe anyone.
+  Confirm/unsubscribe redirect to the events page, where the form shows the
+  result.
+- Event notices respect the categories a subscriber chose, and are not sent
+  for events that are already over.
+- Subscription form: name and e-mail side by side on wide screens, 48 px
+  fields with 16 px text, category chips (44 px, selected state via
+  `:has()`) in a `<fieldset>` with legend and hint, unsubscribe hint below
+  the button, live region for messages. Borders, radius and fonts of the
+  fields come from the theme (zero-specificity `:where()` defaults).
+
+### Fixed
+- The From name/address from the settings were written into the header
+  unchecked; line breaks, quotes and angle brackets are stripped and the
+  address is validated.
+- **Indented timeline.** `.ce-timeline-wrap` had `max-width: 780px`.
+  Constrained group layouts (block themes, Astra with core groups) centre
+  narrower children with `margin-inline: auto !important`, so the timeline
+  sat indented against the page heading. It now uses `max-width: 100%`;
+  the centred variant (`--center`) keeps its 960 px column.
+
 ## [1.8.0] — 2026-11-25
 
 ### Added

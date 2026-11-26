@@ -3,7 +3,7 @@
  * Plugin Name:       WP Club Events Simple
  * Plugin URI:        https://github.com/lucadesimoni/wp-club-events
  * Description:       Event calendar for clubs and associations: Google Calendar sync, timeline, calendar and tile views, ICS export, sharing and email subscriptions.
- * Version:           1.8.0
+ * Version:           1.9.0
  * Requires at least: 6.5
  * Tested up to:      7.1
  * Requires PHP:      7.4
@@ -24,7 +24,7 @@ defined( 'ABSPATH' ) || exit;
 $ce_load_problem = '';
 $ce_classes      = [
     'CE_Plugin', 'CE_Safe', 'CE_Style', 'CE_CPT', 'CE_Google_Calendar', 'CE_ICS_Export',
-    'CE_Subscription', 'CE_Shortcodes', 'CE_REST_API', 'CE_Data_API', 'CE_Frontend_Submit', 'CE_Astra_Compat',
+    'CE_Subscription', 'CE_Mailer', 'CE_Shortcodes', 'CE_REST_API', 'CE_Data_API', 'CE_Frontend_Submit', 'CE_Astra_Compat',
     'CE_Patterns', 'CE_Admin', 'CE_Elementor', 'CE_Elementor_Hub', 'CE_Elementor_Tiles',
     'CE_Elementor_Timeline', 'CE_Elementor_Overview', 'CE_Elementor_Cards', 'CE_Elementor_List',
     'CE_Elementor_Yearly', 'CE_Elementor_Share', 'CE_Elementor_Subscribe', 'CE_Elementor_Submit',
@@ -71,7 +71,7 @@ if ( '' !== $ce_load_problem ) {
     return;
 }
 
-define( 'CE_VERSION',     '1.8.0' );
+define( 'CE_VERSION',     '1.9.0' );
 define( 'CE_PLUGIN_FILE', __FILE__ );
 define( 'CE_PLUGIN_DIR',  plugin_dir_path( __FILE__ ) );
 define( 'CE_PLUGIN_URL',  plugin_dir_url( __FILE__ ) );

@@ -3,7 +3,11 @@ defined( 'ABSPATH' ) || exit;
 
 class CE_ICS_Export {
 
+    /** The hooked instance, used by the static helpers below. */
+    private static $instance;
+
     public function __construct() {
+        self::$instance = $this;
         add_action( 'init', CE_Safe::action( 'init', [ $this, 'register_rewrite_rules' ] ) );
         // Before redirect_canonical (priority 10), which would add a trailing
         // slash to /events/123.ics and answer with a 301 first.
@@ -168,5 +172,47 @@ class CE_ICS_Export {
 
     public static function get_single_url( $post_id ) {
         return home_url( '/events/' . $post_id . '.ics' );
+    }
+
+    /**
+     * iCalendar text for one event (e.g. as an e-mail attachment), or ''.
+     */
+    public static function event_ics( $post_id ): string {
+        $instance = self::$instance ?: ( new ReflectionClass( __CLASS__ ) )->newInstanceWithoutConstructor();
+        $event    = CE_CPT::format_event( (int) $post_id );
+        return empty( $event['start'] ) ? '' : $instance->build_ics( [ $event ], $event['title'] );
+    }
+
+    /**
+     * "Add to Google Calendar" link for a formatted event, or ''.
+     *
+     * Timed events use site-local times with the site's timezone (ctz); a
+     * missing end means one hour. All-day end dates are exclusive, as in
+     * the ICS export.
+     */
+    public static function google_calendar_url( array $event ): string {
+        if ( empty( $event['start'] ) ) {
+            return '';
+        }
+        $start = strtotime( $event['start'] );
+        $end   = ! empty( $event['end'] ) ? strtotime( $event['end'] ) : 0;
+        if ( ! empty( $event['allDay'] ) ) {
+            $last  = $end ? $end : $start;
+            $dates = gmdate( 'Ymd', $start ) . '/' . gmdate( 'Ymd', strtotime( gmdate( 'Y-m-d', $last ) ) + DAY_IN_SECONDS );
+        } else {
+            $dates = gmdate( 'Ymd\\THis', $start ) . '/' . gmdate( 'Ymd\\THis', $end > $start ? $end : $start + HOUR_IN_SECONDS );
+        }
+        $args = [
+            'action'   => 'TEMPLATE',
+            'text'     => $event['title'],
+            'dates'    => $dates,
+            'details'  => trim( ( $event['excerpt'] ?? '' ) . "\n\n" . ( $event['url'] ?? '' ) ),
+            'location' => $event['location'] ?? '',
+        ];
+        $tz = (string) get_option( 'timezone_string', '' );
+        if ( $tz && empty( $event['allDay'] ) ) {
+            $args['ctz'] = $tz;
+        }
+        return 'https://calendar.google.com/calendar/render?' . http_build_query( $args, '', '&', PHP_QUERY_RFC3986 );
     }
 }

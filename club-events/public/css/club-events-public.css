@@ -44,7 +44,10 @@
 }
 
 /* ─── Timeline ───────────────────────────────────────────────────────────── */
-.ce-timeline-wrap { max-width: 780px; }
+/* The timeline uses the width of its container, so it lines up with the
+   page heading. Block themes centre narrower children of constrained groups
+   (margin-inline: auto !important), which would indent a fixed-width list. */
+.ce-timeline-wrap { max-width: 100%; }
 
 .ce-month-group { margin-bottom: 40px; }
 
@@ -423,60 +426,116 @@
 .ce-event-list-loc { color: var(--ce-text-muted); font-size: 12px; }
 
 /* ─── Subscribe Form ─────────────────────────────────────────────────────── */
+/* Layout only: field borders, radius, fonts and the button come from the
+   theme (Astra's form and button settings). The :where() defaults below have
+   zero specificity, so any theme form style wins over them. */
 .ce-subscribe-wrap {
+  max-width: 720px;
   background: var(--ce-white);
   border: 1px solid var(--ce-border);
   border-radius: var(--ce-radius);
-  padding: 28px 24px;
+  padding: clamp(20px, 4vw, 32px);
   box-shadow: var(--ce-shadow);
+  box-sizing: border-box;
 }
 .ce-subscribe-title {
   margin: 0 0 6px;
-  font-size: 18px;
+  font-size: 1.25em;
   font-weight: 700;
   color: var(--ce-text);
 }
 .ce-subscribe-desc {
   margin: 0 0 20px;
-  font-size: 14px;
   color: var(--ce-text-muted);
   line-height: 1.6;
 }
-.ce-subscribe-form .ce-form-row { margin-bottom: 14px; }
-.ce-subscribe-form label {
+.ce-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0 16px;
+}
+.ce-subscribe-form .ce-form-row { margin: 0 0 18px; }
+.ce-subscribe-form label,
+.ce-subscribe-form legend {
   display: block;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
-  margin-bottom: 5px;
+  margin: 0 0 6px;
+  padding: 0;
   color: var(--ce-text);
 }
 .ce-subscribe-form input[type="text"],
 .ce-subscribe-form input[type="email"] {
   width: 100%;
-  padding: 10px 14px;
-  border: 1.5px solid var(--ce-border);
-  border-radius: var(--ce-radius-sm);
-  font-size: 14px;
-  color: var(--ce-text);
-  background: var(--ce-white);
-  transition: border-color var(--ce-transition);
+  min-height: 48px;
+  font-size: 16px; /* 16px stops iOS from zooming into the field. */
   box-sizing: border-box;
 }
-.ce-subscribe-form input:focus {
-  outline: none;
-  border-color: var(--ce-primary);
-  box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+:where(.ce-subscribe-form) :where(input[type="text"], input[type="email"]) {
+  padding: 10px 14px;
+  border: 1px solid var(--ce-border);
+  border-radius: var(--ce-radius-sm);
+  color: var(--ce-text);
+  background: var(--ce-white);
+}
+.ce-subscribe-form input:focus-visible {
+  outline: 2px solid var(--ce-primary);
+  outline-offset: 1px;
+}
+.ce-cat-fieldset { border: 0; margin: 0 0 18px; padding: 0; min-width: 0; }
+.ce-form-hint {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ce-text-muted);
 }
 .ce-cat-checkboxes { display: flex; flex-wrap: wrap; gap: 8px; }
 .ce-checkbox-label {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 400;
   color: var(--ce-text);
   cursor: pointer;
-  font-weight: 400 !important;
 }
+/* Category chips: the whole chip is the tap target (44px). */
+.ce-subscribe-form .ce-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 16px 0 12px;
+  border: 1px solid var(--ce-border);
+  border-radius: 999px;
+  background: var(--ce-white);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--ce-text);
+  cursor: pointer;
+  transition: border-color var(--ce-transition), background var(--ce-transition);
+}
+.ce-subscribe-form .ce-checkbox-label:hover { border-color: var(--ce-primary); }
+.ce-subscribe-form .ce-checkbox-label input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--ce-primary);
+  flex: none;
+}
+.ce-subscribe-form .ce-checkbox-label:has(input:checked) {
+  border-color: var(--ce-primary);
+  background: var(--ce-primary-lt);
+  color: var(--ce-primary-dk);
+}
+.ce-subscribe-form .ce-checkbox-label:has(input:focus-visible) {
+  outline: 2px solid var(--ce-primary);
+  outline-offset: 2px;
+}
+.ce-form-actions { margin-bottom: 0 !important; }
+.ce-form-actions .ce-form-hint { margin: 10px 0 0; text-align: center; }
 .ce-subscribe-form .required, .ce-submit-form .required { color: #ef4444; }
 .ce-form-msg {
   padding: 10px 14px;
@@ -486,7 +545,7 @@
 }
 .ce-form-msg--success { background: #f0fdf4; color: #16a34a; border: 1px solid #86efac; }
 .ce-form-msg--error   { background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
-.ce-subscribe-success { background: #f0fdf4; border: 1px solid #86efac; border-radius: var(--ce-radius); padding: 16px 20px; color: #16a34a; }
+.ce-subscribe-success { max-width: 720px; box-sizing: border-box; background: #f0fdf4; border: 1px solid #86efac; border-radius: var(--ce-radius); padding: 16px 20px; color: #15803d; }
 
 /* ─── Single Event ───────────────────────────────────────────────────────── */
 .ce-single-event { }
