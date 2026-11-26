@@ -4,7 +4,7 @@ Tags: events, calendar, google calendar, ics, gutenberg
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.8.0
+Stable tag: 1.8.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -101,6 +101,11 @@ only the event's title and URL.
 * `[club_events_my_events]` — user event dashboard.
 
 == Changelog ==
+
+= 1.8.1 =
+* Fix: the timeline was centred and indented inside block-theme groups
+  (fixed 780 px width); it now uses the width of its container and lines up
+  with the page heading.
 
 = 1.8.0 =
 * New: event fields are available in the WordPress REST API (`meta` of
@@ -247,6 +252,9 @@ only the event's title and URL.
   embeds, ICS export, and email subscriptions.
 
 == Upgrade Notice ==
+
+= 1.8.1 =
+The timeline lines up with the page content instead of being indented.
 
 = 1.8.0 =
 Event data can now be read and changed through the REST API and WordPress abilities (apps, MCP, AI tools).

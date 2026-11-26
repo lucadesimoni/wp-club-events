@@ -3,6 +3,15 @@
 All notable changes to **Club Events Manager** are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.8.1] — 2026-11-26
+
+### Fixed
+- **Indented timeline.** `.ce-timeline-wrap` had `max-width: 780px`.
+  Constrained group layouts (block themes, Astra with core groups) centre
+  narrower children with `margin-inline: auto !important`, so the timeline
+  sat indented against the page heading. It now uses `max-width: 100%`;
+  the centred variant (`--center`) keeps its 960 px column.
+
 ## [1.8.0] — 2026-11-25
 
 ### Added

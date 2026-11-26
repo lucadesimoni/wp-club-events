@@ -44,7 +44,10 @@
 }
 
 /* ─── Timeline ───────────────────────────────────────────────────────────── */
-.ce-timeline-wrap { max-width: 780px; }
+/* The timeline uses the width of its container, so it lines up with the
+   page heading. Block themes centre narrower children of constrained groups
+   (margin-inline: auto !important), which would indent a fixed-width list. */
+.ce-timeline-wrap { max-width: 100%; }
 
 .ce-month-group { margin-bottom: 40px; }
 
