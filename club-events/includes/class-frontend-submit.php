@@ -328,14 +328,16 @@ class CE_Frontend_Submit {
 
         /* translators: 1: site name, 2: event title. */
         $subject = sprintf( __( '[%1$s] New event submission: %2$s', 'club-events' ), get_bloginfo( 'name' ), $title );
-        /* translators: %s: name of the member who submitted the event. */
-        $message = sprintf( __( '%s submitted a new event for review.', 'club-events' ), $user->display_name ) . "\n\n"
-            /* translators: %s: event title. */
-            . sprintf( __( 'Event: %s', 'club-events' ), $title ) . "\n"
-            /* translators: %s: admin URL to review the event. */
-            . sprintf( __( 'Review: %s', 'club-events' ), $review_url ) . "\n";
 
-        wp_mail( $admin_email, $subject, $message );
+        CE_Mailer::send( $admin_email, $subject, [
+            'heading'    => __( 'New event submission', 'club-events' ),
+            /* translators: %s: name of the member who submitted the event. */
+            'paragraphs' => [ sprintf( __( '%s submitted a new event for review.', 'club-events' ), $user->display_name ) ],
+            'details'    => [ __( 'Event', 'club-events' ) => $title ],
+            'button'     => [ 'label' => __( 'Review event', 'club-events' ), 'url' => $review_url ],
+            'footer'     => __( 'Administrator notification from WP Club Events.', 'club-events' ),
+            'use_from'   => false,
+        ] );
     }
 
     /* ─── Role check helper ────────────────────────────────────────────── */

@@ -382,3 +382,105 @@ msgstr "Überschriftenebene der Monate"
 
 msgid "Pick the level below the heading above the timeline (event titles use the next level)."
 msgstr "Eine Ebene unter der Überschrift über dem Zeitstrahl wählen (Anlass-Titel nutzen die nächste Ebene)."
+
+msgid "If the button does not work, copy this link into your browser:"
+msgstr "Falls der Button nicht funktioniert, kopiere diesen Link in deinen Browser:"
+
+msgid "Unsubscribe"
+msgstr "Abmelden"
+
+msgid "One click to confirm and you will receive new events by e-mail."
+msgstr "Ein Klick zur Bestätigung – dann erhältst du neue Anlässe per E-Mail."
+
+msgid "Confirm your subscription"
+msgstr "Bestätige dein Abo"
+
+msgid "Please confirm that you want to receive new events from %s by e-mail."
+msgstr "Bitte bestätige, dass du neue Anlässe von %s per E-Mail erhalten möchtest."
+
+msgid "Confirm subscription"
+msgstr "Abo bestätigen"
+
+msgid "You receive this e-mail because this address was entered in the event subscription form."
+msgstr "Du erhältst diese E-Mail, weil diese Adresse im Anmeldeformular für Anlässe eingetragen wurde."
+
+msgid "Unsubscribe from event e-mails?"
+msgstr "Von den Anlass-E-Mails abmelden?"
+
+msgid "You will no longer receive e-mails about new events."
+msgstr "Du erhältst dann keine E-Mails mehr zu neuen Anlässen."
+
+msgid "Add to calendar (Apple, Outlook)"
+msgstr "In Kalender eintragen (Apple, Outlook)"
+
+msgid "Google Calendar"
+msgstr "Google Kalender"
+
+msgid "More information"
+msgstr "Weitere Informationen"
+
+msgid "New event: %s"
+msgstr "Neuer Anlass: %s"
+
+msgid "a new event has been published."
+msgstr "ein neuer Anlass wurde veröffentlicht."
+
+msgid "View event"
+msgstr "Anlass ansehen"
+
+msgid "The attached calendar file (.ics) adds the event to your calendar."
+msgstr "Mit der angehängten Kalenderdatei (.ics) trägst du den Anlass in deinen Kalender ein."
+
+msgid "You receive this e-mail because you subscribed to new events."
+msgstr "Du erhältst diese E-Mail, weil du neue Anlässe abonniert hast."
+
+msgid "[%1$s] New event submission: %2$s"
+msgstr "[%1$s] Neuer Anlass eingereicht: %2$s"
+
+msgid "New event submission"
+msgstr "Neuer Anlass eingereicht"
+
+msgid "%s submitted a new event for review."
+msgstr "%s hat einen neuen Anlass zur Prüfung eingereicht."
+
+msgid "Review event"
+msgstr "Anlass prüfen"
+
+msgid "Administrator notification from WP Club Events."
+msgstr "Admin-Benachrichtigung von WP Club Events."
+
+msgid "Insufficient permissions."
+msgstr "Keine Berechtigung."
+
+msgid "No calendars configured."
+msgstr "Keine Kalender eingerichtet."
+
+msgid "No API key configured."
+msgstr "Kein API-Schlüssel eingerichtet."
+
+msgid "[%1$s] Google Calendar sync failed: %2$s"
+msgstr "[%1$s] Google-Kalender-Sync fehlgeschlagen: %2$s"
+
+msgid "Google Calendar sync failed"
+msgstr "Google-Kalender-Sync fehlgeschlagen"
+
+msgid "The Google Calendar sync for \"%s\" has failed after 3 attempts."
+msgstr "Der Google-Kalender-Sync für «%s» ist nach 3 Versuchen fehlgeschlagen."
+
+msgid "Error"
+msgstr "Fehler"
+
+msgid "Check settings"
+msgstr "Einstellungen prüfen"
+
+msgid "(No title)"
+msgstr "(Ohne Titel)"
+
+msgid "Only certain categories (optional)"
+msgstr "Nur bestimmte Kategorien (optional)"
+
+msgid "Without a selection you receive all events."
+msgstr "Ohne Auswahl erhältst du alle Anlässe."
+
+msgid "You can unsubscribe at any time with the link in every e-mail."
+msgstr "Abmelden kannst du dich jederzeit über den Link in jeder E-Mail."

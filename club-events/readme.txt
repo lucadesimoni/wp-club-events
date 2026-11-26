@@ -4,7 +4,7 @@ Tags: events, calendar, google calendar, ics, gutenberg
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.8.1
+Stable tag: 1.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -102,10 +102,24 @@ only the event's title and URL.
 
 == Changelog ==
 
-= 1.8.1 =
+= 1.9.0 =
+* New: branded e-mails (site logo, theme colour from Astra's palette,
+  button, details table, footer) with a plain-text alternative, for
+  subscription confirmations, new-event notices and admin notifications.
+* New: event notices attach an .ics file and link to Apple/Outlook (.ics)
+  and Google Calendar; date, location (with map link) and category are
+  shown; subscribers who chose categories only get those events; no notices
+  for events that are already over.
+* New: List-Unsubscribe and one-click unsubscribe headers; the unsubscribe
+  link asks for confirmation, so link scanners cannot unsubscribe anyone.
+* Subscription form: category chips with 44 px tap targets, fieldset and
+  hint ("without a selection you receive all events"), name and e-mail side
+  by side on wide screens, fields and button follow the theme's form and
+  button styles; optional title/text (show_heading, title, description).
+* Fix: the sender name/address from the settings can no longer break the
+  e-mail headers.
 * Fix: the timeline was centred and indented inside block-theme groups
-  (fixed 780 px width); it now uses the width of its container and lines up
-  with the page heading.
+  (fixed 780 px width); it now uses the width of its container.
 
 = 1.8.0 =
 * New: event fields are available in the WordPress REST API (`meta` of
@@ -253,8 +267,8 @@ only the event's title and URL.
 
 == Upgrade Notice ==
 
-= 1.8.1 =
-The timeline lines up with the page content instead of being indented.
+= 1.9.0 =
+Branded e-mails with calendar file and links, a cleaner subscription form, and the timeline lines up with the page content.
 
 = 1.8.0 =
 Event data can now be read and changed through the REST API and WordPress abilities (apps, MCP, AI tools).

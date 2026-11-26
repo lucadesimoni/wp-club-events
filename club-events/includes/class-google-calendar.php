@@ -95,16 +95,18 @@ class CE_Google_Calendar {
     }
 
     private function notify_admin_sync_failure( $calendar_name, $error_message ) {
-        $admin_email = get_option( 'admin_email' );
         /* translators: 1: site name, 2: calendar name. */
-        $subject     = sprintf( __( '[%1$s] Google Calendar sync failed: %2$s', 'club-events' ), get_bloginfo( 'name' ), $calendar_name );
-        /* translators: %s: calendar name. */
-        $message     = sprintf( __( 'The Google Calendar sync for "%s" has failed after 3 attempts.', 'club-events' ), $calendar_name ) . "\n\n"
-            /* translators: %s: error message from Google. */
-            . sprintf( __( 'Error: %s', 'club-events' ), $error_message ) . "\n\n"
-            /* translators: %s: URL of the calendar settings screen. */
-            . sprintf( __( 'Check settings: %s', 'club-events' ), admin_url( 'admin.php?page=ce-calendars' ) ) . "\n";
-        wp_mail( $admin_email, $subject, $message );
+        $subject = sprintf( __( '[%1$s] Google Calendar sync failed: %2$s', 'club-events' ), get_bloginfo( 'name' ), $calendar_name );
+
+        CE_Mailer::send( get_option( 'admin_email' ), $subject, [
+            'heading'    => __( 'Google Calendar sync failed', 'club-events' ),
+            /* translators: %s: calendar name. */
+            'paragraphs' => [ sprintf( __( 'The Google Calendar sync for "%s" has failed after 3 attempts.', 'club-events' ), $calendar_name ) ],
+            'details'    => [ __( 'Error', 'club-events' ) => $error_message ],
+            'button'     => [ 'label' => __( 'Check settings', 'club-events' ), 'url' => admin_url( 'admin.php?page=ce-calendars' ) ],
+            'footer'     => __( 'Administrator notification from WP Club Events.', 'club-events' ),
+            'use_from'   => false,
+        ] );
     }
 
     private function sync_calendar( $cal, $api_key ) {

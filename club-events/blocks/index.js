@@ -496,8 +496,34 @@
     description: __('Email subscription form for event notifications.', 'club-events'),
     icon:        'email-alt',
     apiVersion:  3,
-    attributes: withStyle({}),
-    edit: simpleEdit('club-events/subscribe', 'email-alt', __('Events Subscribe Form', 'club-events')),
+    attributes: withStyle({
+      show_heading: { type: 'boolean', default: true },
+      title:        { type: 'string',  default: '' },
+      description:  { type: 'string',  default: '' },
+    }),
+    edit: function (props) {
+      var attrs = props.attributes;
+      return el('div', useBlockProps(),
+        el(Inspector, { props: props },
+          el(PanelBody, { title: __('Heading', 'club-events'), initialOpen: true },
+            toggle(props, 'show_heading', __('Show title and text', 'club-events')),
+            attrs.show_heading && el(TextControl, {
+              label: __('Title', 'club-events'),
+              help: __('Empty uses the default title.', 'club-events'),
+              value: attrs.title,
+              onChange: function (v) { props.setAttributes({ title: v }); },
+            }),
+            attrs.show_heading && el(TextControl, {
+              label: __('Text', 'club-events'),
+              help: __('Empty uses the default text.', 'club-events'),
+              value: attrs.description,
+              onChange: function (v) { props.setAttributes({ description: v }); },
+            })
+          )
+        ),
+        preview('club-events/subscribe', attrs, placeholder('email-alt', __('Events Subscribe Form', 'club-events')))
+      );
+    },
     save: function () { return null; },
   });
 

@@ -24,6 +24,7 @@ class CE_Plugin {
         require_once CE_PLUGIN_DIR . 'includes/class-cpt.php';
         require_once CE_PLUGIN_DIR . 'includes/class-google-calendar.php';
         require_once CE_PLUGIN_DIR . 'includes/class-ics-export.php';
+        require_once CE_PLUGIN_DIR . 'includes/class-mailer.php';
         require_once CE_PLUGIN_DIR . 'includes/class-subscription.php';
         require_once CE_PLUGIN_DIR . 'includes/class-shortcodes.php';
         require_once CE_PLUGIN_DIR . 'includes/class-rest-api.php';

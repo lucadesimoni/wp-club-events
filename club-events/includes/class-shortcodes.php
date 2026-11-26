@@ -72,7 +72,11 @@ class CE_Shortcodes {
 
         register_block_type( 'club-events/subscribe', $this->block_args( [
             'render_callback' => [ $this, 'subscribe_form' ],
-            'attributes'      => [],
+            'attributes'      => [
+                'show_heading' => [ 'type' => 'boolean', 'default' => true ],
+                'title'        => [ 'type' => 'string', 'default' => '' ],
+                'description'  => [ 'type' => 'string', 'default' => '' ],
+            ],
         ] ) );
 
         register_block_type( 'club-events/yearly', $this->block_args( [
@@ -1340,16 +1344,33 @@ class CE_Shortcodes {
         return ob_get_clean();
     }
 
+    /**
+     * [club_events_subscribe] — e-mail subscription form.
+     *
+     * Attributes: show_heading (default true) hides the form's own title and
+     * text when the page already has a heading; title / description replace
+     * the default texts. Fields and the button use the theme's form and
+     * button styles.
+     */
     public function subscribe_form( $atts = [] ) {
         if ( get_option( 'ce_subscription_enabled', '1' ) !== '1' ) {
             return '';
         }
 
+        $atts = shortcode_atts( [
+            'show_heading' => true,
+            'title'        => '',
+            'description'  => '',
+        ], (array) $atts, 'club_events_subscribe' );
+        $show_heading = filter_var( $atts['show_heading'], FILTER_VALIDATE_BOOLEAN );
+        $title        = '' !== trim( (string) $atts['title'] ) ? $atts['title'] : __( 'Stay Updated', 'club-events' );
+        $description  = '' !== trim( (string) $atts['description'] ) ? $atts['description'] : __( 'Subscribe to receive email notifications when new events are posted.', 'club-events' );
+
         if ( isset( $_GET['ce_subscribed'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view parameter, nothing is changed.
-            return '<div class="ce-subscribe-success"><p>' . esc_html__( 'You are now subscribed to event updates!', 'club-events' ) . '</p></div>';
+            return '<div class="ce-subscribe-success" role="status"><p>' . esc_html__( 'You are now subscribed to event updates!', 'club-events' ) . '</p></div>';
         }
         if ( isset( $_GET['ce_unsubscribed'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view parameter, nothing is changed.
-            return '<div class="ce-subscribe-success"><p>' . esc_html__( 'You have been unsubscribed.', 'club-events' ) . '</p></div>';
+            return '<div class="ce-subscribe-success" role="status"><p>' . esc_html__( 'You have been unsubscribed.', 'club-events' ) . '</p></div>';
         }
 
         $categories = get_terms( [ 'taxonomy' => 'event_category', 'hide_empty' => false ] );
@@ -1359,40 +1380,46 @@ class CE_Shortcodes {
         <div class="ce-subscribe-wrap">
             <form class="ce-subscribe-form" id="ce-subscribe-form">
                 <?php wp_nonce_field( 'ce_subscribe_nonce', 'ce_subscribe_nonce_field' ); ?>
-                <h3 class="ce-subscribe-title"><?php esc_html_e( 'Stay Updated', 'club-events' ); ?></h3>
-                <p class="ce-subscribe-desc"><?php esc_html_e( 'Subscribe to receive email notifications when new events are posted.', 'club-events' ); ?></p>
+                <?php if ( $show_heading ) : ?>
+                <h3 class="ce-subscribe-title"><?php echo esc_html( $title ); ?></h3>
+                <p class="ce-subscribe-desc"><?php echo esc_html( $description ); ?></p>
+                <?php endif; ?>
 
-                <div class="ce-form-row">
-                    <label for="ce-sub-name"><?php esc_html_e( 'Your Name', 'club-events' ); ?></label>
-                    <input type="text" id="ce-sub-name" name="name" placeholder="<?php esc_attr_e( 'Optional', 'club-events' ); ?>" autocomplete="name">
-                </div>
+                <div class="ce-form-grid">
+                    <div class="ce-form-row">
+                        <label for="ce-sub-name"><?php esc_html_e( 'Your Name', 'club-events' ); ?></label>
+                        <input type="text" id="ce-sub-name" name="name" placeholder="<?php esc_attr_e( 'Optional', 'club-events' ); ?>" autocomplete="name">
+                    </div>
 
-                <div class="ce-form-row">
-                    <label for="ce-sub-email"><?php esc_html_e( 'Email Address', 'club-events' ); ?> <span class="required">*</span></label>
-                    <input type="email" id="ce-sub-email" name="email" required autocomplete="email" placeholder="<?php esc_attr_e( 'you@example.com', 'club-events' ); ?>">
+                    <div class="ce-form-row">
+                        <label for="ce-sub-email"><?php esc_html_e( 'Email Address', 'club-events' ); ?> <span class="required" aria-hidden="true">*</span></label>
+                        <input type="email" id="ce-sub-email" name="email" required aria-required="true" autocomplete="email" inputmode="email" placeholder="<?php esc_attr_e( 'you@example.com', 'club-events' ); ?>">
+                    </div>
                 </div>
 
                 <?php if ( ! is_wp_error( $categories ) && count( $categories ) > 1 ) : ?>
-                <div class="ce-form-row">
-                    <label><?php esc_html_e( 'Categories (optional)', 'club-events' ); ?></label>
-                    <div class="ce-cat-checkboxes">
+                <fieldset class="ce-form-row ce-cat-fieldset">
+                    <legend><?php esc_html_e( 'Only certain categories (optional)', 'club-events' ); ?></legend>
+                    <p class="ce-form-hint" id="ce-sub-cat-hint"><?php esc_html_e( 'Without a selection you receive all events.', 'club-events' ); ?></p>
+                    <div class="ce-cat-checkboxes" aria-describedby="ce-sub-cat-hint">
                         <?php foreach ( $categories as $cat ) : ?>
                         <label class="ce-checkbox-label">
                             <input type="checkbox" name="categories[]" value="<?php echo esc_attr( $cat->slug ); ?>">
-                            <?php echo esc_html( $cat->name ); ?>
+                            <span><?php echo esc_html( $cat->name ); ?></span>
                         </label>
                         <?php endforeach; ?>
                     </div>
-                </div>
+                </fieldset>
                 <?php endif; ?>
 
-                <div class="ce-form-row">
+                <div class="ce-form-row ce-form-actions">
                     <button type="submit" class="ce-btn ce-btn-primary ce-btn-full" id="ce-subscribe-btn">
                         <?php esc_html_e( 'Subscribe', 'club-events' ); ?>
                     </button>
+                    <p class="ce-form-hint"><?php esc_html_e( 'You can unsubscribe at any time with the link in every e-mail.', 'club-events' ); ?></p>
                 </div>
 
-                <div id="ce-subscribe-msg" class="ce-form-msg" hidden></div>
+                <div id="ce-subscribe-msg" class="ce-form-msg" role="status" aria-live="polite" hidden></div>
             </form>
         </div>
         <?php
